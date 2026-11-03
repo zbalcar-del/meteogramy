@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Meteogramy.cz – meteogramy ALADIN pro české hory</title>
 <meta name="description" content="Meteogramy ALADIN pro 109 horských stanic ČHMÚ: teplota, vítr a nárazy, srážky, sníh, tlak a oblačnost po hodinách na 3 dny. Klasický meteogram v podobě, na kterou jste zvyklí.">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
@@ -68,6 +68,9 @@
 html, body { margin: 0; background: var(--bg); color: var(--ink);
   font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 button, select { font: inherit; }
+button, a, input, select { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .app { display: grid; grid-template-columns: 264px minmax(0, 1fr); min-height: 100vh; }
 .side { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; background: #f3f4f7; border-right: 1px solid #e2e4e9;
   padding: 18px 0 12px; display: flex; flex-direction: column; }
@@ -207,7 +210,8 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
   padding: 12px 28px; border-top: 1px solid #ececf0; border-bottom: 1px solid #ececf0; font-size: 13px; color: #6e6e73; }
 .metabar b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
 .tgl { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; color: var(--ink); }
-.tgl input { display: none; }
+.tgl input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.tgl input:focus-visible + i { outline: 3px solid var(--accent); outline-offset: 3px; }
 .tgl i { width: 38px; height: 23px; border-radius: 12px; background: #e3e3e8; position: relative; transition: background .2s; flex: 0 0 auto; }
 .tgl i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 19px; height: 19px; border-radius: 50%; background: #fff;
   box-shadow: 0 1px 3px rgba(0,0,0,.2), 0 0 0 .5px rgba(0,0,0,.04); transition: left .2s; }
@@ -458,6 +462,7 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .skchart .row { display: flex; gap: 14px; align-items: center; margin: 18px 0 12px 50px; }
 .skchart .plot { height: 150px; margin: 0 52px 0 50px; border-radius: 10px; }
 .skrow { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; }
+.skstack { display: grid; gap: 14px; }
 h1, h2 { text-wrap: balance; }
 .about p, .hero .sub { text-wrap: pretty; }
 .foot { text-align: center; font-size: 12px; color: var(--muted); margin: 32px 0 0; }
@@ -483,24 +488,165 @@ h1, h2 { text-wrap: balance; }
   .metabar { padding: 8px 14px; }
   #chart { padding: 10px 2px 4px; }
 }
+/* Telefony a tablety sdílejí jediný seznam stanic s desktopem. */
+.mobile-dock, .menu-dialog, .chart-help { display: none; }
+.menu-dialog:not([open]) { display: none; }
+@media (max-width: 1100px) {
+  html { scroll-padding-top: calc(86px + env(safe-area-inset-top)); }
+  .app { display: block; }
+  .app > .side { display: none; }
+  .main { padding: 0 max(20px, env(safe-area-inset-right)) calc(108px + env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left)); }
+  .mbar { position: sticky; top: 0; z-index: 35; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    min-height: calc(76px + env(safe-area-inset-top)); margin: 0 -20px 12px; padding: calc(12px + env(safe-area-inset-top)) 20px 12px;
+    background: rgba(248,248,250,.94); border-bottom: 1px solid rgba(30,50,80,.07); }
+  .mbar .logo { padding: 0; gap: 10px; }
+  .mbar .bn { font-size: 16px; letter-spacing: -.025em; }
+  .mbar .tag { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--ink-2); }
+  .mbar .gl img { width: 36px; height: 36px; }
+  .mobile-search, .menu-close { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; gap: 7px;
+    min-width: 44px; min-height: 44px; border: 1px solid rgba(40,65,100,.08); border-radius: 16px; background: rgba(255,255,255,.86);
+    box-shadow: 0 2px 5px rgba(30,50,80,.025); color: var(--accent); padding: 0 13px; font: inherit; font-weight: 600; cursor: pointer; }
+  .mobile-search svg, .menu-close svg { width: 20px; height: 20px; }
+  .mobile-search:active, .menu-close:active { background: var(--accent-bg); }
+  .mobile-dock { position: fixed; z-index: 40; left: 50%; bottom: calc(12px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+    display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 5px; width: min(410px, calc(100% - 32px - env(safe-area-inset-left) - env(safe-area-inset-right)));
+    padding: 6px; border: 1px solid rgba(255,255,255,.94); border-radius: 26px; background: rgba(250,251,253,.96);
+    box-shadow: 0 0 0 1px rgba(30,50,80,.06), 0 8px 32px rgba(30,50,80,.13), inset 0 1px 0 #fff; }
+  .mobile-dock > a, .mobile-dock > button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    min-height: 54px; min-width: 0; padding: 6px 8px; border: 0; border-radius: 20px; background: transparent; color: #626d7c;
+    text-decoration: none; font: inherit; font-size: 11px; font-weight: 600; cursor: pointer; transition: background .18s, color .18s; }
+  .mobile-dock svg { width: 23px; height: 23px; stroke-width: 1.8; }
+  .mobile-dock [aria-current="page"], .mobile-dock [aria-expanded="true"], .mobile-dock .active { color: var(--accent); background: var(--accent-bg); }
+  .mobile-dock > :active { background: #e6edf8; }
+  .menu-dialog[open] { display: flex; flex-direction: column; position: fixed; inset: auto 20px auto auto;
+    top: calc(var(--menu-top, 0px) + 20px + env(safe-area-inset-top)); width: 430px; max-width: calc(100% - 40px);
+    height: calc(var(--menu-height, 100dvh) - 40px - env(safe-area-inset-top)); max-height: 900px; margin: 0; padding: 0;
+    color: var(--ink); border: 1px solid rgba(255,255,255,.94); border-radius: 28px; background: #f7f8fb;
+    box-shadow: 0 24px 80px rgba(15,30,55,.22); overflow: hidden; animation: menu-enter .22s var(--ease); }
+  .menu-dialog::backdrop { background: rgba(20,32,53,.30); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
+  @keyframes menu-enter { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .menu-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px 12px; flex: 0 0 auto; }
+  .menu-head h2 { margin: 0; font-size: 24px; letter-spacing: -.035em; line-height: 1.2; }
+  .menu-close { padding: 0; color: #677384; border-radius: 50%; background: #e9edf3; box-shadow: none; border: 0; }
+  .menu-tabs { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; margin: 0 20px 6px; flex: 0 0 auto;
+    border-radius: 14px; background: #e9edf3; }
+  .menu-tabs button { min-height: 40px; padding: 6px 12px; border: 0; border-radius: 11px; background: transparent; color: #6b7583;
+    font: inherit; font-weight: 600; cursor: pointer; }
+  .menu-tabs button[aria-pressed="true"] { background: #fff; color: var(--ink); box-shadow: 0 1px 4px rgba(20,40,70,.09); }
+  .menu-content { display: flex; flex: 1; min-height: 0; }
+  .menu-dialog .side { position: static; display: flex; width: 100%; height: auto; flex: 1; min-height: 0; padding: 0 0 max(16px, env(safe-area-inset-bottom)); border: 0; background: transparent; }
+  .menu-dialog .side > .logo { display: none; }
+  .menu-dialog .side > .search { margin: 10px 20px 12px; }
+  .menu-dialog .search input { height: 48px; font-size: 16px; padding-left: 40px; padding-right: 48px; border-radius: 14px; background: #e9edf3; }
+  .menu-dialog .search input::placeholder { color: #687486; }
+  .menu-dialog .search > svg { top: 17px; left: 15px; }
+  .menu-dialog .search kbd { display: none; }
+  .menu-dialog .search-clear { right: 2px; top: 2px; width: 44px; height: 44px; }
+  .menu-dialog .side > .picker { padding: 0 16px 12px; }
+  .menu-dialog .gh { min-height: 48px; padding: 8px 12px; font-size: 15px; border-radius: 13px; }
+  .menu-dialog .pk { min-height: 52px; gap: 10px; padding: 10px 12px 10px 30px; border-radius: 13px; font-size: 15px; }
+  .menu-dialog .pk .nm { white-space: normal; overflow: visible; mask-image: none; -webkit-mask-image: none; }
+  .menu-dialog .pk .nm .in { display: inline; animation: none; }
+  .menu-dialog .pk small { flex: 0 0 auto; font-size: 12px; }
+  .menu-dialog .gh small, .menu-dialog .pk small, .menu-dialog .dd small, .menu-dialog .rl { color: #687486; }
+  .menu-dialog .pk.on { background: var(--accent-bg); color: var(--accent); }
+  .menu-dialog .pk.on svg, .menu-dialog .pk.on small { color: var(--accent); }
+  .menu-dialog .runsel { margin: 0 20px; padding: 12px 0 0; }
+  .menu-dialog .dd-btn { min-height: 48px; height: auto; padding: 10px 12px; font-size: 14px; border-radius: 14px; }
+  .menu-dialog .dd-list { max-height: min(320px, 45dvh); border-radius: 16px; padding: 6px; }
+  .menu-dialog .dd-list li { min-height: 48px; padding: 10px; border-radius: 10px; font-size: 14px; }
+  .menu-dialog .sfoot { margin: 0 20px; padding: 8px 0 0; gap: 0 14px; }
+  .menu-dialog .sfoot a { display: flex; align-items: center; min-height: 44px; font-size: 12px; }
+  .menu-dialog .sfoot small { display: block; color: #687486; }
+  .menu-dialog[data-mode="model"] .search, .menu-dialog[data-mode="model"] .picker { display: none; }
+  .menu-dialog[data-mode="model"] #search-status { display: none; }
+  .menu-dialog[data-mode="model"][open] { height: auto; }
+  .menu-dialog[data-mode="model"] .menu-content { max-height: calc(var(--menu-height, 100dvh) - 210px - env(safe-area-inset-top)); }
+  .menu-dialog[data-mode="model"] .runsel { flex: 1; min-height: 0; overflow-y: auto; border: 0; padding: 18px 0; }
+  .menu-dialog[data-mode="model"] .dd-list { position: static; margin-top: 10px; max-height: none; box-shadow: none; border: 0; background: transparent; }
+  .menu-dialog[data-mode="model"] .dd-list li[aria-selected="true"] { background: var(--accent-bg); }
+  .menu-dialog[data-mode="model"] .rl::after { content: " · čas spuštění výpočtu"; text-transform: none; letter-spacing: normal; font-weight: 400; }
+  .menu-dialog.keyboard-open .side { display: block; overflow-y: auto; overscroll-behavior: contain; }
+  .menu-dialog.keyboard-open .side > .picker { overflow: visible; }
+  .tgl { min-height: 44px; }
+  .ck { z-index: 60; left: max(20px, env(safe-area-inset-left)); right: max(20px, env(safe-area-inset-right)); width: auto; max-width: none;
+    bottom: calc(94px + env(safe-area-inset-bottom)); max-height: calc(100dvh - 130px - env(safe-area-inset-top)); overflow-y: auto; }
+  .ck-b button { min-height: 44px; }
+  .ck-f button, .ck-f a { display: inline-flex; align-items: center; min-height: 44px; }
+  .ck-x { min-width: 44px; min-height: 44px; }
+  @supports (backdrop-filter: blur(20px)) or (-webkit-backdrop-filter: blur(20px)) {
+    .mbar { background: rgba(248,248,250,.82); -webkit-backdrop-filter: saturate(160%) blur(22px); backdrop-filter: saturate(160%) blur(22px); }
+    .mobile-dock { background: rgba(250,251,253,.84); -webkit-backdrop-filter: saturate(180%) blur(24px); backdrop-filter: saturate(180%) blur(24px); }
+  }
+}
+@media (max-width: 600px) {
+  .main { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
+  .ck { left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); }
+  .mbar { margin-left: -12px; margin-right: -12px; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+  .mbar .tag { max-width: 175px; }
+  .mobile-search { padding: 0 12px; font-size: 13px; }
+  .menu-dialog[open] { inset: auto 0 auto 0; top: calc(var(--menu-top, 0px) + 8px + env(safe-area-inset-top)); width: 100%; max-width: 100%;
+    height: calc(var(--menu-height, 100dvh) - 8px - env(safe-area-inset-top)); max-height: none; border-radius: 26px 26px 0 0; }
+  .menu-head { padding-top: 20px; }
+  .menu-head::before { content: ""; position: absolute; top: 7px; left: calc(50% - 16px); width: 32px; height: 4px; border-radius: 4px; background: #d4dae3; }
+  .menu-head h2 { font-size: 23px; }
+  .menu-dialog[data-mode="model"][open] { top: auto; bottom: 0; }
+  .hhero { gap: 22px; padding-left: 4px; }
+  .home h1 { font-size: clamp(30px, 8.4vw, 38px); }
+  .stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .st .lb, .st .sx { white-space: normal; }
+  .hero { padding: 20px 16px 16px; }
+  .hero h1 { font-size: 28px; }
+  .hero .sub { font-size: 14px; line-height: 1.5; }
+  .metabar { padding: 12px 16px; }
+  .chart-help { display: flex; gap: 7px; align-items: center; margin: 0; padding: 12px 16px 0; color: #748091; font-size: 11px; }
+  #chart { overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+  #chart > svg { width: 720px; min-width: 720px; max-width: none; }
+  #tip { min-width: 0; width: 226px; max-width: calc(100vw - 24px); }
+  .days { font-size: 11.5px; }
+  .days th, .days td { padding-left: 4px; padding-right: 4px; }
+  .days td small { display: block; font-size: 10.5px; }
+  .about { font-size: 16px; padding-left: 0; padding-right: 0; }
+  .about h1 { font-size: 32px; }
+  .sk { max-width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .menu-dialog[open] { animation: none; } }
+@media (max-width: 1100px) and (max-height: 560px) {
+  .menu-dialog .side { display: block; overflow-y: auto; overscroll-behavior: contain; }
+  .menu-dialog .side > .picker { overflow: visible; }
+  .menu-dialog[data-mode="model"] .runsel { overflow: visible; }
+}
+@media (pointer: coarse) {
+  .gh, .pk, .dd-btn, .dd-list li { min-height: 48px; }
+  .pk { padding-top: 10px; padding-bottom: 10px; }
+  .search input { height: 48px; font-size: 16px; }
+  .search > svg { top: 17px; }
+  .search kbd { display: none; }
+  .search-clear { top: 2px; width: 44px; height: 44px; }
+  .sfoot a { display: inline-flex; align-items: center; min-height: 44px; }
+  .pk .nm { white-space: normal; mask-image: none; -webkit-mask-image: none; }
+  .pk .nm .in { display: inline; animation: none; }
+}
+@media (hover: none) { .hl a.st:hover, .hc:hover, .rc:hover { transform: none; } }
 </style>
 </head>
 <body>
 <div class="app">
-  <aside class="side">
+  <aside class="side" id="site-nav" aria-label="Stanice a nastavení předpovědi">
     <a class="logo" href="/" aria-label="Meteogramy.cz – úvodní stránka">
       <span class="gl appicon"><img src="/assets/logo.svg?v=2" width="45" height="45" alt="" aria-hidden="true"></span>
       <div><div class="bn">Meteogramy.cz</div><div class="tag">horské meteogramy</div></div>
     </a>
     <div class="search">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <input id="q" type="search" placeholder="Hledat stanici" autocomplete="off" aria-label="Hledat stanici">
+      <input id="q" type="search" placeholder="Stanice nebo pohoří" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="search" aria-label="Hledat stanici nebo pohoří" aria-controls="picker">
       <kbd id="qk">⌘K</kbd>
       <button class="search-clear" id="qclear" type="button" aria-label="Vymazat hledání" title="Vymazat hledání" hidden>
         <svg viewBox="0 0 16 16" aria-hidden="true"><defs><mask id="search-clear-cutout"><rect width="16" height="16" fill="#fff"/><path d="m5.6 5.6 4.8 4.8m0-4.8-4.8 4.8" fill="none" stroke="#000" stroke-width="1.4" stroke-linecap="round"/></mask></defs><circle cx="8" cy="8" r="7" fill="currentColor" mask="url(#search-clear-cutout)"/></svg>
       </button>
     </div>
-    <nav class="picker" id="picker"></nav>
+    <nav class="picker" id="picker" aria-label="Horské stanice"></nav>
+    <span class="sr-only" id="search-status" role="status" aria-live="polite"></span>
     <div class="runsel">
       <div class="rl" id="ddlab">Běh modelu</div>
       <div class="dd" id="dd">
@@ -520,13 +666,15 @@ h1, h2 { text-wrap: balance; }
   </aside>
 
   <main class="main">
-  <div class="mbar">
+  <header class="mbar">
     <a class="logo" href="/" aria-label="Meteogramy.cz – úvodní stránka">
       <span class="gl appicon"><img src="/assets/logo.svg?v=2" width="30" height="30" alt="" aria-hidden="true"></span>
-      <div class="bn">Meteogramy.cz</div>
+      <div><div class="bn">Meteogramy.cz</div><div class="tag" id="mobile-context">horské meteogramy</div></div>
     </a>
-    <select id="picksel" aria-label="Hora"></select>
-  </div>
+    <button class="mobile-search" type="button" data-menu="search" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>Hledat
+    </button>
+  </header>
 
   <section class="home" id="home">
     <div class="hhero">
@@ -573,7 +721,8 @@ h1, h2 { text-wrap: balance; }
       <div id="meta"></div>
       <label class="tgl"><input type="checkbox" id="corr"><i></i>Teplota přepočtená na výšku stanice</label>
     </div>
-    <div id="chart"><div class="msg">Načítám data…</div><div id="tip"></div><div id="info" role="tooltip"></div></div>
+    <p class="chart-help" id="chart-help"><span aria-hidden="true">↔</span> Posuňte graf do stran. Klepnutím zobrazíte hodinové údaje.</p>
+    <div id="chart" aria-describedby="chart-help"><div class="msg">Načítám data…</div><div id="tip"></div><div id="info" role="tooltip"></div></div>
   </div>
   <section class="sinfo" id="sinfo" hidden></section>
   <article class="about" id="about" hidden>
@@ -654,6 +803,17 @@ h1, h2 { text-wrap: balance; }
   </main>
 </div>
 
+<nav class="mobile-dock" aria-label="Hlavní navigace">
+  <a href="/" id="mobile-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10H15v-6H9v6H3Z"/></svg><span>Úvod</span></a>
+  <button type="button" data-menu="stations" id="mobile-stations" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 20 7-12 4 7 3-5 6 10H2Z"/><path d="m7 12 2 2 2-2"/></svg><span>Stanice</span></button>
+  <button type="button" data-menu="model" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="9"/></svg><span>Model</span></button>
+</nav>
+<dialog class="menu-dialog" id="mobile-menu" aria-labelledby="menu-title" data-mode="stations">
+  <div class="menu-head"><h2 id="menu-title">Vybrat stanici</h2><button class="menu-close" id="menu-close" type="button" aria-label="Zavřít menu" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>
+  <div class="menu-tabs" role="group" aria-label="Obsah menu"><button type="button" data-menu="stations" aria-pressed="true">Stanice</button><button type="button" data-menu="model" aria-pressed="false">Běh modelu</button></div>
+  <div class="menu-content" id="menu-content"></div>
+</dialog>
+
 <section class="ck" id="ck" role="dialog" aria-labelledby="ckt" hidden>
   <h2 id="ckt"><span class="ck-i gl"><!-- Font Awesome Free 7.3.1 by @fontawesome – https://fontawesome.com, licence CC BY 4.0 --><svg viewBox="0 0 640 640" aria-hidden="true"><path fill="currentColor" d="M321.5 91.6C320.7 86.2 316.6 81.8 311.2 81C289.1 77.9 266.6 81.9 246.8 92.4L172.8 131.9C153.1 142.4 137.2 158.9 127.4 179L90.7 254.6C80.9 274.7 77.7 297.5 81.6 319.5L96.1 402.3C100 424.4 110.7 444.6 126.8 460.2L187.1 518.6C203.2 534.2 223.7 544.2 245.8 547.3L328.8 559C350.9 562.1 373.4 558.1 393.2 547.6L467.2 508.1C486.9 497.6 502.8 481.1 512.6 460.9L549.3 385.4C559.1 365.3 562.3 342.5 558.4 320.5C557.5 315.2 553.1 311.2 547.8 310.4C496.3 302.2 455 263.3 443.3 213C441.5 205.4 435.3 199.6 427.6 198.4C373 189.7 329.9 146.4 321.4 91.6zM272 208C289.7 208 304 222.3 304 240C304 257.7 289.7 272 272 272C254.3 272 240 257.7 240 240C240 222.3 254.3 208 272 208zM208 400C208 382.3 222.3 368 240 368C257.7 368 272 382.3 272 400C272 417.7 257.7 432 240 432C222.3 432 208 417.7 208 400zM432 336C449.7 336 464 350.3 464 368C464 385.7 449.7 400 432 400C414.3 400 400 385.7 400 368C400 350.3 414.3 336 432 336z"/></svg></span>Cookies</h2>
   <button type="button" class="ck-x" id="ckx" aria-label="Zavřít"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1.5l7 7m0-7l-7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
@@ -671,6 +831,100 @@ const TZ = "Europe/Prague";
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const $ = id => document.getElementById(id);
 const state = { run: null, data: null, id: null, m: null, corr: false, cache: {}, sum: {}, open: new Set(), q: "" };
+
+// Nativní dialog drží fokus uvnitř menu. Seznam stanic se přesouvá, nikdy nekopíruje.
+const compactNavigation = matchMedia("(max-width: 1100px)");
+const navigation = $("site-nav"), navigationDialog = $("mobile-menu");
+const navigationHome = document.createComment("Umístění desktopové navigace");
+navigation.before(navigationHome);
+let menuScroll = 0, menuBodyStyle = null, menuTrigger = null, backdropPointer = false;
+function menuViewport() {
+  if (!navigationDialog.open) return;
+  const viewport = window.visualViewport;
+  navigationDialog.style.setProperty("--menu-height", `${viewport ? viewport.height : window.innerHeight}px`);
+  navigationDialog.style.setProperty("--menu-top", `${viewport ? viewport.offsetTop : 0}px`);
+  navigationDialog.classList.toggle("keyboard-open", !!viewport && viewport.height < document.documentElement.clientHeight * .75);
+}
+window.visualViewport?.addEventListener("resize", menuViewport);
+window.visualViewport?.addEventListener("scroll", menuViewport);
+function restoreNavigation(focus = true) {
+  if (menuBodyStyle === null) return;
+  navigationHome.after(navigation);
+  document.body.style.cssText = menuBodyStyle;
+  menuBodyStyle = null;
+  window.scrollTo(0, menuScroll);
+  $("ddlist").hidden = true;
+  $("ddbtn").setAttribute("aria-expanded", "false");
+  document.querySelectorAll("[data-menu][aria-expanded]").forEach(b => b.setAttribute("aria-expanded", "false"));
+  if (focus && menuTrigger?.isConnected) menuTrigger.focus({ preventScroll: true });
+}
+function closeNavigation(focus = true) {
+  if (!navigationDialog.open) return;
+  navigationDialog.close();
+  restoreNavigation(focus);
+}
+function openNavigation(mode = "stations", trigger = document.activeElement) {
+  if (!compactNavigation.matches) return;
+  const search = mode === "search";
+  mode = search ? "stations" : mode;
+  navigationDialog.dataset.mode = mode;
+  $("menu-title").textContent = mode === "model" ? "Běh modelu" : "Vybrat stanici";
+  document.querySelectorAll(".menu-tabs [data-menu]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.menu === mode)));
+  if (!navigationDialog.open) {
+    menuTrigger = trigger;
+    menuScroll = window.scrollY;
+    menuBodyStyle = document.body.style.cssText;
+    $("menu-content").appendChild(navigation);
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${menuScroll}px`;
+    document.body.style.width = "100%";
+    document.body.style.overflow = "hidden";
+    navigationDialog.showModal();
+  }
+  menuViewport();
+  document.querySelectorAll("[data-menu][aria-expanded]").forEach(b => b.setAttribute("aria-expanded", String((b.dataset.menu === "search" ? "stations" : b.dataset.menu) === mode)));
+  if (mode === "model") {
+    if ($("ddlist").hidden && $("ddbtn").onclick) $("ddbtn").click();
+  } else {
+    $("ddlist").hidden = true;
+    $("ddbtn").setAttribute("aria-expanded", "false");
+    pickerEdge();
+    if (search) $("q").focus({ preventScroll: true });
+    else $("menu-close").focus({ preventScroll: true });
+  }
+}
+document.addEventListener("click", e => {
+  const opener = e.target.closest("[data-menu]");
+  if (opener) openNavigation(opener.dataset.menu, opener);
+});
+$("menu-close").addEventListener("click", () => closeNavigation());
+navigationDialog.addEventListener("close", () => { if (!navigationDialog.open) restoreNavigation(); });
+navigationDialog.addEventListener("keydown", e => {
+  if (e.key !== "Tab") return;
+  const controls = [...navigationDialog.querySelectorAll('a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])')]
+    .filter(el => el.getClientRects().length && getComputedStyle(el).visibility !== "hidden" && !el.closest("[hidden]"));
+  if (!controls.length) return;
+  const index = controls.indexOf(document.activeElement);
+  if (e.shiftKey && index <= 0) { e.preventDefault(); controls[controls.length - 1].focus(); }
+  else if (!e.shiftKey && (index < 0 || index === controls.length - 1)) { e.preventDefault(); controls[0].focus(); }
+});
+navigationDialog.addEventListener("pointerdown", e => {
+  const r = navigationDialog.getBoundingClientRect();
+  backdropPointer = e.target === navigationDialog && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom);
+});
+navigationDialog.addEventListener("click", e => {
+  if (backdropPointer && e.target === navigationDialog) closeNavigation();
+  backdropPointer = false;
+});
+compactNavigation.addEventListener("change", () => { closeNavigation(false); pickerEdge(); });
+function mobileContext() {
+  const view = viewOf();
+  $("mobile-home").toggleAttribute("aria-current", view === "home");
+  if (view === "home") $("mobile-home").setAttribute("aria-current", "page");
+  $("mobile-stations").classList.toggle("active", view === "mg" || view === "range");
+  $("mobile-context").textContent = view === "mg" ? state.data?.places.find(p => p.id === pathId())?.name || "Horská předpověď"
+    : view === "range" ? RANGE_OF[pathId()] : view === "/o-projektu/" ? "O projektu" : view === "/ochrana-soukromi/" ? "Ochrana soukromí" : "horské meteogramy";
+}
 
 // pořadí pohoří ve výběru
 // všechna pohoří (pro adresy /krkonose/); pořadí určuje groups() podle nejvyšší stanice
@@ -717,6 +971,7 @@ function loadAnalytics() {
   document.head.appendChild(sc);
 }
 function openConsent(settings) {
+  closeNavigation(false);
   const c = readConsent();
   $("ckan").checked = !!(c && c.analytics);
   $("ckset").hidden = !settings;
@@ -747,7 +1002,7 @@ function countVisit(id) {
   try { navigator.sendBeacon(`/api/oblibene.php?id=${encodeURIComponent(id)}`); } catch (e) {}
 }
 function loadPopular() {
-  if (!state.popular) state.popular = fetch("/api/oblibene.php").then(r => r.json()).then(d => d.ids || []).catch(() => []);
+  if (!state.popular) state.popular = readJSON("/api/oblibene.php", 8000).then(d => d.ids || []).catch(() => []);
   return state.popular;
 }
 $("corr").checked = state.corr;
@@ -885,10 +1140,11 @@ const INFO = {
   m: ["Tlak", "Tlak vzduchu přepočtený na hladinu moře. Klesající tlak obvykle ohlašuje zhoršení počasí, stoupající zlepšení."],
   c: ["Oblačnost", "Tmavá plocha je nízká oblačnost – na horách často znamená mlhu. Světlá plocha je celková oblačnost, červená a modrá čára střední a vysoká. Graf ukazuje oblačnost nad stanicí – při inverzi může být nahoře jasno, i když jsou údolí v mlze."],
 };
-document.addEventListener("click", () => { const i = $("info"); if (i) i.style.display = "none"; document.querySelectorAll(".ib.on").forEach(g => g.classList.remove("on")); });
+document.addEventListener("click", () => { const i = $("info"); if (i) i.style.display = "none"; document.querySelectorAll(".ib.on").forEach(g => { g.classList.remove("on"); g.setAttribute("aria-expanded", "false"); }); });
 
 function render() {
   const m = state.m;
+  if (!m) return;
   const times = m.times.map(t => new Date(t));
   const n = times.length;
   const lt = times.map(local);
@@ -899,7 +1155,7 @@ function render() {
 
   // rozměry
   const box = $("chart");
-  const W = Math.max(320, box.clientWidth - 20);
+  const W = Math.max(matchMedia("(max-width: 600px)").matches ? 720 : 320, box.clientWidth - 20);
   const narrow = W < 560;
   const L = narrow ? 40 : 60, R = narrow ? 30 : 52, pw = W - L - R;
   const x = i => L + (i + 0.5) / n * pw;
@@ -939,8 +1195,8 @@ function render() {
     const tfs = (fs + 1.5) * 1.2;
     s += text(L, yy + 5, title, { a: "start", c: C.ink, w: 600, fs: tfs });
     const ix = L + title.length * tfs * 0.6 + 12;
-    infos.push(`<g class="ib" data-k="${p.key}" transform="translate(${ix} ${yy})" role="button" aria-label="Co ukazuje graf ${title}">` +
-      `<circle class="hit" r="11"/><path class="fa" transform="scale(.031) translate(-256 -256)" d="${FA_CIRCLE_INFO}"/></g>`);
+    infos.push(`<g class="ib" data-k="${p.key}" transform="translate(${ix} ${yy})" role="button" tabindex="0" aria-expanded="false" aria-label="Co ukazuje graf ${title}">` +
+      `<circle class="hit" r="22"/><path class="fa" transform="scale(.031) translate(-256 -256)" d="${FA_CIRCLE_INFO}"/></g>`);
     let xx = ix + 20;
     for (const [kind, col, lab] of items) {
       if (narrow && xx > W - 90) break;
@@ -1070,14 +1326,18 @@ function render() {
       info.innerHTML = `<b>${h}</b>${t}`;
       info.style.display = "block";
       const r = g.getBoundingClientRect(), br = box.getBoundingClientRect();
-      info.style.left = Math.max(8, Math.min(r.left - br.left - 14, br.width - info.offsetWidth - 8)) + "px";
+      info.style.left = (box.scrollLeft + Math.max(8, Math.min(r.left - br.left - 14, br.width - info.offsetWidth - 8))) + "px";
       info.style.top = (r.bottom - br.top + 8) + "px";
-      box.querySelectorAll(".ib").forEach(o => o.classList.toggle("on", o === g));
+      box.querySelectorAll(".ib").forEach(o => { o.classList.toggle("on", o === g); o.setAttribute("aria-expanded", String(o === g)); });
     };
-    const hide = () => { info.style.display = "none"; g.classList.remove("on"); };
-    g.addEventListener("mouseenter", show);
-    g.addEventListener("mouseleave", hide);
+    const hide = () => { info.style.display = "none"; g.classList.remove("on"); g.setAttribute("aria-expanded", "false"); };
+    g.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") show(); });
+    g.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") hide(); });
     g.addEventListener("click", e => { e.stopPropagation(); g.classList.contains("on") ? hide() : show(); });
+    g.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); g.classList.contains("on") ? hide() : show(); }
+      if (e.key === "Escape") hide();
+    });
   });
 
   const svg = box.querySelector("svg"), cur = $("cur"), hit = $("hit");
@@ -1106,25 +1366,52 @@ function render() {
         row(C.clt, "nízká · stř. · vys.", `${Math.round(m.cll[i])} · ${Math.round(m.clm[i])} · ${Math.round(m.clh[i])}`, "%") +
         row("#ffcc00", "Slunce", Math.round(m.sun[i]), "min"));
     tip.style.display = "block";
-    const px = r.left - br.left + xi / W * r.width;
+    const touch = ev.pointerType && ev.pointerType !== "mouse";
+    if (touch && compactNavigation.matches) {
+      tip.style.position = "fixed";
+      tip.style.left = "12px";
+      tip.style.top = "auto";
+      tip.style.bottom = "calc(92px + env(safe-area-inset-bottom))";
+      return;
+    }
+    tip.style.position = "absolute";
+    tip.style.bottom = "auto";
+    const px = r.left - br.left + xi / W * r.width + box.scrollLeft;
     const tw = tip.offsetWidth;
-    tip.style.left = (px + 14 + tw > br.width ? px - 14 - tw : px + 14) + "px";
+    tip.style.left = Math.max(box.scrollLeft + 8, Math.min(px + 14, box.scrollLeft + br.width - tw - 8)) + "px";
     const py = pt.clientY - br.top;
     tip.style.top = Math.max(0, Math.min(br.height - tip.offsetHeight, py - tip.offsetHeight / 2)) + "px";
   }
   function leave() { cur.setAttribute("visibility", "hidden"); tip.style.display = "none"; }
-  hit.addEventListener("mousemove", move);
-  hit.addEventListener("mouseleave", leave);
-  hit.addEventListener("touchstart", move, { passive: true });
-  hit.addEventListener("touchmove", move, { passive: true });
-  hit.addEventListener("touchend", leave);
+  let touchStart = null, touchMoved = false;
+  hit.addEventListener("pointerdown", e => {
+    if (e.pointerType === "mouse") return;
+    touchStart = { x: e.clientX, y: e.clientY };
+    touchMoved = false;
+  });
+  hit.addEventListener("pointermove", e => {
+    if (e.pointerType === "mouse") move(e);
+    else if (touchStart && Math.hypot(e.clientX - touchStart.x, e.clientY - touchStart.y) > 10) { touchMoved = true; leave(); }
+  });
+  hit.addEventListener("pointerup", e => {
+    if (e.pointerType !== "mouse" && touchStart && !touchMoved) move(e);
+    touchStart = null;
+  });
+  hit.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") leave(); });
+  hit.addEventListener("pointercancel", () => { touchStart = null; leave(); });
 }
+
+document.addEventListener("pointerdown", e => {
+  if (e.target.closest("#chart")) return;
+  $("tip").style.display = "none";
+  $("cur")?.setAttribute("visibility", "hidden");
+});
 
 // souhrn všech stanic na příštích 24 h
 async function summaryRows(view) {
   const run = state.run;
   if (!state.sum[run]) {
-    try { state.sum[run] = await (await fetch(`/data/${run}/summary.json`)).json(); } catch (e) { return null; }
+    try { state.sum[run] = await readJSON(`/data/${run}/summary.json`); } catch (e) { return null; }
   }
   if (state.run !== run || viewOf() !== view) return null;
   const S = state.sum[run], times = S.times.map(t => new Date(t)), i0 = nowIndex(times);
@@ -1176,15 +1463,20 @@ function shelfArrows() {
 // úvodní stránka: souhrn všech stanic na příštích 24 h
 async function home() {
   const run = state.run;
+  const request = state.homeRequest = (state.homeRequest || 0) + 1;
+  const current = () => state.homeRequest === request && state.run === run && viewOf() === "home" && !state.loadingRun;
   const popular = loadPopular();
   $("hranges").innerHTML = rangeLinks();
   shelfArrows();
-  if (!state.sum[run]) $("hl").innerHTML = Array.from({ length: 4 }, () => `<div class="st">${SK("62%", 10)}${SK("48%", 22)}${SK("74%", 10)}</div>`).join("");
+  if (!state.sum[run]) skeletonHome();
+  else loadingCards("favs", FAV_MAX);
   const sr = await summaryRows("home");
-  if (!sr) { if (!state.sum[run]) $("hl").innerHTML = ""; return; }
+  if (!current()) return;
+  if (!sr) { loadingError(["hcard", "hl", "favs"]); return; }
   const { S, times, i0, rows } = sr;
   const all = Object.values(rows);
-  if (!all.length) return;
+  if (!all.length) { loadingError(["hcard", "hl", "favs"]); return; }
+  busy(["hcard", "hl"], false);
   const best = f => all.reduce((a, b) => f(b) > f(a) ? b : a);
 
   $("hcount").textContent = all.length;
@@ -1262,7 +1554,7 @@ async function home() {
       `<div><dt>Srážky · 24 h</dt><dd>${pv}</dd></div>` +
       `<div><dt>Slunce · 24 h</dt><dd>${fmtNum(fr.sun)} <span>h</span></dd></div></dl>` +
       `<div class="hc-f">Otevřít meteogram<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div></a>`;
-  }
+  } else $("hcard").innerHTML = "";
 
   // „nej“ dlaždice
   const tile = (r, icon, label, val, note) => `<a class="st" href="/${r.p.id}/"><div class="lb">${ICON(icon)}${label}</div><b>${val}</b>` +
@@ -1277,14 +1569,16 @@ async function home() {
 
   // oblíbené: nejčastěji prohlížené stanice všemi návštěvníky
   const ids = await popular;
-  if (state.run !== run || viewOf() !== "home") return;
+  if (!current()) return;
   const favs = [...new Set([...ids, ...FAV_FALLBACK])].filter(id => rows[id]).slice(0, FAV_MAX).map(id => rows[id]);
   $("favs").innerHTML = favs.map(r => card(r)).join("");
+  busy(["favs"], false);
 }
 
 // stránka pohoří: všechny jeho stanice od nejvyšší
 async function rangeView() {
   const name = RANGE_OF[pathId()];
+  const run = state.run;
   const list = state.data.places.filter(p => p.range === name).sort((a, b) => b.alt - a.alt);
   document.title = `${name} – meteogramy ALADIN, počasí na horách | Meteogramy.cz`;
   $("rtitle").textContent = `${name} – meteogramy a počasí na horách`;
@@ -1294,13 +1588,18 @@ async function rangeView() {
   $("rmore").innerHTML = rangeLinks(name);
   $("rmore").scrollLeft = 0;
   shelfArrows();
-  // bez souhrnu jen odkazy; generovaná stránka už má karty s předpovědí, ty se nepřepisují prázdnými
-  if ($("rlist").dataset.r !== name) {
+  // Hotové karty ze statického HTML zachováme, dokud se načte aktuální souhrn.
+  if (!state.sum[run] && ($("rlist").dataset.r !== name || $("rlist").dataset.run !== run)) {
     $("rlist").dataset.r = name;
-    $("rlist").innerHTML = list.map(p => `<a class="st" href="/${p.id}/"><div class="lb">${p.alt} m n. m.</div><b>${p.name}</b></a>`).join("");
+    loadingCards("rlist", list.length);
   }
   const sr = await summaryRows("range");
-  if (sr && RANGE_OF[pathId()] === name) $("rlist").innerHTML = list.filter(p => sr.rows[p.id]).map(p => card(sr.rows[p.id], `${p.alt} m n. m.`)).join("");
+  if (state.run !== run || state.loadingRun || viewOf() !== "range" || RANGE_OF[pathId()] !== name) return;
+  if (!sr) { loadingError(["rlist"]); return; }
+  $("rlist").innerHTML = list.filter(p => sr.rows[p.id]).map(p => card(sr.rows[p.id], `${p.alt} m n. m.`)).join("");
+  $("rlist").dataset.r = name;
+  $("rlist").dataset.run = run;
+  busy(["rlist"], false);
 }
 
 // pod meteogramem: denní přehled a text o stanici – stejný obsah generuje build_pages.py do statických stránek
@@ -1350,7 +1649,7 @@ function stationInfo(m) {
 }
 
 const PAGES = { "/o-projektu/": "O projektu – Meteogramy.cz", "/ochrana-soukromi/": "Ochrana soukromí – Meteogramy.cz" };
-const HOME_TITLE = document.title;
+const HOME_TITLE = "Meteogramy.cz – meteogramy ALADIN pro české hory";
 const pagePath = () => location.pathname.replace(/\/?$/, "/");
 const pathId = () => decodeURIComponent(pagePath().slice(1, -1));
 const RANGE_OF = Object.fromEntries(RANGES.map(r => [slug(r), r]));
@@ -1362,12 +1661,15 @@ const viewOf = () => PAGES[pagePath()] ? pagePath() : pagePath() === "/" ? "home
 // přepne pohled podle adresy; meteogram se při návratu překreslí na správnou šířku
 function route() {
   const v = viewOf();
+  mobileContext();
   $("mg").hidden = $("sinfo").hidden = v !== "mg";
   $("home").hidden = v !== "home";
   $("range").hidden = v !== "range";
   $("about").hidden = v !== "/o-projektu/";
   $("privacy").hidden = v !== "/ochrana-soukromi/";
   document.querySelectorAll(".sfoot a").forEach(a => a.classList.toggle("on", a.getAttribute("href") === v));
+  // Dokud se načítá seznam stanic nového běhu, nepoužíváme data předchozího.
+  if (state.loadingRun && (v === "home" || v === "range" || v === "mg")) { skeletonView(); return; }
   if (v === "mg") {
     const id = pathId();
     if (state.data && id !== state.id) return show(id);
@@ -1398,15 +1700,20 @@ document.addEventListener("click", e => {
   e.preventDefault();
   go(href);
 });
-window.addEventListener("popstate", route);
+window.addEventListener("popstate", () => { closeNavigation(false); route(); });
 
 // každá nová stránka (i jiná stanice) začíná nahoře a po načtení se jemně objeví
 async function go(href) {
+  closeNavigation(false);
   if (location.pathname === href) return route();
   history.pushState(null, "", href);
   window.scrollTo(0, 0);
   await route();
   reveal();
+  if (compactNavigation.matches) {
+    const visibleHeading = [...document.querySelectorAll(".main h1")].find(h => h.getClientRects().length);
+    if (visibleHeading) { visibleHeading.setAttribute("tabindex", "-1"); visibleHeading.focus({ preventScroll: true }); }
+  }
 }
 const VIEW_EL = { home: ["home"], range: ["range"], mg: ["mg", "sinfo"], "/o-projektu/": ["about"], "/ochrana-soukromi/": ["privacy"] };
 function reveal() {
@@ -1419,8 +1726,62 @@ const select = id => go(`/${id}/`);
 
 // načte časové řady stanice (s cache) a vykreslí meteogram
 // skeletony místo obsahu, dokud se data načítají
-const SK = (w, h, r) => `<i class="sk" style="width:${w};height:${h}px${r ? `;border-radius:${r}px` : ""}"></i>`;
+const SK = (w, h, r) => `<i class="sk" aria-hidden="true" style="width:${w};height:${h}px${r ? `;border-radius:${r}px` : ""}"></i>`;
+async function readJSON(url, timeout = 20000) {
+  const response = await fetch(url, { signal: AbortSignal.timeout(timeout) });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}
+function busy(ids, value) {
+  ids.forEach(id => $(id).setAttribute("aria-busy", String(value)));
+}
+function loadingCards(id, count) {
+  busy([id], true);
+  $(id).innerHTML = Array.from({ length: count }, () => `<div class="st">${SK("62%", 10)}${SK("48%", 24)}${SK("74%", 12)}${SK("58%", 12)}</div>`).join("");
+}
+function skeletonHome() {
+  busy(["hcard"], true);
+  $("hcard").innerHTML = `<div class="hc skstack">${SK("45%", 24)}${SK("65%", 13)}${SK("40%", 52)}${SK("100%", 88)}${SK("100%", 44)}${SK("100%", 40)}</div>`;
+  $("hlast").innerHTML = "";
+  loadingCards("hl", 4);
+  loadingCards("favs", FAV_MAX);
+}
+function skeletonView() {
+  const v = viewOf();
+  if (v === "home") skeletonHome();
+  else if (v === "mg") skeleton();
+  else if (v === "range") {
+    const name = RANGE_OF[pathId()];
+    if (!state.data && $("rlist").dataset.r === name && $("rlist").children.length) return;
+    loadingCards("rlist", state.data?.places.filter(p => p.range === name).length || 4);
+  }
+}
+function loadingError(ids) {
+  busy(ids, false);
+  ids.forEach(id => {
+    // Tooltipy musí zůstat v DOM pro další úspěšné vykreslení grafu.
+    const extras = id === "chart" ? [$("tip"), $("info")] : [];
+    $(id).innerHTML = `<div class="msg" role="status">Data se nepodařilo načíst. <button type="button" class="ckbtn" data-retry>Načíst znovu</button></div>`;
+    extras.forEach(el => $(id).appendChild(el));
+  });
+}
+function viewError() {
+  const ids = viewOf() === "home" ? ["hcard", "hl", "favs"] : viewOf() === "range" ? ["rlist"] : viewOf() === "mg" ? ["chart", "sinfo"] : [];
+  busy(["title", "sub", "meta", "stats", "sinfo", "chart", "picker", "ddbtn"], false);
+  if (viewOf() === "mg") {
+    $("title").textContent = "Předpověď není dostupná";
+    ["sub", "meta", "stats", "daylight"].forEach(id => $(id).textContent = "");
+  }
+  loadingError(ids);
+}
+document.addEventListener("click", e => {
+  if (!e.target.closest("[data-retry]")) return;
+  if (state.failedRun) loadRun(state.failedRun);
+  else if (!state.data) init();
+  else route();
+});
 function skeleton() {
+  busy(["title", "sub", "meta", "stats", "chart", "sinfo"], true);
   $("daylight").textContent = "";
   $("title").innerHTML = SK("220px", 30, 9);
   $("sub").innerHTML = SK("300px", 14);
@@ -1432,22 +1793,31 @@ function skeleton() {
     `<div class="row">${SK("72px", 13)}${SK("120px", 10)}${SK("90px", 10)}</div>${SK("auto", 150, 10).replace('class="sk"', 'class="sk plot"')}`).join("") + `</div>`;
   box.appendChild(tip);
   box.appendChild(info);
+  $("sinfo").innerHTML = Array.from({ length: 2 }, () => `<div class="skstack">${SK("55%", 20)}${Array.from({ length: 6 }, () => SK("100%", 24)).join("")}</div>`).join("");
 }
 function skeletonSidebar() {
+  busy(["picker", "ddbtn"], true);
   $("ddbtn").querySelector(".lab").innerHTML = SK("110px", 12);
   $("picker").innerHTML = Array.from({ length: 12 }, (_, k) =>
     `<div class="skrow">${SK("13px", 13, 4)}${SK(`${[62, 48, 70, 55, 44, 66][k % 6]}%`, 13)}</div>`).join("");
 }
 
 async function show(id) {
+  state.m = null;
+  const request = state.stationRequest = (state.stationRequest || 0) + 1;
+  const run = state.run;
+  const current = () => state.stationRequest === request && state.run === run && !state.loadingRun && viewOf() === "mg" && pathId() === meta.id;
   const ps = state.data.places;
   const meta = ps.find(x => x.id === id) || ps.find(x => x.id === DEFAULT_ID) || ps[0];
   if (meta.id !== id) history.replaceState(null, "", `/${meta.id}/`);
   const key = `${state.run}/${meta.id}`;
   if (!state.cache[key]) {
-    const t = setTimeout(skeleton, 120);  // u rychlého načtení skeleton nebliká
-    try { state.cache[key] = await (await fetch(`/data/${key}.json`)).json(); } finally { clearTimeout(t); }
+    const t = setTimeout(() => { if (current()) skeleton(); }, 120);
+    try { state.cache[key] = await readJSON(`/data/${key}.json`); }
+    catch (e) { if (current()) viewError(); return; }
+    finally { clearTimeout(t); }
   }
+  if (!current()) return;
   // návštěva se počítá jednou za otevření stanice, ne při přepnutí běhu modelu
   if (state.counted !== meta.id) { countVisit(meta.id); state.counted = meta.id; }
   state.id = meta.id;
@@ -1458,6 +1828,7 @@ async function show(id) {
   $("sinfo").innerHTML = stationInfo(state.m);
   picker();
   revealCurrent();
+  busy(["title", "sub", "meta", "stats", "chart", "sinfo"], false);
 }
 
 const DEFAULT_ID = "snezka-postovna";
@@ -1485,9 +1856,13 @@ function picker() {
     const open = q || state.open.has(r);
     html += `<div class="grp${open ? " open" : ""}"><button class="gh" data-r="${r}" aria-expanded="${!!open}">${chev}<span>${r}</span><small>${hits.length}</small></button>` +
       `<div class="items"><div>${hits.map(p =>
-        `<a class="pk${p.id === state.id ? " on" : ""}" href="/${p.id}/">${PEAK}<span class="nm"><span class="in">${p.name}</span></span><small>${p.alt}</small></a>`).join("")}</div></div></div>`;
+        `<a class="pk${p.id === state.id ? " on" : ""}"${p.id === state.id ? ' aria-current="page"' : ""} href="/${p.id}/">${PEAK}<span class="nm"><span class="in">${p.name}</span></span><small>${p.alt} m</small></a>`).join("")}</div></div></div>`;
   }
   $("picker").innerHTML = html || `<div class="nores">Nic nenalezeno</div>`;
+  if (q) {
+    const count = $("picker").querySelectorAll(".pk").length;
+    $("search-status").textContent = count ? `Počet nalezených stanic: ${count}` : "Žádná stanice nenalezena.";
+  } else $("search-status").textContent = "";
   // při hledání jsou rozbalená všechna pohoří, klik na nadpis nic nemění
   $("picker").querySelectorAll(".gh").forEach(b => b.onclick = () => {
     if (q) return;
@@ -1504,19 +1879,16 @@ function picker() {
     nm.classList.toggle("ov", over > 1);
     if (over > 1) { nm.style.setProperty("--d", `${-over - 6}px`); nm.style.setProperty("--t", `${Math.max(1.6, over / 28)}s`); }
   });
-  const ps = $("picksel");
-  if (!ps.options.length) {
-    ps.innerHTML = `<option value="" disabled>Vyberte stanici</option>` + groups().map(([r, list]) =>
-      `<optgroup label="${r}">${list.map(p => `<option value="${p.id}">${p.name} (${p.alt} m)</option>`).join("")}</optgroup>`).join("");
-    ps.onchange = e => select(e.target.value);
-  }
-  ps.value = state.id || "";
   pickerEdge();
 }
 
 if (!/Mac|iPhone|iPad/.test(navigator.platform)) $("qk").textContent = "Ctrl K";
 document.addEventListener("keydown", e => {
-  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); $("q").focus(); $("q").select(); }
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+    e.preventDefault();
+    if (compactNavigation.matches) openNavigation("search");
+    $("q").focus(); $("q").select();
+  }
 });
 // stín nahoře/dole, jen když je seznam odscrollovaný / pokračuje dál
 // rozbalené pohoří posune seznam tak, aby bylo vidět celé (nadpis ale nikdy neodjede nahoru);
@@ -1566,16 +1938,41 @@ function clearSearch() {
 $("q").addEventListener("input", e => updateSearch(e.target.value));
 $("qclear").addEventListener("click", clearSearch);
 $("q").addEventListener("keydown", e => {
-  if (e.key === "Enter") { const b = $("picker").querySelector(".pk"); if (b) b.click(); }
+  if (e.key === "Enter") { e.preventDefault(); const b = $("picker").querySelector(".pk"); if (b) b.click(); }
   if (e.key === "Escape") { e.preventDefault(); clearSearch(); }
 });
 
 async function loadRun(run) {
+  const request = state.runRequest = (state.runRequest || 0) + 1;
+  state.loadingRun = true;
+  state.m = null;
+  state.id = null;
+  skeletonView();
+  skeletonSidebar();
+  let data;
+  try { data = await readJSON(`/data/${run}/index.json`); }
+  catch (e) {
+    if (request !== state.runRequest) return false;
+    state.loadingRun = false;
+    state.failedRun = run;
+    if (state.data) picker();
+    else $("picker").textContent = "Stanice se nepodařilo načíst.";
+    $("ddbtn").querySelector(".lab").textContent = state.run ? runText(state.run) : "Nedostupný";
+    busy(["picker", "ddbtn"], false);
+    viewError();
+    return false;
+  }
+  if (request !== state.runRequest) return false;
   state.run = run;
-  state.data = await (await fetch(`/data/${run}/index.json`)).json();
-  $("picksel").innerHTML = "";
+  state.data = data;
+  state.loadingRun = false;
+  state.failedRun = null;
   state.id = null;  // route() načte stanici z adresy znovu, už z nového běhu
+  picker();
+  busy(["picker", "ddbtn"], false);
+  $("ddbtn").querySelector(".lab").textContent = runText(run);
   await route();
+  return true;
 }
 
 const runDate = r => new Date(Date.UTC(+r.slice(0, 4), +r.slice(4, 6) - 1, +r.slice(6, 8), +r.slice(8, 10)));
@@ -1603,8 +2000,8 @@ function runsDropdown(runs) {
   };
   const open = () => { paint(); list.hidden = false; btn.setAttribute("aria-expanded", "true"); setAct(runs.indexOf(state.run)); list.focus(); };
   const close = focus => { list.hidden = true; btn.setAttribute("aria-expanded", "false"); if (focus) btn.focus(); };
-  const pick = r => { close(true); if (r !== state.run) loadRun(r).then(paint); };
-  btn.onclick = () => list.hidden ? open() : close();
+  const pick = r => { close(true); closeNavigation(false); if (r !== state.run) loadRun(r).then(paint); };
+  btn.onclick = () => navigationDialog.open && navigationDialog.dataset.mode === "model" ? open() : list.hidden ? open() : close();
   btn.onkeydown = e => { if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); open(); } };
   list.onclick = e => { const li = e.target.closest("li"); if (li) pick(li.dataset.r); };
   list.onmousemove = e => { const li = e.target.closest("li"); if (li) setAct([...list.children].indexOf(li)); };
@@ -1615,17 +2012,24 @@ function runsDropdown(runs) {
     else if (e.key === "Escape") close(true);
     else if (e.key === "Tab") close(false);
   };
-  document.addEventListener("click", e => { if (!$("dd").contains(e.target)) close(false); });
+  document.addEventListener("click", e => { if (!(navigationDialog.open && navigationDialog.dataset.mode === "model") && !$("dd").contains(e.target)) close(false); });
   paint();
+  if (navigationDialog.open && navigationDialog.dataset.mode === "model") open();
 }
 
 async function init() {
   try {
-    const idx = await (await fetch("/data/index.json")).json();
-    await loadRun(idx.runs[0]);
-    runsDropdown(idx.runs);
+    state.loadingRun = true;
+    skeletonView();
+    skeletonSidebar();
+    const idx = await readJSON("/data/index.json");
+    if (!idx.runs?.length) throw new Error("Chybí běhy modelu");
+    if (await loadRun(idx.runs[0])) runsDropdown(idx.runs);
   } catch (e) {
-    $("chart").innerHTML = $("hl").innerHTML = `<div class="msg">Data zatím nejsou stažená. Spusťte <code>./start.sh</code>.</div>`;
+    state.loadingRun = false;
+    $("picker").textContent = "Stanice se nepodařilo načíst.";
+    $("ddbtn").querySelector(".lab").textContent = "Nedostupný";
+    viewError();
   }
 }
 
@@ -1678,8 +2082,6 @@ new MutationObserver(ms => {
   }
 }).observe(document.body, { childList: true, subtree: true, characterData: true });
 
-skeleton();
-skeletonSidebar();
 route();
 init();
 </script>

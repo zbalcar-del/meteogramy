@@ -27,7 +27,7 @@ PAGES = {
     'o-projektu': ('O projektu – Meteogramy.cz',
                    'Odkud jsou data, jak meteogramy ALADIN pro české hory vznikají a jak číst předpověď z modelu.'),
     'ochrana-soukromi': ('Ochrana soukromí – Meteogramy.cz',
-                         'Jak Meteogramy.cz nakládají s údaji: bez účtu, bez cookies a bez sledování.'),
+                         'Jak Meteogramy.cz nakládají s údaji a cookies. Web používáte bez účtu; návštěvnost měříme pomocí Google Analytics jen s vaším souhlasem.'),
 }
 RESERVED = {'data', 'api', 'assets', *PAGES}
 # AI asistenti a jejich vyhledávače, kterým robots.txt výslovně povoluje přístup
@@ -292,7 +292,7 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
         html = html.replace('<img id="rimg" src="" alt=""', f'<img id="rimg" src="/assets/pohori/{slug(r)}-siroka.svg?v=7" '
                             f'alt="Vrstevnice v okolí nejvyšší stanice: {escape(ps[0]["name"])}"', 1)
         html = fill(html, 'rlist', ''.join(card(p, summary_row(p, summary['places'][p['id']], times))
-                                           for p in ps if p['id'] in summary['places']), f' data-r="{escape(r)}"')
+                                           for p in ps if p['id'] in summary['places']), f' data-r="{escape(r)}" data-run="{runs[0]}"')
         html = fill(html, 'rmore', range_links(places, r))
         listing = {'@type': 'ItemList', 'name': f'Horské stanice – {r}', 'itemListElement': [
             {'@type': 'ListItem', 'position': i + 1, 'name': p['name'], 'url': f'{SITE}/{p["id"]}/'} for i, p in enumerate(ps)]}
