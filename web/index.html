@@ -215,7 +215,7 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .hc-now { display: flex; align-items: baseline; gap: 12px; margin-top: 8px; }
 .hc-now b { font-size: 52px; font-weight: 600; letter-spacing: -.035em; line-height: 1; color: var(--temp); font-variant-numeric: tabular-nums; }
 .hc-now span { font-size: 14px; color: #6e6e73; font-variant-numeric: tabular-nums; }
-.hc svg { display: block; width: 100%; height: auto; margin: 12px 0 2px; overflow: visible; }
+.hc > svg { display: block; width: 100%; height: auto; margin: 12px 0 2px; overflow: visible; }
 .hc dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 10px 0 0; padding-top: 12px; border-top: 1px solid #f0f1f4; }
 .hc dt { font-size: 10px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: #8e8e93; white-space: nowrap; }
 .hc dd { margin: 2px 0 0; font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -223,7 +223,11 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .hc dd em { font-style: normal; }
 .hc .gd { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 2px; }
 .hc .sn { color: var(--snow); }
-.hc-f { display: flex; justify-content: flex-end; align-items: center; gap: 4px; margin-top: 12px; font-size: 13px; font-weight: 600; color: var(--accent); }
+.hc-f { display: flex; justify-content: center; align-items: center; gap: 6px; height: 40px; margin-top: 16px; border-radius: 12px;
+  background: var(--accent-bg); color: var(--accent); font-size: 14px; font-weight: 600; transition: background .15s, color .15s; }
+.hc-f svg { transition: transform .15s; }
+.hc:hover .hc-f { background: var(--accent); color: #fff; }
+.hc:hover .hc-f svg { transform: translateX(2px); }
 .home .eyebrow { font-size: 14px; font-weight: 600; color: #86868b; margin: 0 0 10px; }
 .home h1 { font-size: 44px; line-height: 1.08; letter-spacing: -.03em; font-weight: 700; margin: 0 0 14px; }
 .home .lead { font-size: 19px; line-height: 1.45; color: #6e6e73; margin: 0; }
@@ -808,7 +812,7 @@ async function home() {
       `<dl><div><dt>Nárazy · 24 h</dt><dd><i class="gd" style="background:${gust(fr.gmax)[1]}"></i>${Math.round(fr.gmax)} <span>m/s</span></dd></div>` +
       `<div><dt>Srážky · 24 h</dt><dd>${pv}</dd></div>` +
       `<div><dt>Slunce · 24 h</dt><dd>${fmtNum(fr.sun)} <span>h</span></dd></div></dl>` +
-      `<div class="hc-f">Otevřít meteogram →</div></a>`;
+      `<div class="hc-f">Otevřít meteogram<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div></a>`;
   }
 
   // „nej“ dlaždice
