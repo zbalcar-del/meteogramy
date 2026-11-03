@@ -83,8 +83,14 @@ button, select { font: inherit; }
 .gh small { color: #8a9099; font-weight: 500; font-size: 12.5px; font-variant-numeric: tabular-nums; }
 .gh svg { color: #9aa0a9; transition: transform .18s ease; flex: 0 0 auto; }
 .grp.open .gh svg { transform: rotate(90deg); }
-.items { display: none; padding: 1px 0 6px; }
-.grp.open .items { display: block; }
+/* rozbalení pohoří: výška se plynule otevře (0fr → 1fr), zavřené položky nejdou fokusovat */
+.items { display: grid; grid-template-rows: 0fr; visibility: hidden;
+  transition: grid-template-rows .26s cubic-bezier(.25, .8, .25, 1), visibility 0s .26s; }
+.items > div { min-height: 0; overflow: hidden; }
+.items .pk:first-child { margin-top: 1px; }
+.items .pk:last-child { margin-bottom: 6px; }
+.grp.open .items { grid-template-rows: 1fr; visibility: visible; transition: grid-template-rows .26s cubic-bezier(.25, .8, .25, 1), visibility 0s; }
+@media (prefers-reduced-motion: reduce) { .items, .grp.open .items { transition: none; } }
 .nores { padding: 10px; font-size: 13.5px; color: var(--muted); }
 .pk { font-size: 14px; padding-left: 28px; }
 .pk svg { flex: 0 0 auto; color: var(--accent); }
@@ -935,8 +941,10 @@ async function show(id) {
   state.id = meta.id;
   try { localStorage.setItem("last", meta.id); } catch (e) {}
   state.m = { ...meta, ...state.cache[key] };
+  state.open.add(meta.range);
   render();
   picker();
+  revealCurrent();
 }
 
 const DEFAULT_ID = "snezka-postovna";
@@ -960,14 +968,19 @@ function picker() {
     if (!hits.length) continue;
     const open = q || state.open.has(r);
     html += `<div class="grp${open ? " open" : ""}"><button class="gh" data-r="${r}" aria-expanded="${!!open}">${chev}<span>${r}</span><small>${hits.length}</small></button>` +
-      `<div class="items">${hits.map(p =>
-        `<button class="pk${p.id === state.id ? " on" : ""}" data-id="${p.id}">${PEAK}<span class="nm"><span class="in">${p.name}</span></span><small>${p.alt}</small></button>`).join("")}</div></div>`;
+      `<div class="items"><div>${hits.map(p =>
+        `<button class="pk${p.id === state.id ? " on" : ""}" data-id="${p.id}">${PEAK}<span class="nm"><span class="in">${p.name}</span></span><small>${p.alt}</small></button>`).join("")}</div></div></div>`;
   }
   $("picker").innerHTML = html || `<div class="nores">Nic nenalezeno</div>`;
+  // při hledání jsou rozbalená všechna pohoří, klik na nadpis nic nemění
   $("picker").querySelectorAll(".gh").forEach(b => b.onclick = () => {
-    const r = b.dataset.r;
-    state.open.has(r) ? state.open.delete(r) : state.open.add(r);
-    if (!q) picker();
+    if (q) return;
+    const r = b.dataset.r, open = !state.open.has(r);
+    open ? state.open.add(r) : state.open.delete(r);
+    b.parentElement.classList.toggle("open", open);
+    b.setAttribute("aria-expanded", open);
+    if (open) revealGroup(b.parentElement);
+    else setTimeout(pickerEdge, 280);
   });
   $("picker").querySelectorAll(".pk").forEach(c => c.onclick = () => select(c.dataset.id));
   // názvy, které se nevejdou: připravit posun (o kolik a jak dlouho)
@@ -991,6 +1004,32 @@ document.addEventListener("keydown", e => {
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); $("q").focus(); $("q").select(); }
 });
 // stín nahoře/dole, jen když je seznam odscrollovaný / pokračuje dál
+// rozbalené pohoří posune seznam tak, aby bylo vidět celé (nadpis ale nikdy neodjede nahoru);
+// posun běží současně s rozbalovací animací, takže se v každém snímku omezí na to, co už je rozbalené
+function revealGroup(g) {
+  const el = $("picker"), pr = el.getBoundingClientRect(), hr = g.firstElementChild.getBoundingClientRect();
+  const inner = g.querySelector(".items > div");
+  let delta = hr.bottom + inner.scrollHeight - (pr.bottom - 12);
+  delta = Math.min(delta, hr.top - pr.top - 6);
+  if (delta <= 0) return setTimeout(pickerEdge, 280);
+  const start = el.scrollTop;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) { el.scrollTop = start + delta; return pickerEdge(); }
+  const t0 = performance.now(), D = 280, ease = t => 1 - (1 - t) ** 3;
+  const step = now => {
+    const t = Math.min(1, (now - t0) / D);
+    el.scrollTop = start + delta * ease(t);
+    if (t < 1) requestAnimationFrame(step); else pickerEdge();
+  };
+  requestAnimationFrame(step);
+}
+// otevřená stanice: rozbalit její pohoří a ukázat ji v seznamu (jen pokud je mimo dohled)
+function revealCurrent() {
+  const on = $("picker").querySelector(".pk.on");
+  if (!on) return;
+  const el = $("picker"), pr = el.getBoundingClientRect(), r = on.getBoundingClientRect();
+  if (r.top < pr.top + 6 || r.bottom > pr.bottom - 6) el.scrollTop += r.top - pr.top - (pr.height - r.height) / 2;
+  pickerEdge();
+}
 const pickerEdge = () => {
   const el = $("picker");
   el.classList.toggle("sh-top", el.scrollTop > 2);
