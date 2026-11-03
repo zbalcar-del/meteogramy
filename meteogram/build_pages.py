@@ -156,7 +156,7 @@ def groups(places):
 
 
 def range_links(places, except_=None):
-    return ''.join(f'<a class="rc" href="/{slug(r)}/"><span class="th"><img src="/assets/pohori/{slug(r)}.svg" alt="" width="400" height="300" '
+    return ''.join(f'<a class="rc" href="/{slug(r)}/"><span class="th"><img src="/assets/pohori/{slug(r)}.svg?v=5" alt="" width="400" height="300" '
                    f'loading="lazy" decoding="async"></span><span class="tt"><b>{escape(r)}</b>'
                    f'<small>{len(ps)} {"stanic" if len(ps) >= 5 else "stanice"} · až {ps[0]["alt"]} m</small></span></a>'
                    for r, ps in groups(places) if r != except_)
@@ -294,6 +294,8 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
         html = visible(template, {'range'})
         html = fill(html, 'rtitle', f'{escape(r)} – meteogramy a počasí na horách')
         html = fill(html, 'rlead', escape(lead))
+        html = html.replace('<img id="rimg" src="" alt=""', f'<img id="rimg" src="/assets/pohori/{slug(r)}-siroka.svg?v=5" '
+                            f'alt="Vrstevnice v okolí nejvyšší stanice: {escape(ps[0]["name"])}"', 1)
         html = fill(html, 'rlist', ''.join(card(p, summary_row(p, summary['places'][p['id']], times))
                                            for p in ps if p['id'] in summary['places']), f' data-r="{escape(r)}"')
         html = fill(html, 'rmore', range_links(places, r))

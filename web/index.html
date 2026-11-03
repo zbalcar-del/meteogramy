@@ -391,7 +391,11 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .ck-f button:hover, .ck-f a:hover { text-decoration: underline; }
 @media (max-width: 860px) { .ck { right: 10px; bottom: 10px; left: 10px; width: auto; } }
 @media (prefers-reduced-motion: reduce) { .ck { animation: none; } }
-.rhead { max-width: 760px; padding: 28px 0 26px 8px; }
+.rhead { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: center; padding: 28px 0 30px 8px; }
+/* mapa pohoří vedle nadpisu: vrstevnice okolí nejvyšší stanice */
+.rmap { margin: 0; border-radius: 22px; overflow: hidden; background: var(--paper);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.04), 0 12px 36px rgba(0,0,0,.07); }
+.rmap img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
 .rhead .eyebrow a { color: inherit; text-decoration: none; }
 /* pod meteogramem: přehled po dnech a o stanici (text čitelný i pro vyhledávače bez JavaScriptu) */
 .sinfo { max-width: 1180px; margin: 14px auto 0; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px; align-items: start; }
@@ -432,7 +436,7 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
   .about .dedic b { font-size: 24px; }
   .about .dedic small { right: 16px; bottom: 18px; }
   .about section { padding: 20px; }
-  .rhead { padding: 14px 0 20px 4px; }
+  .rhead { grid-template-columns: minmax(0, 1fr); gap: 18px; padding: 14px 0 20px 4px; }
   .shelf { --fr: 40px; }
   .shelf.sl { --fl: 40px; }
   .shelf.se { --fr: 0px; }
@@ -544,9 +548,12 @@ h1, h2 { text-wrap: balance; }
 
   <section class="home" id="range" hidden>
     <div class="rhead">
-      <p class="eyebrow"><a href="/">Meteogramy.cz</a> · Pohoří</p>
-      <h1 id="rtitle"></h1>
-      <p class="lead" id="rlead"></p>
+      <div>
+        <p class="eyebrow"><a href="/">Meteogramy.cz</a> · Pohoří</p>
+        <h1 id="rtitle"></h1>
+        <p class="lead" id="rlead"></p>
+      </div>
+      <figure class="rmap"><img id="rimg" src="" alt="" width="800" height="450"></figure>
     </div>
     <div class="hl" id="rlist"></div>
     <div class="sech"><h2>Další pohoří</h2><div class="arws"><button type="button" class="arw" data-shelf="rmore" data-dir="-1" aria-label="Další pohoří – zpět"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button><button type="button" class="arw" data-shelf="rmore" data-dir="1" aria-label="Další pohoří – dál"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div></div>
@@ -1142,7 +1149,7 @@ const card = (r, label = `${r.p.range} · ${r.p.alt} m`) => `<a class="st" href=
 // karta pohoří s vrstevnicemi terénu z web/assets/pohori (kreslí build_relief.py); stejné HTML generuje build_pages.py
 const stanic = n => n < 5 ? "stanice" : "stanic";
 const rangeLinks = except => groups().filter(([r]) => r !== except)
-  .map(([r, list]) => `<a class="rc" href="/${slug(r)}/"><span class="th"><img src="/assets/pohori/${slug(r)}.svg" alt="" width="400" height="300" loading="lazy" decoding="async"></span><span class="tt"><b>${r}</b>` +
+  .map(([r, list]) => `<a class="rc" href="/${slug(r)}/"><span class="th"><img src="/assets/pohori/${slug(r)}.svg?v=5" alt="" width="400" height="300" loading="lazy" decoding="async"></span><span class="tt"><b>${r}</b>` +
     `<small>${list.length} ${stanic(list.length)} · až ${list[0].alt} m</small></span></a>`).join("");
 // šipky u poličky: posun o viditelnou šířku, na krajích se vypnou
 function shelfArrows() {
@@ -1280,6 +1287,8 @@ async function rangeView() {
   const list = state.data.places.filter(p => p.range === name).sort((a, b) => b.alt - a.alt);
   document.title = `${name} – meteogramy ALADIN, počasí na horách | Meteogramy.cz`;
   $("rtitle").textContent = `${name} – meteogramy a počasí na horách`;
+  $("rimg").src = `/assets/pohori/${slug(name)}-siroka.svg?v=5`;
+  $("rimg").alt = `Vrstevnice v okolí nejvyšší stanice: ${list[0].name}`;
   $("rlead").textContent = `Hodinová předpověď modelu ALADIN pro ${list.length} ${list.length === 1 ? "horskou stanici" : list.length < 5 ? "horské stanice" : "horských stanic"} ČHMÚ v pohoří ${name}. Teplota, vítr a nárazy, srážky a sníh na tři dny dopředu.`;
   $("rmore").innerHTML = rangeLinks(name);
   $("rmore").scrollLeft = 0;

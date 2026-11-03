@@ -10,6 +10,7 @@ Terén se nemění, takže stačí spustit jednou (nebo po přidání stanic).
 from html import escape
 import json
 import math
+import random
 from pathlib import Path
 import urllib.request
 
@@ -168,11 +169,15 @@ def text_width(text, size, bold):
     return font.getlength(text)
 
 
-def render(name, stations, dem, color):
+def render(range_name, stations, dem, color, spot, W=W, H=H, SPAN_KM=SPAN_KM):
     top = stations[0]  # groups() řadí stanice od nejvyšší
     plat, plon = top['lat'], top['lon']
     span_y = SPAN_KM * H / W
-    lats, lons = window(plat, plon, SPAN_KM, span_y, W, H)
+    # stanice nemusí být uprostřed: výřez se posune tak, aby ležela v bodě spot (podíl šířky a výšky)
+    kx = 111.32 * math.cos(math.radians(plat))
+    clat = plat + (spot[1] - 0.5) * span_y / 111.32
+    clon = plon - (spot[0] - 0.5) * SPAN_KM / kx
+    lats, lons = window(clat, clon, SPAN_KM, span_y, W, H)
     z = blur(dem.sample(lats, lons), 14)  # model zachycuje i les a stavby, vyhlazení je skryje
     lo, hi = float(z.min()), float(z.max())
     step = next((s for s in (5, 10, 20, 25, 50, 100) if (hi - lo) / s <= LINES), 100)
@@ -184,7 +189,6 @@ def render(name, stations, dem, color):
         d = ''.join(path(simplify(line, 2)) for line in contours(z, level) if len(line) > 30)
         if d:
             paths.append(f'<path d="{d}" stroke="{stroke}" stroke-width="{(1.5 if index else 0.85) + 0.5 * t:.2f}"/>')
-    kx = 111.32 * math.cos(math.radians(plat))
     px = lambda la, lo: ((lo - lons[0]) * kx / SPAN_KM * W, (lats[0] - la) * 111.32 / span_y * H)
     dots = ''
     for p in stations[1:]:
@@ -193,18 +197,28 @@ def render(name, stations, dem, color):
             dots += f'<circle cx="{x:.1f}" cy="{y:.1f}" r="5.5" fill="#fff" stroke="{color}" stroke-width="2.6" opacity=".9"/>'
     # nejvyšší stanice: bod se světelným kruhem a nad ním bílý štítek jako v mapách
     x, y = px(plat, plon)
-    label = escape(top['name'])
-    alt = f"{top['alt']} m"
-    tw = round((text_width(top['name'], 20, True) + text_width(alt, 20, True)) * 0.85 + 9 + 40)
-    lx, ly = x - tw / 2, y - 74
+    # štítek jako v Apple Mapách: název (dlouhý zalomený za čárkou) a pod ním drobně, že jde o výšku stanice
+    name = top['name']
+    lines = [name]
+    if text_width(name, 23, True) * 0.85 > 210 and ', ' in name:
+        head, tail = name.split(', ', 1)
+        lines = [head + ',', tail]
+    sub = f"Stanice · {top['alt']} m n. m."
+    tw = round(max(*(text_width(l, 23, True) * 0.85 for l in lines), text_width(sub, 17, False) * 1.1) + 40)
+    th = 36 + 27 * len(lines)
+    lx = min(max(x - tw / 2, 8), W - 8 - tw)
+    ly = y - th - 28
+    font = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif"
+    names = ''.join(f'<tspan x="{lx + 20:.1f}" y="{ly + 29 + 27 * k:.1f}" font-size="23" font-weight="600" fill="#1d1d1f">{escape(l)}</tspan>'
+                    for k, l in enumerate(lines))
     peak = (f'<circle cx="{x:.1f}" cy="{y:.1f}" r="27" fill="{color}" opacity=".16"/>'
             f'<circle cx="{x:.1f}" cy="{y:.1f}" r="12.5" fill="{color}" stroke="#fff" stroke-width="4.5"/>'
-            f'<g filter="url(#sh)"><rect x="{lx:.1f}" y="{ly:.1f}" width="{tw}" height="44" rx="22" fill="#fff"/>'
-            f'<path d="M{x - 9:.1f} {ly + 43:.1f}l9 10 9-10z" fill="#fff"/></g>'
-            f'<text x="{lx + 20:.1f}" y="{ly + 29:.1f}" font-family="-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif" font-size="20">'
-            f'<tspan font-weight="600" fill="#1d1d1f">{label}</tspan><tspan dx="9" fill="{color}" font-weight="600">{alt}</tspan></text>')
+            f'<g filter="url(#sh)"><rect x="{lx:.1f}" y="{ly:.1f}" width="{tw}" height="{th}" rx="16" fill="#fff"/>'
+            f'<path d="M{x - 9:.1f} {ly + th - 1:.1f}l9 10 9-10z" fill="#fff"/></g>'
+            f'<text font-family="{font}">{names}'
+            f'<tspan x="{lx + 20:.1f}" y="{ly + th - 14:.1f}" font-size="17" fill="#8e8e93">{escape(sub)}</tspan></text>')
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}">'
-            f'<title>{escape(name)} – vrstevnice v okolí stanice {label}</title>'
+            f'<title>{escape(range_name)} – vrstevnice v okolí stanice {escape(top["name"])}</title>'
             f'<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="{mix("#ffffff", color, 0.05)}"/>'
             f'<stop offset="1" stop-color="{mix("#ffffff", color, 0.13)}"/></linearGradient>'
             '<filter id="sh" x="-20%" y="-40%" width="140%" height="200%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity=".14"/></filter></defs>'
@@ -217,8 +231,16 @@ def main():
     places = json.loads((ROOT / 'meteogram' / 'places.json').read_text())
     OUT.mkdir(parents=True, exist_ok=True)
     for k, (name, stations) in enumerate(groups(places)):
-        svg = render(name, stations, dem, COLORS[k % len(COLORS)])
+        # pevná, ale pro každé pohoří jiná poloha bodu; sousední karty střídají levou a pravou stranu,
+        # bod je vždy dost nízko, aby se nad něj vešla bublina se dvouřádkovým názvem
+        rnd = random.Random(slug(name))
+        fx = (0.28 + 0.16 * rnd.random()) if k % 2 == 0 else (0.56 + 0.16 * rnd.random())
+        spot = (fx, 0.5 + 0.22 * rnd.random())
+        svg = render(name, stations, dem, COLORS[k % len(COLORS)], spot)
         (OUT / f'{slug(name)}.svg').write_text(svg)
+        # široká mapa 16 : 9 pro záhlaví stránky pohoří: víc okolí, štítek v menším měřítku
+        wide = render(name, stations, dem, COLORS[k % len(COLORS)], (0.5 + (spot[0] - 0.5) * 0.6, 0.62), 800, 450, 14)
+        (OUT / f'{slug(name)}-siroka.svg').write_text(wide)
         print(f'{name}: {len(svg) // 1024} kB', flush=True)
 
 
