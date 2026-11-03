@@ -202,7 +202,7 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .sfoot a.on { color: var(--ink); font-weight: 600; }
 /* úvodní stránka */
 .home { max-width: 1180px; margin: 0 auto; }
-.hhero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: center; padding: 28px 8px 30px; }
+.hhero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: center; padding: 28px 0 30px 8px; }
 /* karta vybrané stanice vpravo v úvodu */
 .hc { display: block; background: var(--paper); border-radius: 22px; padding: 18px 20px 16px; color: inherit; text-decoration: none;
   box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.04), 0 12px 36px rgba(0,0,0,.07); transition: box-shadow .15s; }
@@ -240,37 +240,14 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .hl .st b { font-size: 24px; }
 .hl .sx { display: block; overflow: hidden; text-overflow: ellipsis; }
 .hl .sx em { font-style: normal; color: var(--ink); font-weight: 600; }
-.sech { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 4px 16px; margin: 0 8px 12px; }
-.sech h2 { margin: 0; font-size: 22px; letter-spacing: -.015em; }
-.sech span { font-size: 13px; color: var(--muted); }
-.ranges { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
-.rt { display: flex; flex-direction: column; background: var(--paper); border-radius: 18px; padding: 15px 16px 13px; color: inherit; text-decoration: none;
-  box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.04); transition: box-shadow .15s; }
-.rt:hover { box-shadow: 0 0 0 1px rgba(0,0,0,.07), 0 6px 18px rgba(0,0,0,.08); }
-.rt h3 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 0; font-size: 17px; letter-spacing: -.012em; }
-.rt h3 small { flex: 0 0 auto; font-size: 12.5px; font-weight: 500; color: var(--muted); }
-.rt .alt { margin-top: 1px; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.rt dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 12px 0; }
-.rt dt { font-size: 10px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: #8e8e93; white-space: nowrap; }
-.rt dd { margin: 2px 0 0; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.rt dd span { font-size: 12px; font-weight: 500; color: #6e6e73; }
-.rt .gd { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 2px; }
-.rt dd em { font-style: normal; }
-.rt .sn { color: var(--snow); }
-.rt .no { color: #c0c4ca; }
-.rt .top { display: flex; align-items: center; gap: 6px; margin-top: auto; padding-top: 10px; border-top: 1px solid #f0f1f4; font-size: 13px; color: var(--ink-2); }
-.rt .top svg { flex: 0 0 auto; color: var(--accent); }
-.rt .top span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.rt .top b { font-weight: 600; color: var(--ink); }
 @media (max-width: 1020px) { .hl { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 860px) {
-  .hhero { grid-template-columns: 1fr; gap: 20px; padding: 14px 4px 22px; }
+  .hhero { grid-template-columns: 1fr; gap: 20px; padding: 14px 0 22px 4px; }
   .home h1 { font-size: 32px; }
   .home .lead { font-size: 17px; }
   .hl { gap: 8px; margin-bottom: 22px; }
   .hl .st { padding: 10px 12px 11px; }
   .hl .st b { font-size: 20px; }
-  .sech { margin: 0 4px 10px; }
   .about { padding-top: 16px; }
   .about h1 { font-size: 34px; }
   .about .lead { font-size: 18px; }
@@ -365,8 +342,6 @@ h1, h2, .about .lead { text-wrap: balance; }
       <div id="hcard"></div>
     </div>
     <div class="hl" id="hl"></div>
-    <div class="sech"><h2>Pohoří</h2><span id="hmeta"></span></div>
-    <div class="ranges" id="ranges"></div>
   </section>
 
   <div class="sheet" id="mg">
@@ -778,10 +753,9 @@ function render() {
 async function home() {
   const run = state.run;
   if (!state.sum[run]) {
-    $("ranges").innerHTML = Array.from({ length: 8 }, () =>
-      `<div class="rt">${SK("55%", 17)}${SK("35%", 11).replace('">', ';margin:8px 0 18px">')}${SK("100%", 30)}</div>`).join("");
+    $("hl").innerHTML = Array.from({ length: 4 }, () => `<div class="st">${SK("62%", 10)}${SK("48%", 22)}${SK("74%", 10)}</div>`).join("");
     try { state.sum[run] = await (await fetch(`/data/${run}/summary.json`)).json(); }
-    catch (e) { $("ranges").innerHTML = `<div class="msg">Přehled zatím není k dispozici.</div>`; return; }
+    catch (e) { $("hl").innerHTML = ""; return; }
     if (state.run !== run || viewOf() !== "home") return;
   }
   const S = state.sum[run], times = S.times.map(t => new Date(t)), i0 = nowIndex(times);
@@ -847,29 +821,6 @@ async function home() {
     (snowy.sn >= 0.5 ? tile(snowy, "drop", "Nejvíc sněhu · 24 h", `≈ ${Math.round(snowy.sn)} <span>cm</span>`)
       : tile(wet, "drop", "Nejvíc srážek · 24 h", `${fmtNum(wet.pr)} <span>mm</span>`, wet.pr < 0.1 ? "nikde neprší" : "")) +
     tile(sunny, "sun", "Nejvíc slunce · 24 h", `${fmtNum(sunny.sun)} <span>h</span>`);
-
-  const r0 = local(runDate(run));
-  $("hmeta").textContent = `teď a příštích 24 h · běh ${r0.day}. ${r0.month}. ${pad(r0.hour)}:00` +
-    (state.corr ? " · teplota přepočtená na výšku stanice" : "");
-  const stanic = n => `${n} ${n < 5 ? "stanice" : "stanic"}`;
-  const fmax = (rs, f) => Math.max(...rs.map(f));
-  // dlaždice pohoří: souhrn přes všechny stanice, klik otevře nejvyšší stanici
-  $("ranges").innerHTML = groups().map(([range, list]) => {
-    const rs = list.map(p => rows[p.id]).filter(Boolean);
-    if (!rs.length) return "";
-    const top = rs[0], alts = rs.map(r => r.p.alt);
-    const lo = Math.min(...rs.map(r => r.now)), hi = Math.max(...rs.map(r => r.now));
-    const g = fmax(rs, r => r.gmax), sn = fmax(rs, r => r.sn), pr = fmax(rs, r => r.pr);
-    const prec = sn >= 0.5 ? `<em class="sn">${Math.round(sn)}</em> <span>cm</span>` : pr < 0.1 ? `<em class="no">–</em>` : `${fmtNum(pr)} <span>mm</span>`;
-    return `<a class="rt" href="/#${top.p.id}" data-r="${range}"><h3>${range}<small>${stanic(rs.length)}</small></h3>` +
-      `<div class="alt">${Math.min(...alts) === Math.max(...alts) ? alts[0] : `${Math.min(...alts)}–${Math.max(...alts)}`} m n. m.</div>` +
-      `<dl><div><dt>Teď</dt><dd>${Math.round(lo) !== Math.round(hi) ? `${deg(lo)} <span>až</span> ${deg(hi)}` : fmtNum(lo) + "°"}</dd></div>` +
-      `<div><dt>Nárazy</dt><dd><i class="gd" style="background:${gust(g)[1]}"></i>${Math.round(g)} <span>m/s</span></dd></div>` +
-      `<div><dt>${sn >= 0.5 ? "Sníh" : "Srážky"}</dt><dd>${prec}</dd></div></dl>` +
-      `<div class="top">${PEAK}<span><b>${top.p.name}</b> · ${top.p.alt} m</span></div></a>`;
-  }).join("");
-  // pohoří se zároveň rozbalí v postranním seznamu
-  $("ranges").querySelectorAll(".rt").forEach(a => a.addEventListener("click", () => state.open.add(a.dataset.r)));
 }
 
 const PAGES = { "/o-projektu/": "O projektu – Meteogramy.cz" };
@@ -1076,7 +1027,7 @@ async function init() {
     await loadRun(idx.runs[0]);
     runsDropdown(idx.runs);
   } catch (e) {
-    $("chart").innerHTML = $("ranges").innerHTML = `<div class="msg">Data zatím nejsou stažená. Spusťte <code>./start.sh</code>.</div>`;
+    $("chart").innerHTML = $("hl").innerHTML = `<div class="msg">Data zatím nejsou stažená. Spusťte <code>./start.sh</code>.</div>`;
   }
 }
 
