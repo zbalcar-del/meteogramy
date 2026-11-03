@@ -1376,11 +1376,13 @@ function route() {
   }
   window.scrollTo(0, 0);
   if (v === "home" || v === "range") {
-    if (v === "home") document.title = HOME_TITLE;
+    // úvod: postranní seznam sbalený a nahoře; stránka pohoří rozbalí své pohoří
+    if (v === "home") { document.title = HOME_TITLE; state.open.clear(); }
     else state.open.add(RANGE_OF[pathId()]);
     if (!state.data) return;
     state.id = state.counted = null;
     picker();
+    if (v === "home") $("picker").scrollTop = 0;
     return v === "home" ? home() : rangeView();
   }
   if (state.data) picker();
