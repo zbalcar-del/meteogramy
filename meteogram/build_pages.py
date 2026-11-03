@@ -236,6 +236,8 @@ def not_found():
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Stránka nenalezena – Meteogramy.cz</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>
 body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f8f8fa; color: #15191f;
   font: 17px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }

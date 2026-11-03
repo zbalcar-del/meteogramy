@@ -6,7 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Meteogramy.cz – meteogramy ALADIN pro české hory</title>
 <meta name="description" content="Meteogramy ALADIN pro 109 horských stanic ČHMÚ: teplota, vítr a nárazy, srážky, sníh, tlak a oblačnost po hodinách na 3 dny. Klasický meteogram v podobě, na kterou jste zvyklí.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22f%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%232fd2fc%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231c6ef2%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2223%22%20fill%3D%22url%28%23f%29%22/%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.5%22%20stroke-width%3D%221.6%22%3E%3Cpath%20d%3D%22M9%200V100M0%209H100%22/%3E%3Cpath%20d%3D%22M27.5%200V100M0%2027.5H100%22/%3E%3Cpath%20d%3D%22M50%200V100M0%2050H100%22/%3E%3Cpath%20d%3D%22M72.5%200V100M0%2072.5H100%22/%3E%3Cpath%20d%3D%22M91%200V100M0%2091H100%22/%3E%3Cpath%20d%3D%22M0%200L100%20100M100%200L0%20100%22/%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2241%22/%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2222.5%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="https://meteogramy.cz/">
 <!-- seo -->
 <meta property="og:type" content="website">
@@ -21,6 +22,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <!-- /seo -->
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#f8f8fa">
 <style>
 /* Pohyb jen při interakci: karty se po najetí myší lehce zvednou a při kliknutí jemně zmáčknou.
@@ -253,6 +255,16 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .about section p { margin: 0 0 10px; color: #424245; }
 .about section p:last-child { margin-bottom: 0; }
 .about .note { font-size: 15px; color: #6e6e73; }
+/* věnování: fotka přes celou kartu, text na jemném ztmavení dole */
+.about .dedic { position: relative; margin: 0 0 12px; border-radius: 22px; overflow: hidden; background: #1c2128;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 12px 36px rgba(0,0,0,.12); }
+.about .dedic img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; transition: transform 1.2s var(--ease); }
+.about .dedic:hover img { transform: scale(1.03); }
+.about .dedic figcaption { position: absolute; inset: auto 0 0; display: flex; flex-direction: column; gap: 6px; padding: 80px 30px 26px;
+  background: linear-gradient(180deg, rgba(10,14,20,0), rgba(10,14,20,.62)); color: #fff; }
+.about .dedic b { font-size: 34px; line-height: 1.08; letter-spacing: -.025em; font-weight: 700; }
+.about .dedic .tag { font-size: 16px; font-weight: 600; color: rgba(255,255,255,.86); }
+.about .dedic small { position: absolute; right: 22px; bottom: 26px; font-size: 12px; color: rgba(255,255,255,.6); }
 .about .credits { margin: 0; padding: 0; list-style: none; font-size: 14px; line-height: 1.5; color: #6e6e73; columns: 2; column-gap: 28px; }
 .about .credits li { break-inside: avoid; margin: 0 0 6px; }
 .about .credits b { color: var(--ink); font-weight: 600; }
@@ -421,6 +433,9 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
   .about h1 { font-size: 34px; }
   .about .lead { font-size: 18px; }
   .about .facts { grid-template-columns: 1fr; }
+  .about .dedic figcaption { padding: 56px 20px 18px; }
+  .about .dedic b { font-size: 24px; }
+  .about .dedic small { right: 16px; bottom: 18px; }
   .about section { padding: 20px; }
   .rhead { padding: 14px 0 20px 4px; }
   .shelf { --fr: 40px; }
@@ -518,7 +533,7 @@ h1, h2 { text-wrap: balance; }
     <div class="hhero">
       <div>
       <p class="eyebrow">Předpověď pro české hory</p>
-      <h1>Meteogramy, jak je znáte</h1>
+      <h1>Meteogramy, jak je znáte i neznáte</h1>
       <p class="lead">Předpověď modelu ALADIN pro <span id="hcount">109</span> horských stanic ČHMÚ. Teplota, vítr, srážky a další údaje po hodinách na tři dny dopředu.</p>
       <p class="origin">Projekt vznikl pro všechny, kteří hledají původní vzhled meteogramů a chtějí mít počasí na horách přehledně v grafech.</p>
       <div id="hlast"></div>
@@ -561,30 +576,30 @@ h1, h2 { text-wrap: balance; }
   <section class="sinfo" id="sinfo" hidden></section>
   <article class="about" id="about" hidden>
     <p class="eyebrow">O projektu</p>
-    <h1>Meteogram, na který jste byli zvyklí.</h1>
-    <p class="lead">Meteogramy.cz navazují na klasický meteogram ALADIN v podobě, na kterou jste byli zvyklí ze starého webu ČHMÚ. Stejná data, stejné přehledné grafy – jen v moderním kabátě a zaměřené na hory.</p>
+    <h1>Meteogramy, jak je znáte.<br>I neznáte.</h1>
+    <p class="lead">Meteogramy.cz jsme postavili od základu. Grafy vycházejí z klasického meteogramu ALADIN, takže se v nich vyznáte hned. Všechno ostatní je nové.</p>
     <div class="facts">
       <div class="fact"><b>109</b><span>horských stanic ČHMÚ</span></div>
       <div class="fact"><b>2,3 km</b><span>rozlišení modelu ALADIN</span></div>
       <div class="fact"><b>4× denně</b><span>nová předpověď na 3 dny</span></div>
     </div>
     <section>
-      <h2>Odkud jsou data</h2>
-      <p>Předpověď pochází z numerického modelu ALADIN CZ, který počítá Český hydrometeorologický ústav. ČHMÚ ji zveřejňuje jako otevřená data na <a href="https://opendata.chmi.cz/meteorology/weather/nwp_aladin/" target="_blank" rel="noopener">opendata.chmi.cz</a>. Model počítá v síti 2,3 km; ČHMÚ jeho výstupy zveřejňuje i v jemnějším rastru zhruba 1 km, ze kterého vycházíme. Každý nový běh modelu stáhneme a zpracujeme automaticky.</p>
+      <h2>Data přímo od ČHMÚ.</h2>
+      <p>Předpověď počítá Český hydrometeorologický ústav numerickým modelem ALADIN CZ a zveřejňuje ji jako otevřená data na <a href="https://opendata.chmi.cz/meteorology/weather/nwp_aladin/" target="_blank" rel="noopener">opendata.chmi.cz</a>. Model počítá v síti 2,3 km, my používáme jeho výstup v jemnějším rastru zhruba 1 km. Každý nový běh stáhneme a zpracujeme automaticky.</p>
     </section>
     <section>
-      <h2>Jak to funguje</h2>
-      <p>Pro každou stanici vybereme v okruhu 1,5 km bod sítě modelu, jehož nadmořská výška nejlépe odpovídá výšce stanice. Z něj sestavíme meteogram: teplotu, vítr a nárazy, srážky a sníh, vlhkost, tlak a oblačnost po hodinách na tři dny dopředu.</p>
-      <p>Model krajinu vyhlazuje, takže hory jsou v něm nižší a uzel modelu může ležet o desítky, na nejvyšších vrcholech i přes sto metrů níž než stanice. Přepínačem nad grafy si teplotu můžete přepočítat na skutečnou výšku stanice.</p>
+      <h2>Bod modelu na míru každé stanici.</h2>
+      <p>Pro každou stanici hledáme v okruhu 1,5 km bod modelu, jehož výška nejlépe odpovídá výšce stanice. Z něj skládáme meteogram: teplota, vítr a nárazy, srážky a sníh, vlhkost, tlak a oblačnost. Hodinu po hodině, tři dny dopředu.</p>
+      <p>Model terén vyhlazuje, takže jsou v něm hory nižší – na nejvyšších vrcholech i o víc než sto metrů. Jedním přepínačem nad grafy přepočítáte teplotu na skutečnou výšku stanice.</p>
     </section>
     <section>
-      <h2>Důležité upozornění</h2>
-      <p>Jde o automatickou modelovou předpověď bez zásahu meteorologa a bez záruky. V horách se počasí mění rychle – před túrou vždy sledujte i <a href="https://www.chmi.cz/" target="_blank" rel="noopener">výstrahy ČHMÚ</a> a aktuální podmínky.</p>
+      <h2>Na hory s rozvahou.</h2>
+      <p>Jde o automatickou předpověď modelu, bez zásahu meteorologa a bez záruky. Počasí v horách se mění rychle. Před túrou proto sledujte i <a href="https://www.chmi.cz/" target="_blank" rel="noopener">výstrahy ČHMÚ</a> a aktuální podmínky na místě.</p>
       <p class="note">Meteogramy.cz nejsou oficiální službou ČHMÚ.</p>
     </section>
     <section>
       <h2>Fotografie</h2>
-      <p>Fotografie pohoří pocházejí z Wikimedia Commons a Pixabay a jsou použité podle uvedených licencí; pro web jsme je ořízli a zmenšili.</p>
+      <p>Fotografie pohoří jsou z Wikimedia Commons a Pixabay a používáme je podle uvedených licencí. Pro web jsme je ořízli a zmenšili.</p>
       <ul class="credits">
         <li><b>Krkonoše</b> – <a href="https://pixabay.com/cs/photos/hory-sn%C4%9Bhov%C3%A1-koule-krajina-3713266/" target="_blank" rel="noopener">Pixabay</a>, <a href="https://pixabay.com/cs/service/license-summary/" target="_blank" rel="noopener">licence Pixabay</a></li>
         <li><b>Jizerské hory</b> – <a href="https://commons.wikimedia.org/wiki/File:Zimn%C3%AD_slunce_desn%C3%A1_-_Jizersk%C3%A9_hory_-_prosinec_2022.jpg" target="_blank" rel="noopener">Latus.siroky</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
@@ -608,9 +623,13 @@ h1, h2 { text-wrap: balance; }
       </ul>
     </section>
     <section>
-      <h2>Kontakt</h2>
-      <p>Máte nápad, našli jste chybu nebo vám chybí stanice? Napište na <a class="mail" href="#" data-m="bW9jLmR1b2xjaUByYWNsYWJ6">e-mail se zobrazí po načtení stránky</a>.</p>
+      <h2>Napište nám.</h2>
+      <p>Máte nápad, našli jste chybu, nebo vám chybí stanice? Ozvěte se na <a class="mail" href="#" data-m="bW9jLmR1b2xjaUByYWNsYWJ6">e-mail se zobrazí po načtení stránky</a>.</p>
     </section>
+    <figure class="dedic">
+      <img src="/assets/snowboarding.jpg" alt="Snowboardisté s prkny v zasněženém lese" width="1600" height="1066" loading="lazy" decoding="async">
+      <figcaption><b>Dedicated to snowboarding</b><span class="tag">@otroci_prasanu</span><small>Foto: David Hofmann</small></figcaption>
+    </figure>
   </article>
   <article class="about" id="privacy" hidden>
     <p class="eyebrow">Právní informace</p>
