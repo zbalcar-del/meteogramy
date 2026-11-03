@@ -265,8 +265,6 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .hl .sx em { font-style: normal; color: var(--ink); font-weight: 600; }
 .hl .sx .gd { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
 .hl .lb { overflow: hidden; text-overflow: ellipsis; }
-.hl .fe { justify-content: center; gap: 6px; background: transparent; box-shadow: none; border: 1.5px dashed #d5d9e0; color: var(--muted); font-size: 13px; line-height: 1.4; }
-.hl .fe b { display: inline; margin: 0; font-size: 13px; color: var(--ink-2); }
 .sech { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 16px; margin: 0 8px 12px; }
 .sech h2 { margin: 0; font-size: 22px; letter-spacing: -.015em; }
 .sech span { font-size: 13px; color: var(--muted); }
@@ -376,7 +374,7 @@ h1, h2 { text-wrap: balance; }
       <div id="hcard"></div>
     </div>
     <div class="hl" id="hl"></div>
-    <div class="sech"><h2>Oblíbené</h2><span>nejčastěji prohlížené</span></div>
+    <div class="sech"><h2>Oblíbené</h2><span>nejčastěji prohlížené za 30 dní</span></div>
     <div class="hl" id="favs"></div>
   </section>
 
@@ -438,8 +436,12 @@ h1, h2 { text-wrap: balance; }
       <p class="note">K doplnění před zveřejněním: rozsah a doba uchování provozních a bezpečnostních logů u Webglobe.</p>
     </section>
     <section>
+      <h2>Oblíbené stanice</h2>
+      <p>Když otevřete meteogram stanice, web na náš hosting odešle jen název stanice. Server k němu přičte jedničku do denního součtu za celý web; vaši IP adresu, cookies ani jiný identifikátor k součtu neukládá. Z těchto anonymních součtů za posledních 30 dní sestavujeme oblíbené stanice na úvodní stránce. Starší denní součty se automaticky mažou.</p>
+    </section>
+    <section>
       <h2>Co si pamatuje váš prohlížeč</h2>
-      <p>Aplikace v místním úložišti prohlížeče uchovává poslední otevřenou stanici, počty otevření stanic pro sestavení oblíbených a nastavení přepočtu teploty na nadmořskou výšku stanice.</p>
+      <p>Aplikace v místním úložišti prohlížeče uchovává poslední otevřenou stanici a nastavení přepočtu teploty na nadmořskou výšku stanice.</p>
       <p>Tyto údaje zůstávají ve vašem prohlížeči. Aplikace je neposílá provozovateli ani analytickým službám. Zůstávají uložené do smazání dat webu nebo do jejich odstranění prohlížečem. Vymazat je můžete v nastavení prohlížeče odstraněním dat pro Meteogramy.cz.</p>
       <p class="note">Před dokončením stránky sladíme ukládání preferencí s nastavením souhlasové lišty.</p>
     </section>
@@ -483,13 +485,17 @@ const RANGES = ["Krkonoše", "Jizerské hory", "Ještěd a Kozákov", "Lužické
   "Orlické hory", "Králický Sněžník", "Hrubý Jeseník", "Nízký Jeseník", "Beskydy", "Javorníky", "Hostýnské vrchy", "Bílé Karpaty"];
 
 try { state.corr = localStorage.getItem("corr") === "1"; } catch (e) {}
-// oblíbené = stanice, které si návštěvník prohlíží nejčastěji (počty si pamatuje jen jeho prohlížeč)
+// oblíbené = stanice, které si za posledních 30 dní nejčastěji otevírají všichni návštěvníci (api/oblibene.php)
 const FAV_MAX = 4;
-state.visits = {};
-try { state.visits = JSON.parse(localStorage.getItem("visits") || "{}"); } catch (e) {}
+// dokud statistika nemá dost stanic, doplní se známé horské stanice
+const FAV_FALLBACK = ["snezka-postovna", "praded", "lysa-hora", "churanov", "klinovec", "labska-bouda"];
+try { localStorage.removeItem("visits"); } catch (e) {}  // dřívější počty jen pro tento prohlížeč
 function countVisit(id) {
-  state.visits[id] = (state.visits[id] || 0) + 1;
-  try { localStorage.setItem("visits", JSON.stringify(state.visits)); } catch (e) {}
+  try { navigator.sendBeacon(`/api/oblibene.php?id=${encodeURIComponent(id)}`); } catch (e) {}
+}
+function loadPopular() {
+  if (!state.popular) state.popular = fetch("/api/oblibene.php").then(r => r.json()).then(d => d.ids || []).catch(() => []);
+  return state.popular;
 }
 $("corr").checked = state.corr;
 
@@ -864,6 +870,7 @@ function render() {
 // úvodní stránka: souhrn všech stanic na příštích 24 h
 async function home() {
   const run = state.run;
+  const popular = loadPopular();
   if (!state.sum[run]) {
     $("hl").innerHTML = Array.from({ length: 4 }, () => `<div class="st">${SK("62%", 10)}${SK("48%", 22)}${SK("74%", 10)}</div>`).join("");
     try { state.sum[run] = await (await fetch(`/data/${run}/summary.json`)).json(); }
@@ -974,14 +981,14 @@ async function home() {
       : tile(wet, "drop", "Nejvíc srážek · 24 h", `${fmtNum(wet.pr)} <span>mm</span>`, wet.pr < 0.1 ? "nikde neprší" : "")) +
     tile(sunny, "sun", "Nejvíc slunce · 24 h", `${fmtNum(sunny.sun)} <span>h</span>`);
 
-  // oblíbené: nejčastěji prohlížené stanice
-  const favs = Object.keys(state.visits).filter(id => rows[id])
-    .sort((a, b) => state.visits[b] - state.visits[a]).slice(0, FAV_MAX).map(id => rows[id]);
+  // oblíbené: nejčastěji prohlížené stanice všemi návštěvníky
+  const ids = await popular;
+  if (state.run !== run || viewOf() !== "home") return;
+  const favs = [...new Set([...ids, ...FAV_FALLBACK])].filter(id => rows[id]).slice(0, FAV_MAX).map(id => rows[id]);
   const fprec = r => r.sn >= 0.5 ? `${Math.round(r.sn)} cm sněhu` : r.pr < 0.1 ? "bez srážek" : `${fmtNum(r.pr)} mm`;
   $("favs").innerHTML = favs.map(r => `<a class="st" href="/#${r.p.id}"><div class="lb">${r.p.range} · ${r.p.alt} m</div>` +
     `<b>${fmtNum(r.now)}°</b><div class="sx"><em>${r.p.name}</em></div>` +
-    `<div class="sx"><i class="gd" style="background:${gust(r.gmax)[1]}"></i>${Math.round(r.gmax)} m/s · ${fprec(r)}</div></a>`).join("") ||
-    `<div class="st fe">Tady se objeví stanice, které si prohlížíte nejčastěji.</div>`;
+    `<div class="sx"><i class="gd" style="background:${gust(r.gmax)[1]}"></i>${Math.round(r.gmax)} m/s · ${fprec(r)}</div></a>`).join("");
 }
 
 const PAGES = { "/o-projektu/": "O projektu – Meteogramy.cz", "/ochrana-soukromi/": "Ochrana soukromí – Meteogramy.cz" };

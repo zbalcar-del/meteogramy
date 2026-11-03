@@ -1,0 +1,3 @@
+# počty návštěv čte jen oblibene.php, ne prohlížeč
+RewriteEngine On
+RewriteRule ^stats/ - [F,L]

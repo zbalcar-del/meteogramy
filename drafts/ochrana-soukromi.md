@@ -14,19 +14,22 @@ Při doručování stránek server zpracovává IP adresu a údaje o požadavku.
 
 **K doplnění:** ověřit u Webglobe skutečný rozsah logovaných údajů a dobu uchování přístupových, chybových a bezpečnostních logů. Ověřit také nastavení případných serverových statistik.
 
+## Oblíbené stanice
+
+Při otevření meteogramu stanice odešle web na hosting jen identifikátor stanice (`/api/oblibene.php`). Server ho přičte do denního součtu za celý web a neukládá k němu IP adresu, cookies ani jiný identifikátor návštěvníka. Z anonymních součtů za posledních 30 dní se sestavují oblíbené stanice na úvodní stránce; starší dny se automaticky mažou. (Samotný požadavek se může jako každý jiný objevit v přístupových logech hostingu, viz výše.)
+
 ## Co si pamatuje váš prohlížeč
 
 Aplikace používá místní úložiště prohlížeče (localStorage):
 
 - `last`: naposledy otevřená stanice, pro možnost pokračovat tam, kde jste skončili.
-- `visits`: počet otevření jednotlivých stanic, podle kterého sestavuje vaše oblíbené stanice.
 - `corr`: vaše volba přepočtu teploty na nadmořskou výšku stanice.
 
 Tyto údaje zůstávají ve vašem prohlížeči. Aplikace je neposílá provozovateli ani analytickým službám a nepoužívá je ke sledování napříč weby. Nemají nastavenou vlastní dobu expirace; zůstávají uložené do smazání dat webu nebo do jejich odstranění prohlížečem.
 
-Údaje můžete vymazat v nastavení prohlížeče odstraněním dat pro Meteogramy.cz. Tím se zruší uložené preference a historie pro sestavení oblíbených stanic.
+Údaje můžete vymazat v nastavení prohlížeče odstraněním dat pro Meteogramy.cz. Tím se zruší uložené preference.
 
-**K ověření před zveřejněním:** posoudit režim souhlasu pro automatické ukládání četnosti návštěv a poslední stanice podle § 89 odst. 3 zákona č. 127/2005 Sb. Místní úložiště samo o sobě není výjimkou z pravidel pro cookies a obdobné technologie.
+**K ověření před zveřejněním:** posoudit režim souhlasu pro automatické ukládání poslední stanice podle § 89 odst. 3 zákona č. 127/2005 Sb. Místní úložiště samo o sobě není výjimkou z pravidel pro cookies a obdobné technologie.
 
 ## Když mi napíšete
 

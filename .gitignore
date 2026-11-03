@@ -5,6 +5,7 @@ __pycache__/
 
 # stažená a vygenerovaná data (vznikají při každém běhu modelu)
 web/data/
+web/api/stats/
 meteogram/osm_cache/
 *.grb
 *.grb.bz2

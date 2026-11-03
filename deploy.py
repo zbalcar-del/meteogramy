@@ -52,7 +52,7 @@ def main():
         f'open -p {config["SFTP_PORT"]} -u {quote(config["SFTP_USER"] + "," + config["SFTP_PASSWORD"])} {quote("sftp://" + config["SFTP_HOST"])}',
         *([f'cd {quote(config["SFTP_REMOTE_DIR"])}', 'cls -la'] if args.list else [
             f'cd {quote(config["SFTP_REMOTE_DIR"])}',
-            f'mirror --reverse --verbose {"--dry-run " if args.dry_run else ""}--no-perms --exclude-glob .DS_Store --exclude-glob data/ {quote(str(root / "web"))} .',
+            f'mirror --reverse --verbose {"--dry-run " if args.dry_run else ""}--no-perms --exclude-glob .DS_Store --exclude-glob data/ --exclude-glob api/stats/ {quote(str(root / "web"))} .',
             # Webglobe může neexistující cesty předat index.php před zpracováním .htaccess.
             # Stejný vstup aplikace proto publikujeme také pod informační stránkou.
             *([] if args.dry_run else [
