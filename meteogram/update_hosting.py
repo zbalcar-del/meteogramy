@@ -4,6 +4,7 @@ Plánovaný běh (každou hodinu) nahraje nový běh modelu a s ním přegenerov
 Push nebo ruční spuštění navíc nasadí statické soubory z web/ a stránky vygeneruje vždy.
 """
 
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -17,6 +18,8 @@ DATA = WEB / 'data'
 SITE = ROOT / 'build' / 'site'
 # z web/ se nenahrávají data (řeší publish), počty návštěv ani šablona index.html (nahrazuje ji vygenerovaná)
 SKIP = ('data/', 'api/stats/')
+# otisky nahraných souborů na hostingu; nahrává se jen to, co se od minula změnilo
+MANIFEST = '.deploy-manifest.json'
 RUN = re.compile(r'20\d{8}')
 
 
@@ -74,9 +77,16 @@ def publish(sftp, previous_runs):
 
 
 def upload(sftp, files):
-    """Nahraje soubory {cesta na hostingu: místní soubor}; každý se přepne až po úplném přenosu."""
+    """Nahraje změněné soubory {cesta na hostingu: místní soubor}; každý se přepne až po úplném přenosu."""
+    try:
+        with sftp.open(MANIFEST, 'rb') as f:
+            known = json.loads(f.read())
+    except (OSError, ValueError):
+        known = {}
+    hashes = {remote: hashlib.sha256(Path(source).read_bytes()).hexdigest() for remote, source in files.items()}
+    changed = {remote: source for remote, source in files.items() if known.get(remote) != hashes[remote]}
     dirs = set()
-    for remote, source in sorted(files.items()):
+    for remote, source in sorted(changed.items()):
         parent = posixpath.dirname(remote)
         parts = parent.split('/') if parent else []
         for i in range(len(parts)):
@@ -91,7 +101,12 @@ def upload(sftp, files):
             dirs.add(d)
         sftp.put(str(source), remote + '.uploading')
         sftp.posix_rename(remote + '.uploading', remote)
-    print(f'Nahráno {len(files)} souborů webu.', flush=True)
+    with sftp.open(MANIFEST + '.uploading', 'wb') as f:
+        f.write(json.dumps({**known, **hashes}, sort_keys=True).encode())
+    sftp.posix_rename(MANIFEST + '.uploading', MANIFEST)
+    print(f'Nahráno {len(changed)} změněných souborů z {len(files)}.', flush=True)
+    for remote in sorted(changed):
+        print(f'  {remote}', flush=True)
 
 
 def site_files(static):

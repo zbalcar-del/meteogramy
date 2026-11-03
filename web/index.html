@@ -264,10 +264,6 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .about .dedic b { font-size: 34px; line-height: 1.08; letter-spacing: -.025em; font-weight: 700; }
 .about .dedic .tag { font-size: 16px; font-weight: 600; color: rgba(255,255,255,.86); }
 .about .dedic small { position: absolute; right: 22px; bottom: 26px; font-size: 12px; color: rgba(255,255,255,.6); }
-.about .credits { margin: 0; padding: 0; list-style: none; font-size: 14px; line-height: 1.5; color: #6e6e73; columns: 2; column-gap: 28px; }
-.about .credits li { break-inside: avoid; margin: 0 0 6px; }
-.about .credits b { color: var(--ink); font-weight: 600; }
-@media (max-width: 860px) { .about .credits { columns: 1; } }
 .ckbtn { height: 38px; padding: 0 16px; border: 0; border-radius: 11px; background: var(--accent-bg); color: var(--accent);
   font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
 .ckbtn:hover { background: #dbe7fa; }
@@ -585,6 +581,7 @@ h1, h2 { text-wrap: balance; }
     <section>
       <h2>Data přímo od ČHMÚ.</h2>
       <p>Předpověď počítá Český hydrometeorologický ústav numerickým modelem ALADIN CZ a zveřejňuje ji jako otevřená data na <a href="https://opendata.chmi.cz/meteorology/weather/nwp_aladin/" target="_blank" rel="noopener">opendata.chmi.cz</a>. Model počítá v síti 2,3 km, my používáme jeho výstup v jemnějším rastru zhruba 1 km. Každý nový běh stáhneme a zpracujeme automaticky.</p>
+      <p class="note">Vrstevnice na kartách pohoří vycházejí z výškového modelu Copernicus DEM, © DLR e.V. 2010–2014 a © Airbus Defence and Space GmbH 2014–2018, poskytnuto programem Copernicus Evropské unie a ESA.</p>
     </section>
     <section>
       <h2>Bod modelu na míru každé stanici.</h2>
@@ -595,31 +592,6 @@ h1, h2 { text-wrap: balance; }
       <h2>Na hory s rozvahou.</h2>
       <p>Jde o automatickou předpověď modelu, bez zásahu meteorologa a bez záruky. Počasí v horách se mění rychle. Před túrou proto sledujte i <a href="https://www.chmi.cz/" target="_blank" rel="noopener">výstrahy ČHMÚ</a> a aktuální podmínky na místě.</p>
       <p class="note">Meteogramy.cz nejsou oficiální službou ČHMÚ.</p>
-    </section>
-    <section>
-      <h2>Fotografie</h2>
-      <p>Fotografie pohoří jsou z Wikimedia Commons a Pixabay a používáme je podle uvedených licencí. Pro web jsme je ořízli a zmenšili.</p>
-      <ul class="credits">
-        <li><b>Krkonoše</b> – <a href="https://pixabay.com/cs/photos/hory-sn%C4%9Bhov%C3%A1-koule-krajina-3713266/" target="_blank" rel="noopener">Pixabay</a>, <a href="https://pixabay.com/cs/service/license-summary/" target="_blank" rel="noopener">licence Pixabay</a></li>
-        <li><b>Jizerské hory</b> – <a href="https://commons.wikimedia.org/wiki/File:Zimn%C3%AD_slunce_desn%C3%A1_-_Jizersk%C3%A9_hory_-_prosinec_2022.jpg" target="_blank" rel="noopener">Latus.siroky</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
-        <li><b>Ještěd a Kozákov</b> – <a href="https://pixabay.com/photos/forest-4043436/" target="_blank" rel="noopener">ivabalk, Pixabay</a>, <a href="https://pixabay.com/cs/service/license-summary/" target="_blank" rel="noopener">licence Pixabay</a></li>
-        <li><b>Lužické hory</b> – <a href="https://commons.wikimedia.org/wiki/File:Lausche2.jpg" target="_blank" rel="noopener">Rolf-Dresden</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a></li>
-        <li><b>České středohoří</b> – <a href="https://commons.wikimedia.org/wiki/File:Klete%C4%8Dn%C3%A1,_winter_2020-21,_view_towards_Mile%C5%A1ovka.jpg" target="_blank" rel="noopener">Tadeáš Gregor</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
-        <li><b>Krušné hory</b> – <a href="https://pixabay.com/photos/peat-bog-4911062/" target="_blank" rel="noopener">ivabalk, Pixabay</a>, <a href="https://pixabay.com/cs/service/license-summary/" target="_blank" rel="noopener">licence Pixabay</a></li>
-        <li><b>Doupovské hory</b> – <a href="https://commons.wikimedia.org/wiki/File:Doupovsk%C3%A9_hory_od_H%C5%AFrek_(1).jpg" target="_blank" rel="noopener">Lubor Ferenc</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
-        <li><b>Slavkovský les</b> – <a href="https://commons.wikimedia.org/wiki/File:Chaloupky_(Neuhaus)_from_the_east_2.jpg" target="_blank" rel="noopener">Mejdlowiki</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
-        <li><b>Český les</b> – <a href="https://commons.wikimedia.org/wiki/File:HirschsteinArberTscherchov.jpg" target="_blank" rel="noopener">Allexkoch</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
-        <li><b>Šumava</b> – <a href="https://commons.wikimedia.org/wiki/File:Jezern%C3%AD_sla%C5%A5_v_zim%C4%9B.jpg" target="_blank" rel="noopener">cs:ŠJů</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a></li>
-        <li><b>Novohradské hory</b> – <a href="https://commons.wikimedia.org/wiki/File:Krav%C3%AD_hora,_Novohradsk%C3%A9_hory_(01).jpg" target="_blank" rel="noopener">Anaj7</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0" target="_blank" rel="noopener">CC BY-SA 3.0</a></li>
-        <li><b>Brdy</b> – <a href="https://commons.wikimedia.org/wiki/File:Les_u_Komorska_(Brdy).jpg" target="_blank" rel="noopener">Jiří Kadlec</a>, Public domain</li>
-        <li><b>Vysočina</b> – <a href="https://commons.wikimedia.org/wiki/File:Pros%C3%AD%C4%8Dka,_v%C3%BDhled_sm%C4%9Br_z%C3%A1pad.jpg" target="_blank" rel="noopener">Vlach Pavel</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
-        <li><b>Orlické hory</b> – <a href="https://commons.wikimedia.org/wiki/File:Na_P%C4%9Bticest%C3%AD.jpg" target="_blank" rel="noopener">Ladislav Boháč</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
-        <li><b>Králický Sněžník</b> – <a href="https://commons.wikimedia.org/wiki/File:Widok_na_Ma%C5%82y_%C5%9Anie%C5%BAnik_zim%C4%85.jpg" target="_blank" rel="noopener">Piotr Kuźniar</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/pl/deed.en" target="_blank" rel="noopener">CC BY-SA 3.0 pl</a></li>
-        <li><b>Hrubý Jeseník</b> – <a href="https://commons.wikimedia.org/wiki/File:Praded_v_zime.jpg" target="_blank" rel="noopener">Witeg (cs.wikipedia)</a>, Public domain</li>
-        <li><b>Nízký Jeseník</b> – <a href="https://commons.wikimedia.org/wiki/File:Brunt%C3%A1l_-_zima.jpg" target="_blank" rel="noopener">Jacob.sousek7119</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
-        <li><b>Beskydy</b> – <a href="https://pixabay.com/photos/mountains-6938495/" target="_blank" rel="noopener">dragon77, Pixabay</a>, <a href="https://pixabay.com/cs/service/license-summary/" target="_blank" rel="noopener">licence Pixabay</a></li>
-        <li><b>Javorníky</b> – <a href="https://commons.wikimedia.org/wiki/File:Na_b%C4%9B%C5%BEk%C3%A1ch_Velk%C3%BDmi_Karlovicemi_to_byla_dlouh%C3%A1_j%C3%ADzda.jpg" target="_blank" rel="noopener">Ladislav Boháč</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
-      </ul>
     </section>
     <section>
       <h2>Napište nám.</h2>
@@ -1167,10 +1139,10 @@ const fprec = r => r.sn >= 0.5 ? `${Math.round(r.sn)} cm sněhu` : r.pr < 0.1 ? 
 const card = (r, label = `${r.p.range} · ${r.p.alt} m`) => `<a class="st" href="/${r.p.id}/"><div class="lb">${label}</div>` +
   `<b>${fmtNum(r.now)}°</b><div class="sx"><em>${r.p.name}</em></div>` +
   `<div class="sx"><i class="gd" style="background:${gust(r.gmax)[1]}"></i>${Math.round(r.gmax)} m/s · ${fprec(r)}</div></a>`;
-// karta pohoří s fotkou z web/assets/pohori (autoři na stránce O projektu); stejné HTML generuje build_pages.py
+// karta pohoří s vrstevnicemi terénu z web/assets/pohori (kreslí build_relief.py); stejné HTML generuje build_pages.py
 const stanic = n => n < 5 ? "stanice" : "stanic";
 const rangeLinks = except => groups().filter(([r]) => r !== except)
-  .map(([r, list]) => `<a class="rc" href="/${slug(r)}/"><span class="th"><img src="/assets/pohori/${slug(r)}.jpg" alt="" width="960" height="720" loading="lazy" decoding="async"></span><span class="tt"><b>${r}</b>` +
+  .map(([r, list]) => `<a class="rc" href="/${slug(r)}/"><span class="th"><img src="/assets/pohori/${slug(r)}.svg" alt="" width="400" height="300" loading="lazy" decoding="async"></span><span class="tt"><b>${r}</b>` +
     `<small>${list.length} ${stanic(list.length)} · až ${list[0].alt} m</small></span></a>`).join("");
 // šipky u poličky: posun o viditelnou šířku, na krajích se vypnou
 function shelfArrows() {
