@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="cs">
 <head>
+<meta name="robots" content="noindex, nofollow">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Meteogramy.cz – horský meteogram z modelu ALADIN</title>
@@ -57,7 +58,12 @@ button, select { font: inherit; }
 .search svg { position: absolute; left: 11px; top: 11px; color: #8a9099; pointer-events: none; }
 .search kbd { position: absolute; right: 8px; top: 8px; font: inherit; font-size: 11.5px; color: #8a9099; background: var(--paper);
   border: 1px solid #dcdfe5; border-radius: 5px; padding: 0 5px; line-height: 18px; pointer-events: none; }
-.search input:focus ~ kbd { display: none; }
+.search-clear { position: absolute; right: 4px; top: 4px; width: 28px; height: 28px; display: grid; place-items: center;
+  padding: 0; border: 0; border-radius: 6px; background: transparent; color: #8e8e93; cursor: pointer; }
+.search-clear[hidden] { display: none; }
+.search-clear:hover { color: #636366; }
+.search-clear:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.search-clear svg { position: static; width: 16px; height: 16px; color: inherit; }
 .side > .picker { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 0; padding: 2px 12px 12px;
   scrollbar-width: thin; scrollbar-color: rgba(0,0,0,.18) transparent; transition: box-shadow .15s; }
 .picker::-webkit-scrollbar { width: 8px; }
@@ -98,8 +104,8 @@ button, select { font: inherit; }
 .pk.on { background: var(--accent); color: #fff; }
 .pk.on svg, .pk.on small { color: rgba(255,255,255,.85); }
 .runsel { padding: 12px 6px 0; border-top: 1px solid #e2e4e9; }
-.sfoot { display: flex; flex-wrap: wrap; gap: 3px 12px; padding: 14px 6px 0; font-size: 11.5px; }
-.sfoot a { color: #6e6e73; text-decoration: none; }
+.sfoot { display: flex; flex-wrap: wrap; gap: 3px 8px; padding: 14px 6px 0; font-size: 11.5px; }
+.sfoot a { color: #6e6e73; text-decoration: none; white-space: nowrap; }
 .sfoot a:hover { color: var(--ink); text-decoration: underline; }
 .sfoot small { flex-basis: 100%; margin-top: 2px; font-size: 11px; color: #a1a1a6; }
 .runsel .rl { font-size: 10.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
@@ -135,6 +141,12 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .hero h1 { margin: 0; font-size: 32px; line-height: 1.08; font-weight: 700; letter-spacing: -.022em; }
 .hero .sub { margin-top: 6px; color: #6e6e73; font-size: 15px; }
 .hero .sub b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.daylight { display: flex; align-items: center; gap: 18px; margin-left: auto; padding-bottom: 2px; }
+.daylight .today { color: #8e8e93; font-size: 12px; }
+.daylight .event { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.daylight svg { width: 22px; height: 22px; color: #8e8e93; }
+.daylight time { font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; }
+@media (max-width: 860px) { .daylight { width: 100%; margin-left: 0; padding-bottom: 0; gap: 16px; } }
 .stats { width: 100%; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
 @media (max-width: 1020px) { .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .st { background: #f5f5f7; border-radius: 16px; padding: 11px 16px 12px; min-width: 0; display: flex; flex-direction: column; }
@@ -150,8 +162,8 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .st .bar em { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
 .st .bar u { position: absolute; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: #fff;
   box-shadow: 0 0 0 1px rgba(0,0,0,.18), 0 1px 2px rgba(0,0,0,.2); }
-.st.now { background: #fff1f0; }
-.st.now .lb { color: #c4473f; }
+.st.now { background: color-mix(in srgb, var(--temp) 8%, var(--paper)); }
+.st.now .lb { color: var(--temp); }
 .st.now b { font-size: 26px; color: var(--temp); }
 
 .metabar { display: flex; justify-content: space-between; align-items: center; gap: 10px 20px; flex-wrap: wrap;
@@ -237,6 +249,7 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .home .eyebrow { font-size: 14px; font-weight: 600; color: #86868b; margin: 0 0 10px; }
 .home h1 { font-size: 44px; line-height: 1.08; letter-spacing: -.03em; font-weight: 700; margin: 0 0 14px; }
 .home .lead { font-size: 19px; line-height: 1.45; color: #6e6e73; margin: 0; }
+.home .origin { font-size: 15px; line-height: 1.5; color: #6e6e73; margin: 14px 0 0; }
 .cont { display: inline-flex; align-items: center; gap: 9px; margin-top: 20px; padding: 9px 14px 9px 12px; border-radius: 12px;
   background: var(--paper); color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 600;
   box-shadow: 0 0 0 1px rgba(0,0,0,.05), 0 1px 3px rgba(0,0,0,.05); transition: box-shadow .15s; }
@@ -281,7 +294,7 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .skchart .row { display: flex; gap: 14px; align-items: center; margin: 18px 0 12px 50px; }
 .skchart .plot { height: 150px; margin: 0 52px 0 50px; border-radius: 10px; }
 .skrow { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; }
-h1, h2, .about .lead { text-wrap: balance; }
+h1, h2 { text-wrap: balance; }
 .about p, .hero .sub { text-wrap: pretty; }
 .foot { text-align: center; font-size: 12px; color: var(--muted); margin: 16px 0 0; }
 .foot a { color: var(--muted); }
@@ -312,13 +325,16 @@ h1, h2, .about .lead { text-wrap: balance; }
 <div class="app">
   <aside class="side">
     <a class="logo" href="/" aria-label="Meteogramy.cz – úvodní stránka">
-      <svg class="appicon" width="34" height="34" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="ig1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2fd2fc"/><stop offset="1" stop-color="#1c6ef2"/></linearGradient></defs><rect width="100" height="100" rx="23" fill="url(#ig1)"/><g fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.6"><path d="M9 0V100M0 9H100"/><path d="M27.5 0V100M0 27.5H100"/><path d="M50 0V100M0 50H100"/><path d="M72.5 0V100M0 72.5H100"/><path d="M91 0V100M0 91H100"/><path d="M0 0L100 100M100 0L0 100"/><circle cx="50" cy="50" r="41"/><circle cx="50" cy="50" r="22.5"/></g></svg>
+      <img class="appicon" src="/assets/logo.svg?v=2" width="34" height="34" alt="" aria-hidden="true">
       <div><div class="bn">Meteogramy.cz</div><div class="tag">horské meteogramy</div></div>
     </a>
     <div class="search">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
       <input id="q" type="search" placeholder="Hledat stanici" autocomplete="off" aria-label="Hledat stanici">
       <kbd id="qk">⌘K</kbd>
+      <button class="search-clear" id="qclear" type="button" aria-label="Vymazat hledání" title="Vymazat hledání" hidden>
+        <svg viewBox="0 0 16 16" aria-hidden="true"><defs><mask id="search-clear-cutout"><rect width="16" height="16" fill="#fff"/><path d="m5.6 5.6 4.8 4.8m0-4.8-4.8 4.8" fill="none" stroke="#000" stroke-width="1.4" stroke-linecap="round"/></mask></defs><circle cx="8" cy="8" r="7" fill="currentColor" mask="url(#search-clear-cutout)"/></svg>
+      </button>
     </div>
     <nav class="picker" id="picker"></nav>
     <div class="runsel">
@@ -342,7 +358,7 @@ h1, h2, .about .lead { text-wrap: balance; }
   <main class="main">
   <div class="mbar">
     <a class="logo" href="/" aria-label="Meteogramy.cz – úvodní stránka">
-      <svg class="appicon" width="26" height="26" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="ig2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2fd2fc"/><stop offset="1" stop-color="#1c6ef2"/></linearGradient></defs><rect width="100" height="100" rx="23" fill="url(#ig2)"/><g fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.6"><path d="M9 0V100M0 9H100"/><path d="M27.5 0V100M0 27.5H100"/><path d="M50 0V100M0 50H100"/><path d="M72.5 0V100M0 72.5H100"/><path d="M91 0V100M0 91H100"/><path d="M0 0L100 100M100 0L0 100"/><circle cx="50" cy="50" r="41"/><circle cx="50" cy="50" r="22.5"/></g></svg>
+      <img class="appicon" src="/assets/logo.svg?v=2" width="26" height="26" alt="" aria-hidden="true">
       <div class="bn">Meteogramy.cz</div>
     </a>
     <select id="picksel" aria-label="Hora"></select>
@@ -352,8 +368,9 @@ h1, h2, .about .lead { text-wrap: balance; }
     <div class="hhero">
       <div>
       <p class="eyebrow">Předpověď pro české hory</p>
-      <h1>Meteogramy horských stanic</h1>
-      <p class="lead">Hodinová předpověď z modelu ALADIN pro <span id="hcount">109</span> horských stanic ČHMÚ – teplota, vítr, srážky, sníh, tlak a oblačnost na tři dny dopředu.</p>
+      <h1>Meteogramy, jak je znáte</h1>
+      <p class="lead">Předpověď modelu ALADIN pro <span id="hcount">109</span> horských stanic ČHMÚ. Teplota, vítr, srážky a další údaje po hodinách na tři dny dopředu.</p>
+      <p class="origin">Projekt vznikl pro všechny, kteří hledají původní vzhled meteogramů a chtějí mít počasí na horách přehledně v grafech.</p>
       <div id="hlast"></div>
       </div>
       <div id="hcard"></div>
@@ -369,6 +386,7 @@ h1, h2, .about .lead { text-wrap: balance; }
         <h1 id="title">Meteogram</h1>
         <div class="sub" id="sub"></div>
       </div>
+      <div class="daylight" id="daylight" role="group" aria-label="Dnešní východ a západ slunce"></div>
       <div class="stats" id="stats"></div>
     </div>
     <div class="metabar">
@@ -404,6 +422,50 @@ h1, h2, .about .lead { text-wrap: balance; }
       <h2>Kontakt</h2>
       <p>Máte nápad, našli jste chybu nebo vám chybí stanice? Napište na <a class="mail" href="#" data-m="bW9jLmR1b2xjaUByYWNsYWJ6">e-mail se zobrazí po načtení stránky</a>.</p>
     </section>
+  </article>
+  <article class="about" id="privacy" hidden>
+    <p class="eyebrow">Soukromí</p>
+    <h1>Ochrana soukromí</h1>
+    <p class="lead">Jaké údaje Meteogramy.cz používají, proč je potřebují a jak nad nimi máte kontrolu.</p>
+    <section>
+      <h2>Kdo web provozuje</h2>
+      <p>Provozovatelem webu a správcem osobních údajů je Zdeněk Balcar. S dotazy k soukromí nebo žádostmi o uplatnění vašich práv napište na <a href="mailto:zbalcar@icloud.com">zbalcar@icloud.com</a>.</p>
+    </section>
+    <section>
+      <h2>Prohlížení předpovědi</h2>
+      <p>Pro čtení meteogramů nepotřebujete účet. Web nemá registrační ani kontaktní formulář. Předpovědi se načítají z našeho hostingu; váš prohlížeč je nestahuje přímo od ČHMÚ ani z GitHubu.</p>
+      <p>Při načítání stránek server zpracovává vaši IP adresu a technické údaje požadavku. Hosting je může zaznamenávat do přístupových a chybových logů pro zajištění provozu a bezpečnosti. Právním základem pro tyto účely je oprávněný zájem na dostupném a bezpečném webu podle čl. 6 odst. 1 písm. f) GDPR.</p>
+      <p class="note">K doplnění před zveřejněním: rozsah a doba uchování provozních a bezpečnostních logů u Webglobe.</p>
+    </section>
+    <section>
+      <h2>Co si pamatuje váš prohlížeč</h2>
+      <p>Aplikace v místním úložišti prohlížeče uchovává poslední otevřenou stanici, počty otevření stanic pro sestavení oblíbených a nastavení přepočtu teploty na nadmořskou výšku stanice.</p>
+      <p>Tyto údaje zůstávají ve vašem prohlížeči. Aplikace je neposílá provozovateli ani analytickým službám. Zůstávají uložené do smazání dat webu nebo do jejich odstranění prohlížečem. Vymazat je můžete v nastavení prohlížeče odstraněním dat pro Meteogramy.cz.</p>
+      <p class="note">Před dokončením stránky sladíme ukládání preferencí s nastavením souhlasové lišty.</p>
+    </section>
+    <section>
+      <h2>Google Analytics</h2>
+      <p>Připravujeme měření návštěvnosti pomocí Google Analytics, abychom zjistili, jak se web používá, a mohli jej zlepšovat. V současné verzi ještě měření není zapojené.</p>
+      <p>Plánované nastavení načte analytiku až po vašem souhlasu. Odmítnutí neomezí přístup k předpovědi. Souhlas půjde kdykoli změnit nebo odvolat přes nastavení cookies.</p>
+      <p class="note">Před spuštěním doplníme konkrétní údaje, cookies, příjemce a dobu uchovávání podle skutečného nastavení služby Google Analytics.</p>
+    </section>
+    <section>
+      <h2>Když nám napíšete</h2>
+      <p>Pokud se ozvete e-mailem, zpracujeme vaši e-mailovou adresu a obsah zprávy, abychom mohli odpovědět a vyřídit váš požadavek. U běžných dotazů je právním základem oprávněný zájem na vyřízení komunikace podle čl. 6 odst. 1 písm. f) GDPR. Vaši adresu nepoužíváme pro reklamní rozesílky.</p>
+      <p class="note">K doplnění: doba uchování vyřízené e-mailové komunikace.</p>
+    </section>
+    <section>
+      <h2>Kdo se podílí na provozu</h2>
+      <p>Web používá hosting Webglobe a kontaktní schránka službu iCloud Mail od společnosti Apple. Poskytovatelé mohou mít přístup k údajům v rozsahu potřebném pro poskytování svých služeb.</p>
+      <p class="note">Před zveřejněním ověříme smluvní podmínky poskytovatelů a případné předávání údajů mimo EHP včetně použitých záruk.</p>
+    </section>
+    <section>
+      <h2>Vaše práva</h2>
+      <p>Za podmínek GDPR můžete požadovat přístup ke svým údajům, jejich opravu, výmaz nebo omezení zpracování. Proti zpracování na základě oprávněného zájmu můžete vznést námitku. Právo na přenositelnost se uplatní při splnění jeho zákonných podmínek.</p>
+      <p>Žádosti posílejte na <a href="mailto:zbalcar@icloud.com">zbalcar@icloud.com</a>. Údaje uložené pouze ve vašem prohlížeči nemáme k dispozici; odstraníte je přímo v jeho nastavení.</p>
+      <p>Pokud se domníváte, že s vašimi údaji nakládáme v rozporu s předpisy, můžete podat stížnost <a href="https://uoou.gov.cz/">Úřadu pro ochranu osobních údajů</a>.</p>
+    </section>
+    <p class="note">Pracovní návrh k 3. listopadu 2026. Zbývající údaje doplníme před zveřejněním finálního znění.</p>
   </article>
   <div class="foot">Data: ČHMÚ – otevřená data, model ALADIN CZ · <a href="https://opendata.chmi.cz/meteorology/weather/nwp_aladin/" target="_blank" rel="noopener">opendata.chmi.cz</a></div>
   </main>
@@ -483,6 +545,18 @@ const ICONS = {
 };
 const ICON = k => `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[k]}</svg>`;
 const deg = v => `${Math.round(v)}°`.replace("-", "−");
+// Plynulé barevné přechody podle °C, shodné pro hodnotu i graf v úvodní kartě.
+function temperatureColor(value) {
+  const stops = [[-20, [65, 101, 187]], [-5, [61, 128, 205]], [5, [56, 143, 159]],
+    [15, [177, 150, 67]], [25, [214, 130, 57]], [35, [213, 83, 73]]];
+  const v = Math.max(stops[0][0], Math.min(stops[stops.length - 1][0], value));
+  for (let i = 1; i < stops.length; i++) {
+    if (v > stops[i][0]) continue;
+    const [a, ca] = stops[i - 1], [b, cb] = stops[i];
+    const ratio = (v - a) / (b - a);
+    return `rgb(${ca.map((c, k) => Math.round(c + (cb[k] - c) * ratio)).join(", ")})`;
+  }
+}
 const gust = g => g < 8 ? ["slabé", "#30d158"] : g < 14 ? ["mírné", "#ffd60a"] : g < 20 ? ["silné", "#ff9f0a"] : g < 25 ? ["velmi silné", "#ff453a"] : ["vichřice", "#bf1a2f"];
 // index hodiny, která odpovídá „teď“
 const nowIndex = times => Math.max(0, Math.min(times.length - 1, Math.round((Date.now() - times[0]) / 36e5)));
@@ -507,29 +581,40 @@ function header(m, T, times) {
   const pr = sum(sl(m.prec)), sn = sum(sl(m.snow)), gmax = Math.max(...sl(m.gust)), sun = sum(sl(m.sun)) / 60;
   const nowT = T[i0], ws = m.ws[i0], wd = m.wd[i0], kmh = ws * 3.6;
   const feels = nowT <= 10 && kmh > 4.8 ? 13.12 + 0.6215 * nowT - 11.37 * kmh ** 0.16 + 0.3965 * nowT * kmh ** 0.16 : nowT;
-  const day0 = times[i0], sunT = sunUTC(day0, m.lat, m.lon);
+  // Dnešní slunce se řídí datem v ČR, nezávisle na vybraném běhu modelu.
+  const today = {};
+  for (const p of new Intl.DateTimeFormat("en", { timeZone: TZ, year: "numeric", month: "numeric", day: "numeric" }).formatToParts(new Date())) today[p.type] = p.value;
+  const day0 = new Date(Date.UTC(+today.year, +today.month - 1, +today.day));
+  const sunT = sunUTC(day0, m.lat, m.lon);
   const hm = min => new Intl.DateTimeFormat("cs-CZ", { timeZone: TZ, hour: "numeric", minute: "2-digit" })
-    .format(new Date(Date.UTC(day0.getUTCFullYear(), day0.getUTCMonth(), day0.getUTCDate()) + min * 6e4));
+    .format(new Date(+day0 + Math.round(min) * 6e4));
+  const sunEvent = (kind, label, min) => {
+    const stamp = new Date(+day0 + Math.round(min) * 6e4).toISOString();
+    const arrow = kind === "rise" ? "M12 9V2m-3 3 3-3 3 3" : "M12 2v7m-3-3 3 3 3-3";
+    return `<span class="event" title="Dnešní ${label.toLowerCase()}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18h18M6 15a6 6 0 0 1 12 0M2 14h2m16 0h2M5 8l1.5 1.5M19 8l-1.5 1.5${arrow}"/></svg><time datetime="${stamp}" aria-label="${label} ${hm(min)}">${hm(min)}</time></span>`;
+  };
+  $("daylight").innerHTML = `<span class="today">Dnes</span>` + sunEvent("rise", "Východ slunce", sunT.rise) + sunEvent("set", "Západ slunce", sunT.set);
   // pruh rozsahu teplot: stupnice = rozsah celé předpovědi, barevný úsek = příštích 24 h, tečka = teď
   let tLo = Math.min(...T), tHi = Math.max(...T);
   if (tHi - tLo < 4) { tLo -= 2; tHi += 2; }
   const tf = v => Math.max(0, Math.min(100, (v - tLo) / (tHi - tLo) * 100));
-  const tcol = v => v < -10 ? "#5e5ce6" : v < 0 ? "#0a84ff" : v < 5 ? "#64d2ff" : v < 15 ? "#ffd60a" : v < 25 ? "#ff9f0a" : "#ff453a";
+  const tcol = temperatureColor;
   const bar = `<div class="bar"><em style="left:${tf(tMin)}%;width:${Math.max(2, tf(tMax) - tf(tMin))}%;background:linear-gradient(90deg,${tcol(tMin)},${tcol(tMax)})"></em><u style="left:${tf(nowT)}%"></u></div>`;
   // stejná šipka jako v grafu větru: míří ve směru proudění
   const arrow = `<svg width="18" height="18" viewBox="-8 -8 16 16" aria-hidden="true"><g transform="rotate(${Math.round(wd + 90)})">${ARROW("#0a84ff")}</g></svg>`;
   const [gTxt, gCol] = gust(gmax);
   const tile = (cls, icon, label, val, sub) => `<div class="st ${cls}"><div class="lb">${ICON(icon)}${label}</div><b>${val}</b>${sub}</div>`;
   const sx = t => `<div class="sx">${t}</div>`;
+  $("stats").style.setProperty("--temp", temperatureColor(nowT));
   $("stats").innerHTML =
-    tile("now", "thermo", `Teď · ${pad(local(times[i0]).hour)}:00`, fmtNum(nowT) + "°",
+    tile("now", "thermo", `Pro ${pad(local(times[i0]).hour)}:00`, fmtNum(nowT) + "°",
       sx(Math.abs(feels - nowT) >= 1 ? `pocitově ${deg(feels)}` : "bez vlivu větru")) +
     tile("", "wind", "Vítr", `${arrow}${Math.round(ws)} <span>m/s</span>`, sx(WIND_NAMES[compass(wd)])) +
     tile("", "range", "24 h teplota", `${deg(tMin)} <span>/</span> ${deg(tMax)}`, bar) +
     tile("", "gust", "24 h nárazy", `${Math.round(gmax)} <span>m/s</span>`, sx(`<i style="background:${gCol}"></i>${gTxt}`)) +
     tile("", "drop", "24 h srážky", `${fmtNum(pr)} <span>mm</span>`,
       sx(pr < 0.1 ? "bez srážek" : sn >= 0.5 ? `≈ ${Math.round(sn)} cm sněhu` : "převážně déšť")) +
-    tile("", "sun", "24 h slunce", `${fmtNum(sun)} <span>h</span>`, sx(`${hm(sunT.rise)} – ${hm(sunT.set)}`));
+    tile("", "sun", "24 h slunce", `${fmtNum(sun)} <span>h</span>`, sx("slunečního svitu"));
 }
 
 // ikona „circle-info“ z Font Awesome Free 6 (licence CC BY 4.0, fontawesome.com) – vložená přímo, bez načítání knihovny
@@ -812,26 +897,66 @@ async function home() {
   if (fr) {
     const p = fr.p, dz = p.alt - p.node.alt, raw = S.places[p.id].t;
     const T = state.corr ? raw.map(v => v - 0.0065 * dz) : raw, n = T.length;
-    const W = 320, H = 70, top = 6, bot = 52;
-    const lo = Math.min(...T), hi = Math.max(...T), span = Math.max(4, hi - lo), mid = (lo + hi) / 2;
-    const X = i => (i + 0.5) / n * W, Y = v => bot - (v - (mid - span / 2)) / span * (bot - top);
-    const pts = T.map((v, i) => `${X(i).toFixed(1)} ${Y(v).toFixed(1)}`);
-    let sp = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs><linearGradient id="hcg" x1="0" y1="0" x2="0" y2="1">` +
-      `<stop offset="0" stop-color="#e8312f" stop-opacity=".16"/><stop offset="1" stop-color="#e8312f" stop-opacity="0"/></linearGradient></defs>`;
-    times.forEach((t, i) => {
-      const l = local(t);
-      if (l.hour !== 0) return;
-      const xx = (X(i) - W / n / 2).toFixed(1);
-      sp += `<line x1="${xx}" x2="${xx}" y1="${top - 4}" y2="${bot}" stroke="#e3e5e9"/>` +
-        `<text x="${+xx + 4}" y="${H - 4}" font-size="9.5" fill="#8e8e93">${l.wd} ${l.day}. ${l.month}.</text>`;
+    const W = 320, H = 88, top = 9, bot = 66, left = 27, right = 5, plotW = W - left - right;
+    const [lo, hi] = niceRange(T, 2, 4);
+    const X = i => left + (i + 0.5) / n * plotW, Y = v => bot - (v - lo) / (hi - lo) * (bot - top);
+    // Monotónní kubická interpolace prochází hodinovými hodnotami bez překmitů.
+    const step = plotW / n, ys = T.map(Y);
+    const slopes = ys.slice(1).map((y, i) => (y - ys[i]) / step);
+    const tangents = ys.map((y, i) => {
+      if (i === 0) return slopes[0] || 0;
+      if (i === n - 1) return slopes[i - 1] || 0;
+      const a = slopes[i - 1], b = slopes[i];
+      return a * b <= 0 ? 0 : 2 * a * b / (a + b);
     });
-    sp += `<path d="M${X(0)} ${bot}L${pts.join("L")}L${X(n - 1)} ${bot}Z" fill="url(#hcg)"/>` +
-      `<path d="M${pts.join("L")}" fill="none" stroke="#e8312f" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` +
-      `<circle cx="${X(i0)}" cy="${Y(T[i0])}" r="3.5" fill="#e8312f" stroke="#fff" stroke-width="1.5"/></svg>`;
+    let curve = `M${X(0).toFixed(2)} ${ys[0].toFixed(2)}`;
+    for (let i = 1; i < n; i++) {
+      curve += `C${(X(i - 1) + step / 3).toFixed(2)} ${(ys[i - 1] + tangents[i - 1] * step / 3).toFixed(2)} ` +
+        `${(X(i) - step / 3).toFixed(2)} ${(ys[i] - tangents[i] * step / 3).toFixed(2)} ${X(i).toFixed(2)} ${ys[i].toFixed(2)}`;
+    }
+    const color = temperatureColor;
+    let sp = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs>` +
+      `<clipPath id="hcplot"><rect x="${left}" y="${top}" width="${plotW}" height="${bot - top}" rx="5"/></clipPath>` +
+      `<linearGradient id="hct" gradientUnits="userSpaceOnUse" x1="0" y1="${top}" x2="0" y2="${bot}">` +
+      `<stop stop-color="${color(hi)}"/><stop offset=".5" stop-color="${color((lo + hi) / 2)}"/><stop offset="1" stop-color="${color(lo)}"/></linearGradient>` +
+      `<linearGradient id="hcnight" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e9eef6" stop-opacity=".8"/><stop offset="1" stop-color="#f3f6fa" stop-opacity=".4"/></linearGradient>` +
+      `<linearGradient id="hcfade" x1="0" y1="0" x2="0" y2="1"><stop stop-color="${color(hi)}" stop-opacity=".10"/><stop offset="1" stop-color="${color(lo)}" stop-opacity="0"/></linearGradient></defs>` +
+      `<g clip-path="url(#hcplot)">`;
+    // Noc se řídí souřadnicemi stanice; sloučené úseky nemají mezery mezi hodinami.
+    let nightStart = null;
+    for (let i = 0; i <= n; i++) {
+      const night = i < n && isNight(times[i], p.lat, p.lon);
+      if (night && nightStart === null) nightStart = i;
+      if (!night && nightStart !== null) {
+        sp += `<rect x="${left + nightStart / n * plotW}" y="${top}" width="${(i - nightStart) / n * plotW}" height="${bot - top}" fill="url(#hcnight)"/>`;
+        nightStart = null;
+      }
+    }
+    for (const v of [lo, (lo + hi) / 2, hi]) {
+      sp += `<line x1="${left}" x2="${W - right}" y1="${Y(v)}" y2="${Y(v)}" stroke="${v === 0 ? "#d4dae4" : "#e4e8ee"}" stroke-width=".5" stroke-dasharray="${v === 0 ? "3 4" : "1 4"}"/>`;
+    }
+    sp += `<path d="${curve}L${X(n - 1)} ${bot}L${X(0)} ${bot}Z" fill="url(#hcfade)"/>` +
+      `<path d="${curve}" fill="none" stroke="url(#hct)" stroke-width="1.65" stroke-linecap="round"/>` +
+      `<circle cx="${X(i0)}" cy="${Y(T[i0])}" r="4.1" fill="${color(T[i0])}" fill-opacity=".12"/>` +
+      `<circle cx="${X(i0)}" cy="${Y(T[i0])}" r="2.5" fill="${color(T[i0])}" stroke="#fff" stroke-width="1.3"/></g>`;
+    for (const v of [lo, (lo + hi) / 2, hi]) {
+      sp += `<text x="${left - 6}" y="${Y(v) + 3}" text-anchor="end" font-size="8" fill="#8e8e93">${deg(v)}</text>`;
+    }
+    // Popisky dnů patří doprostřed příslušného úseku, včetně přechodu měsíce.
+    let dayStart = 0;
+    for (let i = 1; i <= n; i++) {
+      const day = local(times[dayStart]);
+      if (i < n && local(times[i]).day === day.day && local(times[i]).month === day.month) continue;
+      if ((i - dayStart) / n * plotW >= 44) {
+        sp += `<text x="${left + (dayStart + i) / 2 / n * plotW}" y="${H - 5}" text-anchor="middle" font-size="9" fill="#8e8e93">${day.wd} ${day.day}. ${day.month}.</text>`;
+      }
+      dayStart = i;
+    }
+    sp += `</svg>`;
     const pv = fr.sn >= 0.5 ? `<em class="sn">${Math.round(fr.sn)}</em> <span>cm sněhu</span>` : `${fmtNum(fr.pr)} <span>mm</span>`;
     $("hcard").innerHTML = `<a class="hc" href="/#${p.id}"><div class="hc-h"><div><b>${p.name}</b><span>${p.range} · ${p.alt} m n. m.</span></div>` +
-      `<span class="tag">Teď · ${pad(local(times[i0]).hour)}:00</span></div>` +
-      `<div class="hc-now"><b>${fmtNum(fr.now)}°</b><span>24 h: ${deg(fr.tMin)} / ${deg(fr.tMax)}</span></div>${sp}` +
+      `<span class="tag" title="Čas hodinové předpovědi modelu ALADIN">Pro ${pad(local(times[i0]).hour)}:00</span></div>` +
+      `<div class="hc-now" style="--temp:${temperatureColor(fr.now)}"><b>${fmtNum(fr.now)}°</b><span>24 h: ${deg(fr.tMin)} / ${deg(fr.tMax)}</span></div>${sp}` +
       `<dl><div><dt>Nárazy · 24 h</dt><dd><i class="gd" style="background:${gust(fr.gmax)[1]}"></i>${Math.round(fr.gmax)} <span>m/s</span></dd></div>` +
       `<div><dt>Srážky · 24 h</dt><dd>${pv}</dd></div>` +
       `<div><dt>Slunce · 24 h</dt><dd>${fmtNum(fr.sun)} <span>h</span></dd></div></dl>` +
@@ -859,7 +984,7 @@ async function home() {
     `<div class="st fe">Tady se objeví stanice, které si prohlížíte nejčastěji.</div>`;
 }
 
-const PAGES = { "/o-projektu/": "O projektu – Meteogramy.cz" };
+const PAGES = { "/o-projektu/": "O projektu – Meteogramy.cz", "/ochrana-soukromi/": "Ochrana soukromí – Meteogramy.cz" };
 const HOME_TITLE = document.title;
 const pagePath = () => location.pathname.replace(/\/?$/, "/");
 // co zobrazit: stránka z PAGES, meteogram (/#stanice) nebo úvodní stránka (/)
@@ -871,6 +996,7 @@ function route() {
   $("mg").hidden = v !== "mg";
   $("home").hidden = v !== "home";
   $("about").hidden = v !== "/o-projektu/";
+  $("privacy").hidden = v !== "/ochrana-soukromi/";
   document.querySelectorAll(".sfoot a").forEach(a => a.classList.toggle("on", a.getAttribute("href") === v));
   if (v === "mg") {
     const id = decodeURIComponent(location.hash.slice(1));
@@ -886,6 +1012,7 @@ function route() {
     picker();
     return home();
   }
+  if (state.data) picker();
   document.title = PAGES[v];
 }
 
@@ -911,6 +1038,7 @@ function select(id) {
 // skeletony místo obsahu, dokud se data načítají
 const SK = (w, h, r) => `<i class="sk" style="width:${w};height:${h}px${r ? `;border-radius:${r}px` : ""}"></i>`;
 function skeleton() {
+  $("daylight").textContent = "";
   $("title").innerHTML = SK("220px", 30, 9);
   $("sub").innerHTML = SK("300px", 14);
   $("meta").innerHTML = SK("360px", 12);
@@ -960,6 +1088,7 @@ function groups() {
 
 // sidebar: pohoří jako rozbalovací skupiny, ve skupině stanice; při hledání se vše rozbalí a vyfiltruje
 function picker() {
+  if (!state.data) return;
   const q = fold(state.q.trim());
   const chev = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>`;
   let html = "";
@@ -1037,10 +1166,22 @@ const pickerEdge = () => {
 };
 window.addEventListener("resize", pickerEdge);
 $("picker").addEventListener("scroll", pickerEdge, { passive: true });
-$("q").addEventListener("input", e => { state.q = e.target.value; picker(); });
+function updateSearch(value) {
+  state.q = value;
+  $("qk").hidden = value.length > 0;
+  $("qclear").hidden = value.length === 0;
+  picker();
+}
+function clearSearch() {
+  $("q").value = "";
+  updateSearch("");
+  $("q").focus();
+}
+$("q").addEventListener("input", e => updateSearch(e.target.value));
+$("qclear").addEventListener("click", clearSearch);
 $("q").addEventListener("keydown", e => {
   if (e.key === "Enter") { const b = $("picker").querySelector(".pk"); if (b) b.click(); }
-  if (e.key === "Escape") { e.target.value = ""; state.q = ""; picker(); }
+  if (e.key === "Escape") { e.preventDefault(); clearSearch(); }
 });
 
 async function loadRun(run) {

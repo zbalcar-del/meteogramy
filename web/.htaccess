@@ -1,6 +1,8 @@
+DirectoryIndex index.html
+
 # Stránky, které vykresluje aplikace v index.html (stejné jako APP_ROUTES v meteogram/server.py)
 RewriteEngine On
-RewriteRule ^o-projektu/?$ index.html [L]
+RewriteRule ^(o-projektu|ochrana-soukromi)/?$ /index.html [L]
 
 # data se mění s každým během modelu
 <FilesMatch "\.json$">

@@ -14,7 +14,7 @@ CHECK_EVERY_S = 20 * 60
 
 
 # stránky, které vykresluje přímo aplikace (na Webglobe to samé řeší web/.htaccess)
-APP_ROUTES = {"/o-projektu", "/o-projektu/"}
+APP_ROUTES = {"/o-projektu", "/o-projektu/", "/ochrana-soukromi", "/ochrana-soukromi/"}
 
 
 class Handler(SimpleHTTPRequestHandler):
