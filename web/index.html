@@ -1398,13 +1398,20 @@ document.addEventListener("click", e => {
 });
 window.addEventListener("popstate", route);
 
-// každá nová stránka (i jiná stanice) začíná nahoře
-function go(href) {
-  if (location.pathname !== href) {
-    history.pushState(null, "", href);
-    window.scrollTo(0, 0);
-  }
-  route();
+// každá nová stránka (i jiná stanice) začíná nahoře a po načtení se jemně objeví
+async function go(href) {
+  if (location.pathname === href) return route();
+  history.pushState(null, "", href);
+  window.scrollTo(0, 0);
+  await route();
+  reveal();
+}
+const VIEW_EL = { home: ["home"], range: ["range"], mg: ["mg", "sinfo"], "/o-projektu/": ["about"], "/ochrana-soukromi/": ["privacy"] };
+function reveal() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  (VIEW_EL[viewOf()] || []).forEach((id, k) => $(id).animate(
+    [{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }],
+    { duration: 380, delay: k * 60, easing: "cubic-bezier(.2, .8, .2, 1)", fill: "backwards" }));
 }
 const select = id => go(`/${id}/`);
 
