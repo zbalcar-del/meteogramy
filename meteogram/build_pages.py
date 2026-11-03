@@ -149,7 +149,10 @@ def groups(places):
 
 
 def range_links(places, except_=None):
-    return ''.join(f'<a href="/{slug(r)}/">{escape(r)} <small>{len(ps)}</small></a>' for r, ps in groups(places) if r != except_)
+    return ''.join(f'<a class="rc" href="/{slug(r)}/"><span class="th"><img src="/assets/pohori/{slug(r)}.jpg" alt="" width="960" height="720" '
+                   f'loading="lazy" decoding="async"></span><span class="tt"><b>{escape(r)}</b>'
+                   f'<small>{len(ps)} {"stanic" if len(ps) >= 5 else "stanice"} · až {ps[0]["alt"]} m</small></span></a>'
+                   for r, ps in groups(places) if r != except_)
 
 
 def fill(html, el_id, inner, attrs=''):

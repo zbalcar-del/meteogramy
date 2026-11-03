@@ -23,6 +23,26 @@
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <meta name="theme-color" content="#f8f8fa">
 <style>
+/* Animace: krátké a decentní, jen průhlednost a posun. Karty se při vykreslení vynoří (postupně),
+   po najetí myší se lehce zvednou a při kliknutí jemně zmáčknou. Při omezeném pohybu v systému nic. */
+:root { --ease: cubic-bezier(.2, .8, .2, 1); }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+/* animace se spustí i při každém zobrazení skryté části stránky, takže přechody mezi stránkami nepotřebují JavaScript */
+.hl .st, .rc, .hc, .sheet, .sinfo > div, .rhead, .hhero > div:first-child, .about > * { animation: rise .8s var(--ease) backwards; }
+.hl .st:nth-child(2), .rc:nth-child(2) { animation-delay: 70ms; }
+.hl .st:nth-child(3), .rc:nth-child(3), .sinfo > div + div { animation-delay: 140ms; }
+.hl .st:nth-child(4), .rc:nth-child(4) { animation-delay: 210ms; }
+.hl .st:nth-child(n+5), .rc:nth-child(n+5) { animation-delay: 280ms; }
+.hl a.st:hover, .hc:hover { transform: translateY(-2px); }
+.hl a.st:active, .hc:active, .rc:active { transform: scale(.98); transition-duration: .1s; }
+.arw:active:not(:disabled), .ck-b button:active, .ckbtn:active, .cont:active, .near a:active { transform: scale(.96); }
+.arw, .ck-b button, .ckbtn, .cont, .near a { transition-property: background, color, box-shadow, opacity, transform; transition-duration: .15s; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  .hl a.st:hover, .hc:hover, .rc:hover { transform: none; }
+}
+/* skryté prvky zůstanou skryté i s vlastním display (grid, flex) */
+[hidden] { display: none !important; }
 :root {
   --bg: #f8f8fa;
   --paper: #ffffff;
@@ -232,13 +252,20 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .about section p { margin: 0 0 10px; color: #424245; }
 .about section p:last-child { margin-bottom: 0; }
 .about .note { font-size: 15px; color: #6e6e73; }
+.about .credits { margin: 0; padding: 0; list-style: none; font-size: 14px; line-height: 1.5; color: #6e6e73; columns: 2; column-gap: 28px; }
+.about .credits li { break-inside: avoid; margin: 0 0 6px; }
+.about .credits b { color: var(--ink); font-weight: 600; }
+@media (max-width: 860px) { .about .credits { columns: 1; } }
+.ckbtn { height: 38px; padding: 0 16px; border: 0; border-radius: 11px; background: var(--accent-bg); color: var(--accent);
+  font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+.ckbtn:hover { background: #dbe7fa; }
 .sfoot a.on { color: var(--ink); font-weight: 600; }
 /* úvodní stránka */
 .home { max-width: 1180px; margin: 0 auto; }
 .hhero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: center; padding: 28px 0 30px 8px; }
 /* karta vybrané stanice vpravo v úvodu */
 .hc { display: block; background: var(--paper); border-radius: 22px; padding: 18px 20px 16px; color: inherit; text-decoration: none;
-  box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.04), 0 12px 36px rgba(0,0,0,.07); transition: box-shadow .15s; }
+  box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.04), 0 12px 36px rgba(0,0,0,.07); transition: box-shadow .4s, transform .4s var(--ease); }
 .hc:hover { box-shadow: 0 0 0 1px rgba(0,0,0,.07), 0 16px 44px rgba(0,0,0,.11); }
 .hc-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .hc-h b { display: block; font-size: 22px; letter-spacing: -.02em; line-height: 1.15; }
@@ -273,7 +300,7 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .cont small { color: var(--muted); font-weight: 500; font-size: 13px; }
 .hl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0 0 30px; }
 .hl .st { background: var(--paper); color: inherit; text-decoration: none; padding: 13px 16px 14px;
-  box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.04); transition: box-shadow .15s; }
+  box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.04); transition: box-shadow .4s, transform .4s var(--ease); }
 .hl .st:hover { box-shadow: 0 0 0 1px rgba(0,0,0,.07), 0 6px 18px rgba(0,0,0,.08); }
 .hl .st b { font-size: 24px; }
 .hl .sx { display: block; overflow: hidden; text-overflow: ellipsis; }
@@ -291,9 +318,70 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .near a { max-width: 100%; }
 .near a small { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
 .near a:hover { background: var(--accent-bg); }
-.home > .near { margin: 0 8px 30px; }
-.home > .near a { background: var(--paper); }
-.home > .near a:hover { background: var(--accent-bg); }
+/* pohoří jako vodorovná polička karet s náhledem */
+.shelf { display: grid; grid-auto-flow: column; grid-auto-columns: 224px; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory;
+  scroll-padding: 0 32px; padding: 4px 32px 26px; margin: 0 -24px -26px; scrollbar-width: none; overscroll-behavior-x: contain; }
+.shelf::-webkit-scrollbar { display: none; }
+/* karty se na krajích plynule ztrácejí; vlevo až po posunutí, vpravo dokud je co posouvat */
+.shelf { --fl: 0px; --fr: 72px; -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--fl), #000 calc(100% - var(--fr)), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 var(--fl), #000 calc(100% - var(--fr)), transparent); }
+.shelf.sl { --fl: 72px; }
+.shelf.se { --fr: 0px; }
+.rc { scroll-snap-align: start; display: block; background: var(--paper); border-radius: 18px; overflow: hidden; color: inherit;
+  text-decoration: none; box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.04), 0 4px 14px rgba(0,0,0,.04);
+  transition: transform .4s var(--ease), box-shadow .4s; }
+.rc:hover { transform: translateY(-3px); box-shadow: 0 0 0 1px rgba(0,0,0,.05), 0 10px 24px rgba(0,0,0,.09); }
+.rc .th { display: block; aspect-ratio: 4 / 3; background: linear-gradient(165deg, #eceef2, #dfe2e8); }
+.rc .th img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.rc .tt { display: block; padding: 12px 15px 14px; }
+.rc b { display: block; font-size: 16px; font-weight: 600; letter-spacing: -.012em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rc small { display: block; margin-top: 2px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.arws { display: flex; gap: 8px; align-self: center; }
+.arw { display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; background: #e8e8ed;
+  color: var(--ink); cursor: pointer; transition: background .15s, opacity .15s; }
+.arw:hover:not(:disabled) { background: #dcdce1; }
+.arw:disabled { opacity: .35; cursor: default; }
+@media (hover: none) { .arws { display: none; } }
+
+/* souhlas s cookies: plovoucí karta vpravo dole */
+.ck { position: fixed; right: 20px; bottom: 20px; z-index: 50; width: 360px; max-width: calc(100vw - 20px); box-sizing: border-box;
+  padding: 18px 18px 14px; border-radius: 20px; background: rgba(255,255,255,.88); color: var(--ink);
+  -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 12px 40px rgba(0,0,0,.16); animation: ck-in .35s cubic-bezier(.2,.8,.2,1); }
+@keyframes ck-in { from { opacity: 0; transform: translateY(14px) scale(.98); } }
+.ck[hidden] { display: none; }
+.ck-x { position: absolute; top: 12px; right: 12px; display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 0;
+  border-radius: 50%; background: rgba(0,0,0,.06); color: #6e6e73; cursor: pointer; transition: background .15s; }
+.ck-x:hover { background: rgba(0,0,0,.1); color: var(--ink); }
+.ck h2 { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; font-size: 16px; letter-spacing: -.01em; }
+.ck h2 { gap: 10px; }
+/* ikona ve stylu Apple: zaoblený čtverec s jemným přechodem */
+.ck-i { display: grid; place-items: center; flex: 0 0 auto; width: 30px; height: 30px; border-radius: 8px; color: #fff;
+  background: linear-gradient(180deg, #ffc15e, #f2931f); box-shadow: inset 0 0 0 .5px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.12); }
+.ck-i svg { width: 21px; height: 21px; }
+.ck p { margin: 0 0 14px; font-size: 13.5px; line-height: 1.45; color: #424245; text-wrap: pretty; }
+.ck-set { margin: 0 0 14px; border-radius: 14px; background: rgba(0,0,0,.035); }
+.ck-set[hidden] { display: none; }
+.ck-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 11px 14px; cursor: pointer; }
+.ck-row + .ck-row { border-top: 1px solid rgba(0,0,0,.06); }
+.ck-row b { display: block; font-size: 13.5px; font-weight: 600; }
+.ck-row small { display: block; margin-top: 1px; font-size: 12px; line-height: 1.35; color: var(--muted); }
+.ck-row.off { cursor: default; }
+.ck .tgl input { display: block; position: absolute; width: 1px; height: 1px; opacity: 0; }
+.ck .tgl input:focus-visible + i { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ck .tgl input:disabled + i { opacity: .5; }
+.ck-b { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ck-b button { height: 40px; border: 0; border-radius: 12px; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  background: rgba(0,0,0,.06); color: var(--ink); transition: background .15s; }
+.ck-b button:hover { background: rgba(0,0,0,.1); }
+/* Přijmout jako tlačítko na kartě v úvodu: světle modré, po najetí plně modré */
+.ck-b #ckyes { background: var(--accent-bg); color: var(--accent); transition: background .15s, color .15s; }
+.ck-b #ckyes:hover { background: var(--accent); color: #fff; }
+.ck-f { display: flex; justify-content: center; gap: 18px; margin-top: 10px; }
+.ck-f button, .ck-f a { padding: 0; border: 0; background: none; font: inherit; font-size: 12.5px; color: #0071e3; text-decoration: none; cursor: pointer; }
+.ck-f button:hover, .ck-f a:hover { text-decoration: underline; }
+@media (max-width: 860px) { .ck { right: 10px; bottom: 10px; left: 10px; width: auto; } }
+@media (prefers-reduced-motion: reduce) { .ck { animation: none; } }
 .rhead { max-width: 760px; padding: 28px 0 26px 8px; }
 .rhead .eyebrow a { color: inherit; text-decoration: none; }
 /* pod meteogramem: přehled po dnech a o stanici (text čitelný i pro vyhledávače bez JavaScriptu) */
@@ -327,6 +415,12 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
   .about .facts { grid-template-columns: 1fr; }
   .about section { padding: 20px; }
   .rhead { padding: 14px 0 20px 4px; }
+  .shelf { --fr: 40px; }
+  .shelf.sl { --fl: 40px; }
+  .shelf.se { --fr: 0px; }
+  .shelf { grid-auto-columns: 172px; gap: 10px; scroll-padding: 0 14px; padding: 4px 14px 20px; margin: 0 -10px -20px; }
+  .rc .tt { padding: 10px 12px 12px; }
+  .rc b { font-size: 15px; }
   .sinfo { grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: 10px; }
   .sinfo > div { padding: 16px; }
   .days { font-size: 13px; }
@@ -344,7 +438,7 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .skrow { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; }
 h1, h2 { text-wrap: balance; }
 .about p, .hero .sub { text-wrap: pretty; }
-.foot { text-align: center; font-size: 12px; color: var(--muted); margin: 16px 0 0; }
+.foot { text-align: center; font-size: 12px; color: var(--muted); margin: 32px 0 0; }
 .foot a { color: var(--muted); }
 .msg { text-align: center; padding: 60px 0; color: var(--muted); }
 
@@ -398,6 +492,7 @@ h1, h2 { text-wrap: balance; }
     <nav class="sfoot" aria-label="Informace">
       <a href="/o-projektu/">O projektu</a>
       <a href="/ochrana-soukromi/">Ochrana soukromí</a>
+      <a href="/ochrana-soukromi/#cookies" data-cookies>Cookies</a>
       <small>© 2026 Meteogramy.cz · <span title="Verze aplikace">v0.1.0</span></small>
     </nav>
   </aside>
@@ -425,8 +520,8 @@ h1, h2 { text-wrap: balance; }
     <div class="hl" id="hl"></div>
     <div class="sech"><h2>Oblíbené</h2><span>nejčastěji prohlížené za 30 dní</span></div>
     <div class="hl" id="favs"></div>
-    <div class="sech"><h2>Pohoří</h2><span>všechny horské stanice podle pohoří</span></div>
-    <nav class="near" id="hranges" aria-label="Pohoří"></nav>
+    <div class="sech"><h2>Pohoří</h2><div class="arws"><button type="button" class="arw" data-shelf="hranges" data-dir="-1" aria-label="Pohoří – zpět"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button><button type="button" class="arw" data-shelf="hranges" data-dir="1" aria-label="Pohoří – dál"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div></div>
+    <nav class="shelf" id="hranges" aria-label="Pohoří"></nav>
   </section>
 
   <section class="home" id="range" hidden>
@@ -436,8 +531,8 @@ h1, h2 { text-wrap: balance; }
       <p class="lead" id="rlead"></p>
     </div>
     <div class="hl" id="rlist"></div>
-    <div class="sech"><h2>Další pohoří</h2></div>
-    <nav class="near" id="rmore" aria-label="Další pohoří"></nav>
+    <div class="sech"><h2>Další pohoří</h2><div class="arws"><button type="button" class="arw" data-shelf="rmore" data-dir="-1" aria-label="Další pohoří – zpět"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button><button type="button" class="arw" data-shelf="rmore" data-dir="1" aria-label="Další pohoří – dál"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div></div>
+    <nav class="shelf" id="rmore" aria-label="Další pohoří"></nav>
   </section>
 
   <div class="sheet" id="mg" hidden>
@@ -480,14 +575,39 @@ h1, h2 { text-wrap: balance; }
       <p class="note">Meteogramy.cz nejsou oficiální službou ČHMÚ.</p>
     </section>
     <section>
+      <h2>Fotografie</h2>
+      <p>Fotografie pohoří pocházejí z Wikimedia Commons a Pixabay a jsou použité podle uvedených licencí; pro web jsme je ořízli a zmenšili.</p>
+      <ul class="credits">
+        <li><b>Krkonoše</b> – <a href="https://pixabay.com/cs/photos/hory-sn%C4%9Bhov%C3%A1-koule-krajina-3713266/" target="_blank" rel="noopener">Pixabay</a>, <a href="https://pixabay.com/cs/service/license-summary/" target="_blank" rel="noopener">licence Pixabay</a></li>
+        <li><b>Jizerské hory</b> – <a href="https://commons.wikimedia.org/wiki/File:Zimn%C3%AD_slunce_desn%C3%A1_-_Jizersk%C3%A9_hory_-_prosinec_2022.jpg" target="_blank" rel="noopener">Latus.siroky</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
+        <li><b>Ještěd a Kozákov</b> – <a href="https://pixabay.com/photos/forest-4043436/" target="_blank" rel="noopener">ivabalk, Pixabay</a>, <a href="https://pixabay.com/cs/service/license-summary/" target="_blank" rel="noopener">licence Pixabay</a></li>
+        <li><b>Lužické hory</b> – <a href="https://commons.wikimedia.org/wiki/File:Lausche2.jpg" target="_blank" rel="noopener">Rolf-Dresden</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a></li>
+        <li><b>České středohoří</b> – <a href="https://commons.wikimedia.org/wiki/File:Klete%C4%8Dn%C3%A1,_winter_2020-21,_view_towards_Mile%C5%A1ovka.jpg" target="_blank" rel="noopener">Tadeáš Gregor</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
+        <li><b>Krušné hory</b> – <a href="https://pixabay.com/photos/peat-bog-4911062/" target="_blank" rel="noopener">ivabalk, Pixabay</a>, <a href="https://pixabay.com/cs/service/license-summary/" target="_blank" rel="noopener">licence Pixabay</a></li>
+        <li><b>Doupovské hory</b> – <a href="https://commons.wikimedia.org/wiki/File:Doupovsk%C3%A9_hory_od_H%C5%AFrek_(1).jpg" target="_blank" rel="noopener">Lubor Ferenc</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
+        <li><b>Slavkovský les</b> – <a href="https://commons.wikimedia.org/wiki/File:Chaloupky_(Neuhaus)_from_the_east_2.jpg" target="_blank" rel="noopener">Mejdlowiki</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
+        <li><b>Český les</b> – <a href="https://commons.wikimedia.org/wiki/File:HirschsteinArberTscherchov.jpg" target="_blank" rel="noopener">Allexkoch</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
+        <li><b>Šumava</b> – <a href="https://commons.wikimedia.org/wiki/File:Jezern%C3%AD_sla%C5%A5_v_zim%C4%9B.jpg" target="_blank" rel="noopener">cs:ŠJů</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a></li>
+        <li><b>Novohradské hory</b> – <a href="https://commons.wikimedia.org/wiki/File:Krav%C3%AD_hora,_Novohradsk%C3%A9_hory_(01).jpg" target="_blank" rel="noopener">Anaj7</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0" target="_blank" rel="noopener">CC BY-SA 3.0</a></li>
+        <li><b>Brdy</b> – <a href="https://commons.wikimedia.org/wiki/File:Les_u_Komorska_(Brdy).jpg" target="_blank" rel="noopener">Jiří Kadlec</a>, Public domain</li>
+        <li><b>Vysočina</b> – <a href="https://commons.wikimedia.org/wiki/File:Pros%C3%AD%C4%8Dka,_v%C3%BDhled_sm%C4%9Br_z%C3%A1pad.jpg" target="_blank" rel="noopener">Vlach Pavel</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
+        <li><b>Orlické hory</b> – <a href="https://commons.wikimedia.org/wiki/File:Na_P%C4%9Bticest%C3%AD.jpg" target="_blank" rel="noopener">Ladislav Boháč</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
+        <li><b>Králický Sněžník</b> – <a href="https://commons.wikimedia.org/wiki/File:Widok_na_Ma%C5%82y_%C5%9Anie%C5%BAnik_zim%C4%85.jpg" target="_blank" rel="noopener">Piotr Kuźniar</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/pl/deed.en" target="_blank" rel="noopener">CC BY-SA 3.0 pl</a></li>
+        <li><b>Hrubý Jeseník</b> – <a href="https://commons.wikimedia.org/wiki/File:Praded_v_zime.jpg" target="_blank" rel="noopener">Witeg (cs.wikipedia)</a>, Public domain</li>
+        <li><b>Nízký Jeseník</b> – <a href="https://commons.wikimedia.org/wiki/File:Brunt%C3%A1l_-_zima.jpg" target="_blank" rel="noopener">Jacob.sousek7119</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
+        <li><b>Beskydy</b> – <a href="https://commons.wikimedia.org/wiki/File:739_15_B%C3%ADl%C3%A1,_Czech_Republic_-_panoramio_(2).jpg" target="_blank" rel="noopener">Michal Gorski</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0" target="_blank" rel="noopener">CC BY-SA 3.0</a></li>
+        <li><b>Javorníky</b> – <a href="https://commons.wikimedia.org/wiki/File:Na_b%C4%9B%C5%BEk%C3%A1ch_Velk%C3%BDmi_Karlovicemi_to_byla_dlouh%C3%A1_j%C3%ADzda.jpg" target="_blank" rel="noopener">Ladislav Boháč</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
+      </ul>
+    </section>
+    <section>
       <h2>Kontakt</h2>
       <p>Máte nápad, našli jste chybu nebo vám chybí stanice? Napište na <a class="mail" href="#" data-m="bW9jLmR1b2xjaUByYWNsYWJ6">e-mail se zobrazí po načtení stránky</a>.</p>
     </section>
   </article>
   <article class="about" id="privacy" hidden>
-    <p class="eyebrow">Bez cookies · bez sledování · bez účtu</p>
+    <p class="eyebrow">Právní informace</p>
     <h1>Ochrana soukromí</h1>
-    <p class="lead">Jaké údaje Meteogramy.cz používají, proč je potřebují a jak nad nimi máte kontrolu. Krátce: nepotřebujete účet, nepoužíváme cookies ani analytiku a nikoho nesledujeme.</p>
+    <p class="lead">Jaké údaje Meteogramy.cz používají, proč je potřebují a jak nad nimi máte kontrolu. Krátce: nepotřebujete účet a návštěvnost měříme jen s vaším souhlasem.</p>
     <section>
       <h2>Kdo web provozuje</h2>
       <p>Provozovatelem webu a správcem osobních údajů je Zdeněk Balcar. S dotazy k soukromí nebo žádostmi o uplatnění vašich práv napište na <a class="mail" href="#" data-m="bW9jLmR1b2xjaUByYWNsYWJ6">e-mail se zobrazí po načtení stránky</a>.</p>
@@ -503,8 +623,11 @@ h1, h2 { text-wrap: balance; }
     </section>
     <section id="cookies">
       <h2>Cookies a úložiště prohlížeče</h2>
-      <p>Meteogramy.cz nepoužívají cookies, analytické ani reklamní nástroje a nenačítají obsah cizích služeb, které by vás mohly sledovat. Proto se vás neptáme na souhlas s cookies.</p>
-      <p>V místním úložišti prohlížeče si web pamatuje jen dvě věci, které slouží přímo vám: naposledy otevřenou stanici (pro tlačítko „Pokračovat“) a to, zda máte zapnutý přepočet teploty na nadmořskou výšku stanice. Tyto údaje zůstávají ve vašem prohlížeči, k nám se neodesílají a vymažete je v nastavení prohlížeče odstraněním dat pro Meteogramy.cz.</p>
+      <p>Bez vašeho souhlasu Meteogramy.cz nepoužívají žádné cookies ani analytické a reklamní nástroje. Při první návštěvě se vás proto zeptáme, zda smíme měřit návštěvnost. Odmítnutí nijak neomezí přístup k předpovědi.</p>
+      <p>Pokud souhlas dáte, načte se služba Google Analytics 4 od společnosti Google Ireland Limited. Ta pomocí cookies <code>_ga</code> a <code>_ga_80GPH2DQCN</code> (platnost až 2 roky) rozpozná opakované návštěvy a zaznamená, které stránky si prohlížíte, odkud jste přišli, typ zařízení a prohlížeče a přibližnou polohu podle IP adresy (na úrovni země či města). Samotnou IP adresu Google Analytics 4 neukládá. Údaje vidíme jen v souhrnných přehledech a uchováváme je 14 měsíců. Google může údaje zpracovávat i v USA na základě rámce EU–USA pro ochranu osobních údajů (Data Privacy Framework). Právním základem je váš souhlas podle čl. 6 odst. 1 písm. a) GDPR.</p>
+      <p>Souhlas můžete kdykoli změnit nebo odvolat; po odvolání se měření zastaví. Vaše volba platí rok, pak se zeptáme znovu.</p>
+      <p><button type="button" class="ckbtn" data-cookies>Nastavení cookies</button></p>
+      <p>V místním úložišti prohlížeče si web pamatuje jen to, co slouží přímo vám: naposledy otevřenou stanici (pro tlačítko „Pokračovat“), zda máte zapnutý přepočet teploty na nadmořskou výšku stanice, a vaši volbu ohledně cookies (platí rok). Tyto údaje zůstávají ve vašem prohlížeči, k nám se neodesílají a vymažete je v nastavení prohlížeče odstraněním dat pro Meteogramy.cz.</p>
     </section>
     <section>
       <h2>Když nám napíšete</h2>
@@ -512,7 +635,7 @@ h1, h2 { text-wrap: balance; }
     </section>
     <section>
       <h2>Kdo se podílí na provozu</h2>
-      <p>Web běží na hostingu společnosti Webglobe v České republice. E-mailová schránka využívá službu iCloud Mail od společnosti Apple, která může údaje zpracovávat i mimo Evropskou unii; pro předávání do USA využívá rámec EU–USA pro ochranu osobních údajů (Data Privacy Framework). Poskytovatelé mají přístup k údajům jen v rozsahu potřebném pro poskytování svých služeb.</p>
+      <p>Web běží na hostingu společnosti Webglobe v České republice. Pokud souhlasíte s měřením návštěvnosti, zpracovává údaje také Google Ireland Limited (Google Analytics, viz výše). E-mailová schránka využívá službu iCloud Mail od společnosti Apple, která může údaje zpracovávat i mimo Evropskou unii; pro předávání do USA využívá rámec EU–USA pro ochranu osobních údajů (Data Privacy Framework). Poskytovatelé mají přístup k údajům jen v rozsahu potřebném pro poskytování svých služeb.</p>
     </section>
     <section>
       <h2>Vaše práva</h2>
@@ -525,6 +648,18 @@ h1, h2 { text-wrap: balance; }
   <div class="foot">Data: ČHMÚ – otevřená data, model ALADIN CZ · <a href="https://opendata.chmi.cz/meteorology/weather/nwp_aladin/" target="_blank" rel="noopener">opendata.chmi.cz</a> · Meteogramy.cz nejsou oficiální službou ČHMÚ</div>
   </main>
 </div>
+
+<section class="ck" id="ck" role="dialog" aria-labelledby="ckt" hidden>
+  <h2 id="ckt"><span class="ck-i"><!-- Font Awesome Free 7.3.1 by @fontawesome – https://fontawesome.com, licence CC BY 4.0 --><svg viewBox="0 0 640 640" aria-hidden="true"><path fill="currentColor" d="M321.5 91.6C320.7 86.2 316.6 81.8 311.2 81C289.1 77.9 266.6 81.9 246.8 92.4L172.8 131.9C153.1 142.4 137.2 158.9 127.4 179L90.7 254.6C80.9 274.7 77.7 297.5 81.6 319.5L96.1 402.3C100 424.4 110.7 444.6 126.8 460.2L187.1 518.6C203.2 534.2 223.7 544.2 245.8 547.3L328.8 559C350.9 562.1 373.4 558.1 393.2 547.6L467.2 508.1C486.9 497.6 502.8 481.1 512.6 460.9L549.3 385.4C559.1 365.3 562.3 342.5 558.4 320.5C557.5 315.2 553.1 311.2 547.8 310.4C496.3 302.2 455 263.3 443.3 213C441.5 205.4 435.3 199.6 427.6 198.4C373 189.7 329.9 146.4 321.4 91.6zM272 208C289.7 208 304 222.3 304 240C304 257.7 289.7 272 272 272C254.3 272 240 257.7 240 240C240 222.3 254.3 208 272 208zM208 400C208 382.3 222.3 368 240 368C257.7 368 272 382.3 272 400C272 417.7 257.7 432 240 432C222.3 432 208 417.7 208 400zM432 336C449.7 336 464 350.3 464 368C464 385.7 449.7 400 432 400C414.3 400 400 385.7 400 368C400 350.3 414.3 336 432 336z"/></svg></span>Cookies</h2>
+  <button type="button" class="ck-x" id="ckx" aria-label="Zavřít"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1.5l7 7m0-7l-7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+  <p>Rádi bychom měřili návštěvnost pomocí Google Analytics, abychom věděli, jak web používáte, a mohli ho zlepšovat. Analytické cookies spustíme jen s vaším souhlasem.</p>
+  <div class="ck-set" id="ckset" hidden>
+    <label class="ck-row off"><span><b>Nezbytné</b><small>Pamatují si vaši volbu a nastavení webu.</small></span><span class="tgl"><input type="checkbox" checked disabled><i></i></span></label>
+    <label class="ck-row"><span><b>Analytické</b><small>Statistiky návštěvnosti (Google Analytics).</small></span><span class="tgl"><input type="checkbox" id="ckan"><i></i></span></label>
+  </div>
+  <div class="ck-b"><button type="button" id="ckno">Odmítnout</button><button type="button" id="ckyes">Přijmout</button></div>
+  <div class="ck-f"><button type="button" id="ckmore">Nastavení</button><a href="/ochrana-soukromi/#cookies">Více o cookies</a></div>
+</section>
 
 <script>
 const TZ = "Europe/Prague";
@@ -543,7 +678,65 @@ const FAV_MAX = 4;
 const slug = t => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 // dokud statistika nemá dost stanic, doplní se známé horské stanice
 const FAV_FALLBACK = ["snezka-postovna", "praded", "lysa-hora", "churanov", "klinovec", "labska-bouda"];
-try { localStorage.removeItem("visits"); } catch (e) {}  // dřívější počty jen pro tento prohlížeč
+try { localStorage.removeItem("visits"); } catch (e) {}
+
+// Souhlas s cookies. Dokud není vyplněné ANALYTICS_ID, web nic neměří a karta se sama neukáže
+// (otevře ji jen odkaz Cookies). Po doplnění ID se zeptá každého návštěvníka a Google Analytics
+// načte až po souhlasu. Volba se pamatuje rok; při změně rozsahu zvyšte CONSENT_VERSION.
+const ANALYTICS_ID = "G-80GPH2DQCN";  // Google Analytics 4, datový stream meteogramy.cz
+const CONSENT_VERSION = 1;
+function readConsent() {
+  try {
+    const c = JSON.parse(localStorage.getItem("consent") || "null");
+    if (c && c.v === CONSENT_VERSION && Date.now() - c.at < 365 * 864e5) return c;
+  } catch (e) {}
+  return null;
+}
+function saveConsent(analytics) {
+  const had = (readConsent() || {}).analytics;
+  try { localStorage.setItem("consent", JSON.stringify({ v: CONSENT_VERSION, analytics, at: Date.now() })); } catch (e) {}
+  closeConsent();
+  if (analytics) loadAnalytics();
+  else if (had) location.reload();  // odvolání souhlasu: znovu načíst stránku bez analytiky
+}
+function loadAnalytics() {
+  if (!ANALYTICS_ID || window.gtag) return;
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () { dataLayer.push(arguments); };
+  gtag("js", new Date());
+  gtag("config", ANALYTICS_ID);
+  const sc = document.createElement("script");
+  sc.async = true;
+  sc.src = `https://www.googletagmanager.com/gtag/js?id=${ANALYTICS_ID}`;
+  document.head.appendChild(sc);
+}
+function openConsent(settings) {
+  const c = readConsent();
+  $("ckan").checked = !!(c && c.analytics);
+  $("ckset").hidden = !settings;
+  $("ckmore").hidden = settings;
+  $("ckno").textContent = settings ? "Uložit výběr" : "Odmítnout";
+  $("ckyes").textContent = settings ? "Přijmout vše" : "Přijmout";
+  $("ck").hidden = false;
+}
+function closeConsent() { $("ck").hidden = true; }
+$("ckyes").onclick = () => saveConsent(true);
+$("ckno").onclick = () => saveConsent(!$("ckset").hidden && $("ckan").checked);
+$("ckmore").onclick = () => openConsent(true);
+// zavření bez volby nic neukládá; bez souhlasu se nic neměří
+$("ckx").onclick = closeConsent;
+$("ck").addEventListener("keydown", e => { if (e.key === "Escape") closeConsent(); });
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-cookies]");
+  if (!a || e.metaKey || e.ctrlKey) return;
+  e.preventDefault();
+  openConsent(true);
+});
+{
+  const c = readConsent();
+  if (c && c.analytics) loadAnalytics();
+  else if (!c && ANALYTICS_ID) openConsent(false);
+}  // dřívější počty jen pro tento prohlížeč
 function countVisit(id) {
   try { navigator.sendBeacon(`/api/oblibene.php?id=${encodeURIComponent(id)}`); } catch (e) {}
 }
@@ -948,14 +1141,38 @@ const fprec = r => r.sn >= 0.5 ? `${Math.round(r.sn)} cm sněhu` : r.pr < 0.1 ? 
 const card = (r, label = `${r.p.range} · ${r.p.alt} m`) => `<a class="st" href="/${r.p.id}/"><div class="lb">${label}</div>` +
   `<b>${fmtNum(r.now)}°</b><div class="sx"><em>${r.p.name}</em></div>` +
   `<div class="sx"><i class="gd" style="background:${gust(r.gmax)[1]}"></i>${Math.round(r.gmax)} m/s · ${fprec(r)}</div></a>`;
+// karta pohoří s fotkou z web/assets/pohori (autoři na stránce O projektu); stejné HTML generuje build_pages.py
+const stanic = n => n < 5 ? "stanice" : "stanic";
 const rangeLinks = except => groups().filter(([r]) => r !== except)
-  .map(([r, list]) => `<a href="/${slug(r)}/">${r} <small>${list.length}</small></a>`).join("");
+  .map(([r, list]) => `<a class="rc" href="/${slug(r)}/"><span class="th"><img src="/assets/pohori/${slug(r)}.jpg" alt="" width="960" height="720" loading="lazy" decoding="async"></span><span class="tt"><b>${r}</b>` +
+    `<small>${list.length} ${stanic(list.length)} · až ${list[0].alt} m</small></span></a>`).join("");
+// šipky u poličky: posun o viditelnou šířku, na krajích se vypnou
+function shelfArrows() {
+  for (const el of document.querySelectorAll(".shelf")) {
+    const btns = document.querySelectorAll(`.arw[data-shelf="${el.id}"]`);
+    const sync = () => {
+      const start = el.scrollLeft < 4, end = el.scrollLeft + el.clientWidth > el.scrollWidth - 4;
+      el.classList.toggle("sl", !start);
+      el.classList.toggle("se", end);
+      btns.forEach(b => b.disabled = +b.dataset.dir < 0 ? start : end);
+    };
+    if (!el.dataset.on) {
+      el.dataset.on = 1;
+      el.addEventListener("scroll", sync, { passive: true });
+      window.addEventListener("resize", sync);
+      btns.forEach(b => b.onclick = () => el.scrollBy({ left: +b.dataset.dir * el.clientWidth * 0.85,
+        behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }));
+    }
+    sync();
+  }
+}
 
 // úvodní stránka: souhrn všech stanic na příštích 24 h
 async function home() {
   const run = state.run;
   const popular = loadPopular();
   $("hranges").innerHTML = rangeLinks();
+  shelfArrows();
   if (!state.sum[run]) $("hl").innerHTML = Array.from({ length: 4 }, () => `<div class="st">${SK("62%", 10)}${SK("48%", 22)}${SK("74%", 10)}</div>`).join("");
   const sr = await summaryRows("home");
   if (!sr) { if (!state.sum[run]) $("hl").innerHTML = ""; return; }
@@ -1067,6 +1284,8 @@ async function rangeView() {
   $("rtitle").textContent = `${name} – meteogramy a počasí na horách`;
   $("rlead").textContent = `Hodinová předpověď modelu ALADIN pro ${list.length} ${list.length === 1 ? "horskou stanici" : list.length < 5 ? "horské stanice" : "horských stanic"} ČHMÚ v pohoří ${name}. Teplota, vítr a nárazy, srážky a sníh na tři dny dopředu.`;
   $("rmore").innerHTML = rangeLinks(name);
+  $("rmore").scrollLeft = 0;
+  shelfArrows();
   // bez souhrnu jen odkazy; generovaná stránka už má karty s předpovědí, ty se nepřepisují prázdnými
   if ($("rlist").dataset.r !== name) {
     $("rlist").dataset.r = name;
