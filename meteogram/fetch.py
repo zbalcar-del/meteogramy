@@ -1,4 +1,4 @@
-"""Stáhne poslední běh modelu ALADIN CZ 1 km z otevřených dat ČHMÚ
+"""Stáhne poslední běh modelu ALADIN CZ (výstup v rastru ~1 km) z otevřených dat ČHMÚ
 a vytáhne z něj časové řady pro české hory do web/data/*.json."""
 
 import bz2
@@ -148,7 +148,7 @@ def process_run(run, urls, dest):
         start = datetime.strptime(run, "%Y%m%d%H").replace(tzinfo=timezone.utc)
         times = [iso(start + timedelta(hours=s)) for s in steps_all]
         dest.mkdir(parents=True, exist_ok=True)
-        index = {"model": "ALADIN CZ 1 km", "source": "ČHMÚ – otevřená data", "run": iso(start), "places": []}
+        index = {"model": "ALADIN CZ", "source": "ČHMÚ – otevřená data", "run": iso(start), "places": []}
         for pl in PLACES:
             node = nodes[pl["id"]]
             meta = {**pl, "node": {"lat": round(node["lat"], 4), "lon": round(node["lon"], 4),
@@ -163,10 +163,25 @@ def process_run(run, urls, dest):
         shutil.rmtree(work, ignore_errors=True)
 
 
+def write_summary(dest):
+    """Souhrn všech míst v jednom souboru pro úvodní stránku (aby nemusela stahovat každé místo zvlášť)."""
+    index = json.loads((dest / "index.json").read_text())
+    out = {"times": None, "places": {}}
+    for pl in index["places"]:
+        e = json.loads((dest / f"{pl['id']}.json").read_text())
+        out["times"] = e["times"]
+        out["places"][pl["id"]] = {k: [round(v, d) for v in e[k]]
+                                   for k, d in (("t", 1), ("gust", 1), ("prec", 2), ("snow", 2), ("sun", 0))}
+    (dest / "summary.json").write_text(json.dumps(out, separators=(",", ":")))
+
+
 def update_index():
     runs = sorted((p.name for p in OUT.glob("20*") if (p / "index.json").exists()), reverse=True)
     for old in runs[KEEP_RUNS:]:
         shutil.rmtree(OUT / old)
+    for run in runs[:KEEP_RUNS]:
+        if not (OUT / run / "summary.json").exists():
+            write_summary(OUT / run)
     for stale in OUT.glob("20*.json"):  # starý formát (jeden soubor na běh)
         stale.unlink()
     (OUT / "index.json").write_text(json.dumps({"runs": runs[:KEEP_RUNS]}))

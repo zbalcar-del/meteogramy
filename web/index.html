@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Meteogramy.cz – horský meteogram z modelu ALADIN</title>
-<meta name="description" content="Meteogram pro české hory: teplota, vítr, nárazy, srážky, sníh, tlak a oblačnost na 3 dny z modelu ALADIN CZ 1 km (data ČHMÚ).">
+<meta name="description" content="Meteogram pro české hory: teplota, vítr, nárazy, srážky, sníh, tlak a oblačnost na 3 dny z modelu ALADIN CZ (data ČHMÚ).">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22f%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%232fd2fc%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231c6ef2%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2223%22%20fill%3D%22url%28%23f%29%22/%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.5%22%20stroke-width%3D%221.6%22%3E%3Cpath%20d%3D%22M9%200V100M0%209H100%22/%3E%3Cpath%20d%3D%22M27.5%200V100M0%2027.5H100%22/%3E%3Cpath%20d%3D%22M50%200V100M0%2050H100%22/%3E%3Cpath%20d%3D%22M72.5%200V100M0%2072.5H100%22/%3E%3Cpath%20d%3D%22M91%200V100M0%2091H100%22/%3E%3Cpath%20d%3D%22M0%200L100%20100M100%200L0%20100%22/%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2241%22/%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2222.5%22/%3E%3C/g%3E%3C/svg%3E">
 <link rel="canonical" href="https://meteogramy.cz/">
 <style>
@@ -44,7 +44,7 @@ button, select { font: inherit; }
   padding: 18px 0 12px; display: flex; flex-direction: column; }
 /* hlavička (logo, hledání) a patička (běh modelu) stojí, posouvá se jen seznam */
 .side > * { flex: 0 0 auto; margin-left: 12px; margin-right: 12px; }
-.logo { display: flex; align-items: center; gap: 11px; padding: 0 6px; min-width: 0; }
+.logo { display: flex; align-items: center; gap: 11px; padding: 0 6px; min-width: 0; color: inherit; text-decoration: none; }
 .logo .appicon { flex: 0 0 auto; display: block; }
 .logo .bn { font-weight: 700; font-size: 17px; letter-spacing: -.01em; line-height: 1.15; white-space: nowrap; }
 .logo .tag { font-size: 12px; color: var(--muted); line-height: 1.3; margin-top: 1px; }
@@ -161,6 +161,16 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 
 #chart { position: relative; padding: 18px 16px 10px; }
 #chart svg { display: block; width: 100%; height: auto; font-variant-numeric: tabular-nums; }
+/* vysvětlivky ⓘ u grafů */
+.ib { cursor: pointer; }
+.ib .hit { fill: transparent; }
+.ib .fa { fill: #c7c7cc; transition: fill .15s; }
+.ib:hover .fa, .ib.on .fa { fill: var(--accent); }
+#info { position: absolute; z-index: 20; display: none; width: 320px; max-width: calc(100% - 16px); padding: 12px 14px 13px; font-size: 13px;
+  line-height: 1.5; color: #3a3a3c; background: rgba(255,255,255,.9); -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px); border: .5px solid rgba(0,0,0,.1); border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.12), 0 1px 3px rgba(0,0,0,.08); }
+#info b { display: block; margin-bottom: 4px; font-size: 14px; color: #1d1d1f; }
 #tip { position: absolute; pointer-events: none; display: none; min-width: 210px; padding: 10px 12px 7px; font-size: 12.5px;
   background: rgba(255,255,255,.8); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
   border: .5px solid rgba(0,0,0,.1); border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,.12), 0 1px 3px rgba(0,0,0,.08); }
@@ -190,7 +200,77 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .about section p:last-child { margin-bottom: 0; }
 .about .note { font-size: 15px; color: #6e6e73; }
 .sfoot a.on { color: var(--ink); font-weight: 600; }
+/* úvodní stránka */
+.home { max-width: 1180px; margin: 0 auto; }
+.hhero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: center; padding: 28px 8px 30px; }
+/* karta vybrané stanice vpravo v úvodu */
+.hc { display: block; background: var(--paper); border-radius: 22px; padding: 18px 20px 16px; color: inherit; text-decoration: none;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.04), 0 12px 36px rgba(0,0,0,.07); transition: box-shadow .15s; }
+.hc:hover { box-shadow: 0 0 0 1px rgba(0,0,0,.07), 0 16px 44px rgba(0,0,0,.11); }
+.hc-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.hc-h b { display: block; font-size: 22px; letter-spacing: -.02em; line-height: 1.15; }
+.hc-h span { font-size: 13px; color: #6e6e73; }
+.hc-h .tag { flex: 0 0 auto; font-size: 10.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: #c4473f;
+  background: #fff1f0; border-radius: 7px; padding: 3px 8px; }
+.hc-now { display: flex; align-items: baseline; gap: 12px; margin-top: 8px; }
+.hc-now b { font-size: 52px; font-weight: 600; letter-spacing: -.035em; line-height: 1; color: var(--temp); font-variant-numeric: tabular-nums; }
+.hc-now span { font-size: 14px; color: #6e6e73; font-variant-numeric: tabular-nums; }
+.hc svg { display: block; width: 100%; height: auto; margin: 12px 0 2px; overflow: visible; }
+.hc dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 10px 0 0; padding-top: 12px; border-top: 1px solid #f0f1f4; }
+.hc dt { font-size: 10px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: #8e8e93; white-space: nowrap; }
+.hc dd { margin: 2px 0 0; font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hc dd span { font-size: 12.5px; font-weight: 500; color: #6e6e73; }
+.hc dd em { font-style: normal; }
+.hc .gd { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 2px; }
+.hc .sn { color: var(--snow); }
+.hc-f { display: flex; justify-content: flex-end; align-items: center; gap: 4px; margin-top: 12px; font-size: 13px; font-weight: 600; color: var(--accent); }
+.home .eyebrow { font-size: 14px; font-weight: 600; color: #86868b; margin: 0 0 10px; }
+.home h1 { font-size: 44px; line-height: 1.08; letter-spacing: -.03em; font-weight: 700; margin: 0 0 14px; }
+.home .lead { font-size: 19px; line-height: 1.45; color: #6e6e73; margin: 0; }
+.cont { display: inline-flex; align-items: center; gap: 9px; margin-top: 20px; padding: 9px 14px 9px 12px; border-radius: 12px;
+  background: var(--paper); color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 600;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.05), 0 1px 3px rgba(0,0,0,.05); transition: box-shadow .15s; }
+.cont:hover { box-shadow: 0 0 0 1px rgba(0,0,0,.08), 0 4px 14px rgba(0,0,0,.08); }
+.cont svg { color: var(--accent); flex: 0 0 auto; }
+.cont small { color: var(--muted); font-weight: 500; font-size: 13px; }
+.hl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0 0 30px; }
+.hl .st { background: var(--paper); color: inherit; text-decoration: none; padding: 13px 16px 14px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.04); transition: box-shadow .15s; }
+.hl .st:hover { box-shadow: 0 0 0 1px rgba(0,0,0,.07), 0 6px 18px rgba(0,0,0,.08); }
+.hl .st b { font-size: 24px; }
+.hl .sx { display: block; overflow: hidden; text-overflow: ellipsis; }
+.hl .sx em { font-style: normal; color: var(--ink); font-weight: 600; }
+.sech { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 4px 16px; margin: 0 8px 12px; }
+.sech h2 { margin: 0; font-size: 22px; letter-spacing: -.015em; }
+.sech span { font-size: 13px; color: var(--muted); }
+.ranges { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+.rt { display: flex; flex-direction: column; background: var(--paper); border-radius: 18px; padding: 15px 16px 13px; color: inherit; text-decoration: none;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.04); transition: box-shadow .15s; }
+.rt:hover { box-shadow: 0 0 0 1px rgba(0,0,0,.07), 0 6px 18px rgba(0,0,0,.08); }
+.rt h3 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 0; font-size: 17px; letter-spacing: -.012em; }
+.rt h3 small { flex: 0 0 auto; font-size: 12.5px; font-weight: 500; color: var(--muted); }
+.rt .alt { margin-top: 1px; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.rt dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 12px 0; }
+.rt dt { font-size: 10px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: #8e8e93; white-space: nowrap; }
+.rt dd { margin: 2px 0 0; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rt dd span { font-size: 12px; font-weight: 500; color: #6e6e73; }
+.rt .gd { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 2px; }
+.rt dd em { font-style: normal; }
+.rt .sn { color: var(--snow); }
+.rt .no { color: #c0c4ca; }
+.rt .top { display: flex; align-items: center; gap: 6px; margin-top: auto; padding-top: 10px; border-top: 1px solid #f0f1f4; font-size: 13px; color: var(--ink-2); }
+.rt .top svg { flex: 0 0 auto; color: var(--accent); }
+.rt .top span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rt .top b { font-weight: 600; color: var(--ink); }
+@media (max-width: 1020px) { .hl { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 860px) {
+  .hhero { grid-template-columns: 1fr; gap: 20px; padding: 14px 4px 22px; }
+  .home h1 { font-size: 32px; }
+  .home .lead { font-size: 17px; }
+  .hl { gap: 8px; margin-bottom: 22px; }
+  .hl .st { padding: 10px 12px 11px; }
+  .hl .st b { font-size: 20px; }
+  .sech { margin: 0 4px 10px; }
   .about { padding-top: 16px; }
   .about h1 { font-size: 34px; }
   .about .lead { font-size: 18px; }
@@ -207,6 +287,8 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .skchart .row { display: flex; gap: 14px; align-items: center; margin: 18px 0 12px 50px; }
 .skchart .plot { height: 150px; margin: 0 52px 0 50px; border-radius: 10px; }
 .skrow { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; }
+h1, h2, .about .lead { text-wrap: balance; }
+.about p, .hero .sub { text-wrap: pretty; }
 .foot { text-align: center; font-size: 12px; color: var(--muted); margin: 16px 0 0; }
 .foot a { color: var(--muted); }
 .msg { text-align: center; padding: 60px 0; color: var(--muted); }
@@ -235,10 +317,10 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 <body>
 <div class="app">
   <aside class="side">
-    <div class="logo">
+    <a class="logo" href="/" aria-label="Meteogramy.cz – úvodní stránka">
       <svg class="appicon" width="34" height="34" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="ig1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2fd2fc"/><stop offset="1" stop-color="#1c6ef2"/></linearGradient></defs><rect width="100" height="100" rx="23" fill="url(#ig1)"/><g fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.6"><path d="M9 0V100M0 9H100"/><path d="M27.5 0V100M0 27.5H100"/><path d="M50 0V100M0 50H100"/><path d="M72.5 0V100M0 72.5H100"/><path d="M91 0V100M0 91H100"/><path d="M0 0L100 100M100 0L0 100"/><circle cx="50" cy="50" r="41"/><circle cx="50" cy="50" r="22.5"/></g></svg>
       <div><div class="bn">Meteogramy.cz</div><div class="tag">horské meteogramy</div></div>
-    </div>
+    </a>
     <div class="search">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
       <input id="q" type="search" placeholder="Hledat stanici" autocomplete="off" aria-label="Hledat stanici">
@@ -259,18 +341,33 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
       <a href="/o-projektu/">O projektu</a>
       <a href="/ochrana-soukromi/">Ochrana soukromí</a>
       <a href="/cookies/">Cookies</a>
-      <small>© 2026 Meteogramy.cz</small>
+      <small>© 2026 Meteogramy.cz · <span title="Verze aplikace">v0.1.0</span></small>
     </nav>
   </aside>
 
   <main class="main">
   <div class="mbar">
-    <div class="logo">
+    <a class="logo" href="/" aria-label="Meteogramy.cz – úvodní stránka">
       <svg class="appicon" width="26" height="26" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="ig2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2fd2fc"/><stop offset="1" stop-color="#1c6ef2"/></linearGradient></defs><rect width="100" height="100" rx="23" fill="url(#ig2)"/><g fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.6"><path d="M9 0V100M0 9H100"/><path d="M27.5 0V100M0 27.5H100"/><path d="M50 0V100M0 50H100"/><path d="M72.5 0V100M0 72.5H100"/><path d="M91 0V100M0 91H100"/><path d="M0 0L100 100M100 0L0 100"/><circle cx="50" cy="50" r="41"/><circle cx="50" cy="50" r="22.5"/></g></svg>
       <div class="bn">Meteogramy.cz</div>
-    </div>
+    </a>
     <select id="picksel" aria-label="Hora"></select>
   </div>
+
+  <section class="home" id="home" hidden>
+    <div class="hhero">
+      <div>
+      <p class="eyebrow">Předpověď pro české hory</p>
+      <h1>Meteogramy horských stanic</h1>
+      <p class="lead">Hodinová předpověď z modelu ALADIN pro <span id="hcount">109</span> horských stanic ČHMÚ – teplota, vítr, srážky, sníh, tlak a oblačnost na tři dny dopředu.</p>
+      <div id="hlast"></div>
+      </div>
+      <div id="hcard"></div>
+    </div>
+    <div class="hl" id="hl"></div>
+    <div class="sech"><h2>Pohoří</h2><span id="hmeta"></span></div>
+    <div class="ranges" id="ranges"></div>
+  </section>
 
   <div class="sheet" id="mg">
     <div class="hero">
@@ -284,25 +381,25 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
       <div id="meta"></div>
       <label class="tgl"><input type="checkbox" id="corr"><i></i>Teplota přepočtená na výšku stanice</label>
     </div>
-    <div id="chart"><div class="msg">Načítám data…</div><div id="tip"></div></div>
+    <div id="chart"><div class="msg">Načítám data…</div><div id="tip"></div><div id="info" role="tooltip"></div></div>
   </div>
   <article class="about" id="about" hidden>
     <p class="eyebrow">O projektu</p>
     <h1>Meteogram, na který jste byli zvyklí.</h1>
-    <p class="lead">Meteogramy.cz navazují na oblíbený meteogram ALADIN, který ČHMÚ přestalo zveřejňovat. Stejná data, stejné přehledné grafy – jen v moderním kabátě a zaměřené na hory.</p>
+    <p class="lead">Meteogramy.cz navazují na klasický meteogram ALADIN v podobě, na kterou jste byli zvyklí ze starého webu ČHMÚ. Stejná data, stejné přehledné grafy – jen v moderním kabátě a zaměřené na hory.</p>
     <div class="facts">
       <div class="fact"><b>109</b><span>horských stanic ČHMÚ</span></div>
-      <div class="fact"><b>1 km</b><span>rozlišení modelu ALADIN</span></div>
+      <div class="fact"><b>2,3 km</b><span>rozlišení modelu ALADIN</span></div>
       <div class="fact"><b>4× denně</b><span>nová předpověď na 3 dny</span></div>
     </div>
     <section>
       <h2>Odkud jsou data</h2>
-      <p>Předpověď pochází z numerického modelu ALADIN CZ, který počítá Český hydrometeorologický ústav. ČHMÚ ji zveřejňuje jako otevřená data na <a href="https://opendata.chmi.cz/meteorology/weather/nwp_aladin/" target="_blank" rel="noopener">opendata.chmi.cz</a>. Každý nový běh modelu stáhneme a zpracujeme automaticky.</p>
+      <p>Předpověď pochází z numerického modelu ALADIN CZ, který počítá Český hydrometeorologický ústav. ČHMÚ ji zveřejňuje jako otevřená data na <a href="https://opendata.chmi.cz/meteorology/weather/nwp_aladin/" target="_blank" rel="noopener">opendata.chmi.cz</a>. Model počítá v síti 2,3 km; ČHMÚ jeho výstupy zveřejňuje i v jemnějším rastru zhruba 1 km, ze kterého vycházíme. Každý nový běh modelu stáhneme a zpracujeme automaticky.</p>
     </section>
     <section>
       <h2>Jak to funguje</h2>
-      <p>Pro každou stanici vybereme nejbližší bod výpočetní sítě modelu, jehož nadmořská výška nejlépe odpovídá skutečnosti. Z něj sestavíme meteogram: teplotu, vítr a nárazy, srážky a sníh, vlhkost, tlak a oblačnost po hodinách na tři dny dopředu.</p>
-      <p>Model krajinu vyhlazuje, takže uzel modelu může ležet o pár desítek metrů jinde než stanice. Přepínačem nad grafy si teplotu můžete přepočítat na skutečnou výšku stanice.</p>
+      <p>Pro každou stanici vybereme v okruhu 1,5 km bod sítě modelu, jehož nadmořská výška nejlépe odpovídá výšce stanice. Z něj sestavíme meteogram: teplotu, vítr a nárazy, srážky a sníh, vlhkost, tlak a oblačnost po hodinách na tři dny dopředu.</p>
+      <p>Model krajinu vyhlazuje, takže hory jsou v něm nižší a uzel modelu může ležet o desítky, na nejvyšších vrcholech i přes sto metrů níž než stanice. Přepínačem nad grafy si teplotu můžete přepočítat na skutečnou výšku stanice.</p>
     </section>
     <section>
       <h2>Důležité upozornění</h2>
@@ -314,7 +411,7 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
       <p>Máte nápad, našli jste chybu nebo vám chybí stanice? Napište na <a class="mail" href="#" data-m="bW9jLmR1b2xjaUByYWNsYWJ6">e-mail se zobrazí po načtení stránky</a>.</p>
     </section>
   </article>
-  <div class="foot">Data: ČHMÚ – otevřená data, model ALADIN CZ 1 km · <a href="https://opendata.chmi.cz/meteorology/weather/nwp_aladin/" target="_blank" rel="noopener">opendata.chmi.cz</a></div>
+  <div class="foot">Data: ČHMÚ – otevřená data, model ALADIN CZ · <a href="https://opendata.chmi.cz/meteorology/weather/nwp_aladin/" target="_blank" rel="noopener">opendata.chmi.cz</a></div>
   </main>
 </div>
 
@@ -322,7 +419,7 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 const TZ = "Europe/Prague";
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const $ = id => document.getElementById(id);
-const state = { run: null, data: null, id: null, m: null, corr: false, cache: {}, open: new Set(), q: "" };
+const state = { run: null, data: null, id: null, m: null, corr: false, cache: {}, sum: {}, open: new Set(), q: "" };
 
 // pořadí pohoří ve výběru
 const RANGES = ["Krkonoše", "Jizerské hory", "Ještěd a Kozákov", "Lužické hory", "České středohoří", "Krušné hory",
@@ -383,6 +480,10 @@ const ICONS = {
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
 };
 const ICON = k => `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[k]}</svg>`;
+const deg = v => `${Math.round(v)}°`.replace("-", "−");
+const gust = g => g < 8 ? ["slabé", "#30d158"] : g < 14 ? ["mírné", "#ffd60a"] : g < 20 ? ["silné", "#ff9f0a"] : g < 25 ? ["velmi silné", "#ff453a"] : ["vichřice", "#bf1a2f"];
+// index hodiny, která odpovídá „teď“
+const nowIndex = times => Math.max(0, Math.min(times.length - 1, Math.round((Date.now() - times[0]) / 36e5)));
 const WIND_NAMES = { S: "severní", SV: "severovýchodní", V: "východní", JV: "jihovýchodní", J: "jižní", JZ: "jihozápadní", Z: "západní", SZ: "severozápadní" };
 
 function header(m, T, times) {
@@ -397,9 +498,7 @@ function header(m, T, times) {
   document.title = `Meteogram ${m.name} (${m.alt} m) – předpověď ALADIN | Meteogramy.cz`;
 
   // teď a příštích 24 h
-  const now = Date.now();
-  let i0 = Math.round((now - times[0]) / 36e5);
-  i0 = Math.max(0, Math.min(times.length - 1, i0));
+  const i0 = nowIndex(times);
   const nx = [i0, Math.min(times.length, i0 + 24)];
   const sl = a => a.slice(nx[0], nx[1]);
   const tMin = Math.min(...sl(T)), tMax = Math.max(...sl(T));
@@ -409,8 +508,6 @@ function header(m, T, times) {
   const day0 = times[i0], sunT = sunUTC(day0, m.lat, m.lon);
   const hm = min => new Intl.DateTimeFormat("cs-CZ", { timeZone: TZ, hour: "numeric", minute: "2-digit" })
     .format(new Date(Date.UTC(day0.getUTCFullYear(), day0.getUTCMonth(), day0.getUTCDate()) + min * 6e4));
-  const deg = v => `${Math.round(v)}°`.replace("-", "−");
-  const gust = g => g < 8 ? ["slabé", "#30d158"] : g < 14 ? ["mírné", "#ffd60a"] : g < 20 ? ["silné", "#ff9f0a"] : g < 25 ? ["velmi silné", "#ff453a"] : ["vichřice", "#bf1a2f"];
   // pruh rozsahu teplot: stupnice = rozsah celé předpovědi, barevný úsek = příštích 24 h, tečka = teď
   let tLo = Math.min(...T), tHi = Math.max(...T);
   if (tHi - tLo < 4) { tLo -= 2; tHi += 2; }
@@ -432,6 +529,17 @@ function header(m, T, times) {
       sx(pr < 0.1 ? "bez srážek" : sn >= 0.5 ? `≈ ${Math.round(sn)} cm sněhu` : "převážně déšť")) +
     tile("", "sun", "24 h slunce", `${fmtNum(sun)} <span>h</span>`, sx(`${hm(sunT.rise)} – ${hm(sunT.set)}`));
 }
+
+// ikona „circle-info“ z Font Awesome Free 6 (licence CC BY 4.0, fontawesome.com) – vložená přímo, bez načítání knihovny
+const FA_CIRCLE_INFO = "M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336h24V272H216c-13.3 0-24-10.7-24-24s10.7-24 24-24h48c13.3 0 24 10.7 24 24v88h8c13.3 0 24 10.7 24 24s-10.7 24-24 24H216c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z";
+const INFO = {
+  t: ["Teplota", "Teplota vzduchu 2 m nad zemí po hodinách. Šedé pruhy označují noc, tečkovaná čára aktuální čas. Na horách se teplota mezi dnem a nocí často mění méně než v údolí."],
+  w: ["Vítr", "Růžová čára je rychlost větru 10 m nad zemí, modré sloupce nejsilnější náraz během dané hodiny a červené šipky ukazují, kam vítr fouká. Orientačně: nárazy kolem 15 m/s jsou na hřebenech nepříjemné, od 20 m/s nebezpečné."],
+  p: ["Srážky a vlhkost", "Sloupec ukazuje, kolik spadne za hodinu. Zelená část je sníh přepočtený na vodu – 1 mm odpovídá zhruba 1 cm nového sněhu. Tmavá čára je vlhkost vzduchu; kolem 100 % bývá mlha nebo nízká oblačnost."],
+  m: ["Tlak", "Tlak vzduchu přepočtený na hladinu moře. Klesající tlak obvykle ohlašuje zhoršení počasí, stoupající zlepšení."],
+  c: ["Oblačnost", "Tmavá plocha je nízká oblačnost – na horách často znamená mlhu. Světlá plocha je celková oblačnost, červená a modrá čára střední a vysoká. Graf ukazuje oblačnost nad stanicí – při inverzi může být nahoře jasno, i když jsou údolí v mlze."],
+};
+document.addEventListener("click", () => { const i = $("info"); if (i) i.style.display = "none"; document.querySelectorAll(".ib.on").forEach(g => g.classList.remove("on")); });
 
 function render() {
   const m = state.m;
@@ -472,14 +580,22 @@ function render() {
   const text = (X, Y, t, o = {}) =>
     `<text x="${X}" y="${Y}" font-size="${o.fs || fs}" fill="${o.c || C.ink2}" text-anchor="${o.a || "middle"}"` +
     `${o.w ? ` font-weight="${o.w}"` : ""}${o.rot ? ` transform="rotate(-90 ${X} ${Y})"` : ""}>${t}</text>`;
+  // všechny čáry v grafech stejným stylem: bílý lem pod čarou, stejná tloušťka, kulaté spoje
+  const LINE_W = 2.4;
+  const line = (arr, Y, col, w = LINE_W) => path(arr, Y, "#fff", w + 3) + path(arr, Y, col, w);
   const path = (arr, Y, col, w = 2) =>
     `<path d="${arr.map((v, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + Y(v).toFixed(1)).join("")}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"/>`;
 
   // legenda nad panelem: [druh, barva, text]
+  const infos = [];
   function legend(p, title, items) {
     const yy = p.top - 38;
-    s += text(L, yy + 4, title, { a: "start", c: C.ink, w: 600, fs: fs + 1.5 });
-    let xx = L + title.length * (fs + 1.5) * 0.58 + 16;
+    const tfs = (fs + 1.5) * 1.2;
+    s += text(L, yy + 5, title, { a: "start", c: C.ink, w: 600, fs: tfs });
+    const ix = L + title.length * tfs * 0.6 + 12;
+    infos.push(`<g class="ib" data-k="${p.key}" transform="translate(${ix} ${yy})" role="button" aria-label="Co ukazuje graf ${title}">` +
+      `<circle class="hit" r="11"/><path class="fa" transform="scale(.031) translate(-256 -256)" d="${FA_CIRCLE_INFO}"/></g>`);
+    let xx = ix + 20;
     for (const [kind, col, lab] of items) {
       if (narrow && xx > W - 90) break;
       if (kind === "line") s += `<line x1="${xx}" x2="${xx + 16}" y1="${yy}" y2="${yy}" stroke="${col}" stroke-width="2.5" stroke-linecap="round"/>`;
@@ -528,7 +644,7 @@ function render() {
   legend(pT, "Teplota", [["line", C.temp, "2 m nad zemí [°C]"]]);
   let Y = frame(pT, lo, hi, hi - lo > 16 ? 4 : 2, "[°C]");
   if (lo < 0 && hi > 0) s += `<line x1="${L}" x2="${L + pw}" y1="${Y(0)}" y2="${Y(0)}" stroke="${C.frame}" stroke-width="1"/>`;
-  s += path(T, Y, C.temp, 2.4);
+  s += line(T, Y, C.temp);
   close(pT);
 
   // 2 vítr
@@ -536,10 +652,10 @@ function render() {
   legend(pW, "Vítr", [["line", C.wind, "rychlost [m/s]"], ["bar", C.gust, "nárazy [m/s]"], ["arrow", C.dir, "směr"]]);
   Y = frame(pW, 0, wmax, 5, "[m/s]");
   for (let i = 0; i < n; i++) {
-    const w = Math.max(1.5, bw * 0.45);
-    s += `<rect x="${(x(i) - w / 2).toFixed(1)}" y="${Y(m.gust[i]).toFixed(1)}" width="${w.toFixed(1)}" height="${(Y(0) - Y(m.gust[i])).toFixed(1)}" fill="${C.gust}"/>`;
+    const w = Math.max(2, bw * 0.7);
+    s += `<rect x="${(x(i) - w / 2).toFixed(1)}" y="${Y(m.gust[i]).toFixed(1)}" width="${w.toFixed(1)}" height="${(Y(0) - Y(m.gust[i])).toFixed(1)}" rx="1.2" fill="${C.gust}"/>`;
   }
-  s += path(m.ws, Y, C.wind, 2.2);
+  s += line(m.ws, Y, C.wind);
   const every = narrow ? 3 : 2;
   for (let i = 0; i < n; i += every) {
     const cy = pW.top + 11;
@@ -551,22 +667,25 @@ function render() {
   const pmax = Math.max(1, Math.ceil(Math.max(...m.prec) * 1.15));
   const pstep = pmax <= 2 ? 0.5 : pmax <= 5 ? 1 : 2;
   const pTop = Math.ceil(pmax / pstep) * pstep;
-  legend(pP, "Srážky", [["bar", C.prec, "celkem [mm/h]"], ["bar", C.snow, "sníh [mm/h]"], ["line", C.rh, "rel. vlhkost [%]"]]);
+  // jeden sloupec srážek, sníh je jeho spodní zelená část
+  legend(pP, "Srážky", [["bar", C.prec, "celkem [mm/h]"], ["bar", C.snow, "z toho sníh"], ["line", C.rh, "rel. vlhkost [%]"]]);
   Y = frame(pP, 0, pTop, pstep, "[mm/h]", { lo: 0, hi: 100, step: 20, c: C.rh, title: "[%]" });
-  for (let i = 0; i < n; i++) {
-    const w = Math.max(1.5, bw * 0.4);
-    if (m.prec[i] >= 0.05) s += `<rect x="${(x(i) - w).toFixed(1)}" y="${Y(m.prec[i]).toFixed(1)}" width="${w.toFixed(1)}" height="${(Y(0) - Y(m.prec[i])).toFixed(1)}" fill="${C.prec}"/>`;
-    if (m.snow[i] >= 0.05) s += `<rect x="${x(i).toFixed(1)}" y="${Y(m.snow[i]).toFixed(1)}" width="${w.toFixed(1)}" height="${(Y(0) - Y(m.snow[i])).toFixed(1)}" fill="${C.snow}"/>`;
-  }
   const Yrh = v => pP.top + pP.h - v / 100 * pP.h;
-  s += path(m.rh, Yrh, C.rh, 2);
+  s += line(m.rh, Yrh, C.rh);
+  for (let i = 0; i < n; i++) {
+    if (m.prec[i] < 0.05) continue;
+    const w = Math.max(2, bw * 0.7), x0 = (x(i) - w / 2).toFixed(1);
+    s += `<rect x="${x0}" y="${Y(m.prec[i]).toFixed(1)}" width="${w.toFixed(1)}" height="${(Y(0) - Y(m.prec[i])).toFixed(1)}" rx="1.2" fill="${C.prec}"/>`;
+    const sn = Math.min(m.snow[i], m.prec[i]);
+    if (sn >= 0.05) s += `<rect x="${x0}" y="${Y(sn).toFixed(1)}" width="${w.toFixed(1)}" height="${(Y(0) - Y(sn)).toFixed(1)}" rx="1.2" fill="${C.snow}"/>`;
+  }
   close(pP);
 
   // 4 tlak
   [lo, hi] = niceRange(m.mslp, 4, 8);
   legend(pM, "Tlak", [["line", C.pres, "přepočtený na hladinu moře [hPa]"]]);
   Y = frame(pM, lo, hi, 4, "[hPa]");
-  s += path(m.mslp, Y, C.pres, 2.4);
+  s += line(m.mslp, Y, C.pres);
   close(pM);
 
   // 5 oblačnost
@@ -575,8 +694,8 @@ function render() {
   const area = (arr, col) => `<path d="M${x(0)} ${Y(0)}${arr.map((v, i) => `L${x(i).toFixed(1)} ${Y(v).toFixed(1)}`).join("")}L${x(n - 1)} ${Y(0)}Z" fill="${col}"/>`;
   s += area(m.clt, C.clt);
   s += area(m.cll, C.cll);
-  s += path(m.clh, Y, C.clh, 1.6);
-  s += path(m.clm, Y, C.clm, 1.6);
+  s += line(m.clh, Y, C.clh);
+  s += line(m.clm, Y, C.clm);
   close(pC);
 
   // teď
@@ -590,11 +709,30 @@ function render() {
   s += `<g id="cur" visibility="hidden">${panels.map(p => `<line class="cl" y1="${p.top}" y2="${p.top + p.h}" stroke="${C.ink}" stroke-width="1" opacity=".55"/>`).join("")}`;
   s += `<circle id="cT" r="3.5" fill="${C.temp}" stroke="#fff" stroke-width="1.5"/><circle id="cW" r="3.5" fill="${C.wind}" stroke="#fff" stroke-width="1.5"/>`;
   s += `<circle id="cR" r="3.5" fill="${C.rh}" stroke="#fff" stroke-width="1.5"/><circle id="cM" r="3.5" fill="${C.pres}" stroke="#fff" stroke-width="1.5"/></g>`;
-  s += `<rect id="hit" x="${L}" y="0" width="${pw}" height="${H}" fill="transparent"/></svg>`;
+  s += `<rect id="hit" x="${L}" y="0" width="${pw}" height="${H}" fill="transparent"/>${infos.join("")}</svg>`;
 
-  const tip = $("tip");
+  const tip = $("tip"), info = $("info");
   box.innerHTML = s;
   box.appendChild(tip);
+  box.appendChild(info);
+  info.style.display = "none";
+
+  // vysvětlivka ⓘ: na najetí myší, na mobilu klepnutím
+  box.querySelectorAll(".ib").forEach(g => {
+    const show = () => {
+      const [h, t] = INFO[g.dataset.k];
+      info.innerHTML = `<b>${h}</b>${t}`;
+      info.style.display = "block";
+      const r = g.getBoundingClientRect(), br = box.getBoundingClientRect();
+      info.style.left = Math.max(8, Math.min(r.left - br.left - 14, br.width - info.offsetWidth - 8)) + "px";
+      info.style.top = (r.bottom - br.top + 8) + "px";
+      box.querySelectorAll(".ib").forEach(o => o.classList.toggle("on", o === g));
+    };
+    const hide = () => { info.style.display = "none"; g.classList.remove("on"); };
+    g.addEventListener("mouseenter", show);
+    g.addEventListener("mouseleave", hide);
+    g.addEventListener("click", e => { e.stopPropagation(); g.classList.contains("on") ? hide() : show(); });
+  });
 
   const svg = box.querySelector("svg"), cur = $("cur"), hit = $("hit");
   const row = (col, k, v, unit = "", cls = "") =>
@@ -636,33 +774,150 @@ function render() {
   hit.addEventListener("touchend", leave);
 }
 
+// úvodní stránka: souhrn všech stanic na příštích 24 h
+async function home() {
+  const run = state.run;
+  if (!state.sum[run]) {
+    $("ranges").innerHTML = Array.from({ length: 8 }, () =>
+      `<div class="rt">${SK("55%", 17)}${SK("35%", 11).replace('">', ';margin:8px 0 18px">')}${SK("100%", 30)}</div>`).join("");
+    try { state.sum[run] = await (await fetch(`/data/${run}/summary.json`)).json(); }
+    catch (e) { $("ranges").innerHTML = `<div class="msg">Přehled zatím není k dispozici.</div>`; return; }
+    if (state.run !== run || viewOf() !== "home") return;
+  }
+  const S = state.sum[run], times = S.times.map(t => new Date(t)), i0 = nowIndex(times);
+  const nx = [i0, Math.min(times.length, i0 + 24)];
+  const rows = {};
+  for (const p of state.data.places) {
+    const d = S.places[p.id];
+    if (!d) continue;
+    const dz = p.alt - p.node.alt;
+    const T = (state.corr ? d.t.map(v => v - 0.0065 * dz) : d.t).slice(...nx);
+    const sl = k => d[k].slice(...nx);
+    rows[p.id] = { p, now: T[0], tMin: Math.min(...T), tMax: Math.max(...T), gmax: Math.max(...sl("gust")),
+      pr: sum(sl("prec")), sn: sum(sl("snow")), sun: sum(sl("sun")) / 60 };
+  }
+  const all = Object.values(rows);
+  if (!all.length) return;
+  const best = f => all.reduce((a, b) => f(b) > f(a) ? b : a);
+
+  $("hcount").textContent = all.length;
+  let last = null;
+  try { last = localStorage.getItem("last"); } catch (e) {}
+  const lp = last && rows[last];
+  $("hlast").innerHTML = lp ? `<a class="cont" href="/#${lp.p.id}">${PEAK}Pokračovat: ${lp.p.name} <small>${fmtNum(lp.now)}°</small></a>` : "";
+
+  // karta vybrané stanice: teď, průběh teploty na celou předpověď a souhrn na 24 h
+  const fr = rows[FEATURED_ID];
+  if (fr) {
+    const p = fr.p, dz = p.alt - p.node.alt, raw = S.places[p.id].t;
+    const T = state.corr ? raw.map(v => v - 0.0065 * dz) : raw, n = T.length;
+    const W = 320, H = 70, top = 6, bot = 52;
+    const lo = Math.min(...T), hi = Math.max(...T), span = Math.max(4, hi - lo), mid = (lo + hi) / 2;
+    const X = i => (i + 0.5) / n * W, Y = v => bot - (v - (mid - span / 2)) / span * (bot - top);
+    const pts = T.map((v, i) => `${X(i).toFixed(1)} ${Y(v).toFixed(1)}`);
+    let sp = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs><linearGradient id="hcg" x1="0" y1="0" x2="0" y2="1">` +
+      `<stop offset="0" stop-color="#e8312f" stop-opacity=".16"/><stop offset="1" stop-color="#e8312f" stop-opacity="0"/></linearGradient></defs>`;
+    times.forEach((t, i) => {
+      const l = local(t);
+      if (l.hour !== 0) return;
+      const xx = (X(i) - W / n / 2).toFixed(1);
+      sp += `<line x1="${xx}" x2="${xx}" y1="${top - 4}" y2="${bot}" stroke="#e3e5e9"/>` +
+        `<text x="${+xx + 4}" y="${H - 4}" font-size="9.5" fill="#8e8e93">${l.wd} ${l.day}. ${l.month}.</text>`;
+    });
+    sp += `<path d="M${X(0)} ${bot}L${pts.join("L")}L${X(n - 1)} ${bot}Z" fill="url(#hcg)"/>` +
+      `<path d="M${pts.join("L")}" fill="none" stroke="#e8312f" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` +
+      `<circle cx="${X(i0)}" cy="${Y(T[i0])}" r="3.5" fill="#e8312f" stroke="#fff" stroke-width="1.5"/></svg>`;
+    const pv = fr.sn >= 0.5 ? `<em class="sn">${Math.round(fr.sn)}</em> <span>cm sněhu</span>` : `${fmtNum(fr.pr)} <span>mm</span>`;
+    $("hcard").innerHTML = `<a class="hc" href="/#${p.id}"><div class="hc-h"><div><b>${p.name}</b><span>${p.range} · ${p.alt} m n. m.</span></div>` +
+      `<span class="tag">Teď · ${pad(local(times[i0]).hour)}:00</span></div>` +
+      `<div class="hc-now"><b>${fmtNum(fr.now)}°</b><span>24 h: ${deg(fr.tMin)} / ${deg(fr.tMax)}</span></div>${sp}` +
+      `<dl><div><dt>Nárazy · 24 h</dt><dd><i class="gd" style="background:${gust(fr.gmax)[1]}"></i>${Math.round(fr.gmax)} <span>m/s</span></dd></div>` +
+      `<div><dt>Srážky · 24 h</dt><dd>${pv}</dd></div>` +
+      `<div><dt>Slunce · 24 h</dt><dd>${fmtNum(fr.sun)} <span>h</span></dd></div></dl>` +
+      `<div class="hc-f">Otevřít meteogram →</div></a>`;
+  }
+
+  // „nej“ dlaždice
+  const tile = (r, icon, label, val, note) => `<a class="st" href="/#${r.p.id}"><div class="lb">${ICON(icon)}${label}</div><b>${val}</b>` +
+    `<div class="sx">${note ? note + " · " : ""}<em>${r.p.name}</em></div></a>`;
+  const cold = best(r => -r.now), windy = best(r => r.gmax), snowy = best(r => r.sn), wet = best(r => r.pr), sunny = best(r => r.sun);
+  $("hl").innerHTML =
+    tile(cold, "thermo", "Nejchladněji teď", fmtNum(cold.now) + "°") +
+    tile(windy, "gust", "Max. nárazy · 24 h", `${Math.round(windy.gmax)} <span>m/s</span>`, gust(windy.gmax)[0]) +
+    (snowy.sn >= 0.5 ? tile(snowy, "drop", "Nejvíc sněhu · 24 h", `≈ ${Math.round(snowy.sn)} <span>cm</span>`)
+      : tile(wet, "drop", "Nejvíc srážek · 24 h", `${fmtNum(wet.pr)} <span>mm</span>`, wet.pr < 0.1 ? "nikde neprší" : "")) +
+    tile(sunny, "sun", "Nejvíc slunce · 24 h", `${fmtNum(sunny.sun)} <span>h</span>`);
+
+  const r0 = local(runDate(run));
+  $("hmeta").textContent = `teď a příštích 24 h · běh ${r0.day}. ${r0.month}. ${pad(r0.hour)}:00` +
+    (state.corr ? " · teplota přepočtená na výšku stanice" : "");
+  const stanic = n => `${n} ${n < 5 ? "stanice" : "stanic"}`;
+  const fmax = (rs, f) => Math.max(...rs.map(f));
+  // dlaždice pohoří: souhrn přes všechny stanice, klik otevře nejvyšší stanici
+  $("ranges").innerHTML = groups().map(([range, list]) => {
+    const rs = list.map(p => rows[p.id]).filter(Boolean);
+    if (!rs.length) return "";
+    const top = rs[0], alts = rs.map(r => r.p.alt);
+    const lo = Math.min(...rs.map(r => r.now)), hi = Math.max(...rs.map(r => r.now));
+    const g = fmax(rs, r => r.gmax), sn = fmax(rs, r => r.sn), pr = fmax(rs, r => r.pr);
+    const prec = sn >= 0.5 ? `<em class="sn">${Math.round(sn)}</em> <span>cm</span>` : pr < 0.1 ? `<em class="no">–</em>` : `${fmtNum(pr)} <span>mm</span>`;
+    return `<a class="rt" href="/#${top.p.id}" data-r="${range}"><h3>${range}<small>${stanic(rs.length)}</small></h3>` +
+      `<div class="alt">${Math.min(...alts) === Math.max(...alts) ? alts[0] : `${Math.min(...alts)}–${Math.max(...alts)}`} m n. m.</div>` +
+      `<dl><div><dt>Teď</dt><dd>${Math.round(lo) !== Math.round(hi) ? `${deg(lo)} <span>až</span> ${deg(hi)}` : fmtNum(lo) + "°"}</dd></div>` +
+      `<div><dt>Nárazy</dt><dd><i class="gd" style="background:${gust(g)[1]}"></i>${Math.round(g)} <span>m/s</span></dd></div>` +
+      `<div><dt>${sn >= 0.5 ? "Sníh" : "Srážky"}</dt><dd>${prec}</dd></div></dl>` +
+      `<div class="top">${PEAK}<span><b>${top.p.name}</b> · ${top.p.alt} m</span></div></a>`;
+  }).join("");
+  // pohoří se zároveň rozbalí v postranním seznamu
+  $("ranges").querySelectorAll(".rt").forEach(a => a.addEventListener("click", () => state.open.add(a.dataset.r)));
+}
+
 const PAGES = { "/o-projektu/": "O projektu – Meteogramy.cz" };
+const HOME_TITLE = document.title;
 const pagePath = () => location.pathname.replace(/\/?$/, "/");
+// co zobrazit: stránka z PAGES, meteogram (/#stanice) nebo úvodní stránka (/)
+const viewOf = () => PAGES[pagePath()] ? pagePath() : location.hash.length > 1 ? "mg" : "home";
 
 // přepne pohled podle adresy; meteogram se při návratu překreslí na správnou šířku
 function route() {
-  const page = PAGES[pagePath()] ? pagePath() : null;
-  $("mg").hidden = !!page;
-  $("about").hidden = page !== "/o-projektu/";
-  document.querySelectorAll(".sfoot a").forEach(a => a.classList.toggle("on", a.getAttribute("href") === page));
-  if (page) { document.title = PAGES[page]; window.scrollTo(0, 0); }
-  else if (state.m) render();
+  const v = viewOf();
+  $("mg").hidden = v !== "mg";
+  $("home").hidden = v !== "home";
+  $("about").hidden = v !== "/o-projektu/";
+  document.querySelectorAll(".sfoot a").forEach(a => a.classList.toggle("on", a.getAttribute("href") === v));
+  if (v === "mg") {
+    const id = decodeURIComponent(location.hash.slice(1));
+    if (state.data && id !== state.id) return show(id);
+    if (state.m) render();
+    return;
+  }
+  window.scrollTo(0, 0);
+  if (v === "home") {
+    document.title = HOME_TITLE;
+    if (!state.data) return;
+    state.id = null;
+    picker();
+    return home();
+  }
+  document.title = PAGES[v];
 }
 
 document.addEventListener("click", e => {
   const a = e.target.closest("a[href^='/']");
-  if (!a || e.metaKey || e.ctrlKey || e.shiftKey || !PAGES[a.getAttribute("href")]) return;
+  if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+  const href = a.getAttribute("href");
+  if (href.startsWith("/#")) { e.preventDefault(); select(href.slice(2)); return; }
+  if (href !== "/" && !PAGES[href]) return;
   e.preventDefault();
-  if (pagePath() !== a.getAttribute("href")) history.pushState(null, "", a.getAttribute("href"));
+  if (location.pathname + location.hash !== href) history.pushState(null, "", href);
   route();
 });
 window.addEventListener("popstate", route);
 
 function select(id) {
-  if (PAGES[pagePath()]) history.pushState(null, "", "/#" + id);
+  if (viewOf() !== "mg") { history.pushState(null, "", "/#" + id); window.scrollTo(0, 0); }
   else history.replaceState(null, "", "#" + id);
   route();
-  show(id);
 }
 
 // načte časové řady stanice (s cache) a vykreslí meteogram
@@ -674,10 +929,11 @@ function skeleton() {
   $("meta").innerHTML = SK("360px", 12);
   $("stats").innerHTML = Array.from({ length: 6 }, () =>
     `<div class="st">${SK("62%", 10)}${SK("48%", 22)}${SK("74%", 10)}</div>`).join("");
-  const box = $("chart"), tip = $("tip");
+  const box = $("chart"), tip = $("tip"), info = $("info");
   box.innerHTML = `<div class="skchart">` + Array.from({ length: 5 }, () =>
     `<div class="row">${SK("72px", 13)}${SK("120px", 10)}${SK("90px", 10)}</div>${SK("auto", 150, 10).replace('class="sk"', 'class="sk plot"')}`).join("") + `</div>`;
   box.appendChild(tip);
+  box.appendChild(info);
 }
 function skeletonSidebar() {
   $("ddbtn").querySelector(".lab").innerHTML = SK("110px", 12);
@@ -701,6 +957,7 @@ async function show(id) {
 }
 
 const DEFAULT_ID = "snezka-postovna";
+const FEATURED_ID = "praded";  // stanice na kartě v úvodu
 const PEAK = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 19.5 9 8.5l4 6.5 2.5-4 6 8.5z"/></svg>`;
 const fold = t => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
@@ -738,11 +995,11 @@ function picker() {
   });
   const ps = $("picksel");
   if (!ps.options.length) {
-    ps.innerHTML = groups().map(([r, list]) =>
+    ps.innerHTML = `<option value="" disabled>Vyberte stanici</option>` + groups().map(([r, list]) =>
       `<optgroup label="${r}">${list.map(p => `<option value="${p.id}">${p.name} (${p.alt} m)</option>`).join("")}</optgroup>`).join("");
     ps.onchange = e => select(e.target.value);
   }
-  ps.value = state.id;
+  ps.value = state.id || "";
   pickerEdge();
 }
 
@@ -768,7 +1025,8 @@ async function loadRun(run) {
   state.run = run;
   state.data = await (await fetch(`/data/${run}/index.json`)).json();
   $("picksel").innerHTML = "";
-  await show(state.id);
+  state.id = null;  // route() načte stanici z adresy znovu, už z nového běhu
+  await route();
 }
 
 const runDate = r => new Date(Date.UTC(+r.slice(0, 4), +r.slice(4, 6) - 1, +r.slice(6, 8), +r.slice(8, 10)));
@@ -815,14 +1073,10 @@ function runsDropdown(runs) {
 async function init() {
   try {
     const idx = await (await fetch("/data/index.json")).json();
-    let last = null;
-    try { last = localStorage.getItem("last"); } catch (e) {}
-    // pořadí: odkaz v adrese, naposledy prohlížená stanice, výchozí Sněžka
-    state.id = location.hash.slice(1) || last || DEFAULT_ID;
     await loadRun(idx.runs[0]);
     runsDropdown(idx.runs);
   } catch (e) {
-    $("chart").innerHTML = `<div class="msg">Data zatím nejsou stažená. Spusťte <code>./start.sh</code>.</div>`;
+    $("chart").innerHTML = $("ranges").innerHTML = `<div class="msg">Data zatím nejsou stažená. Spusťte <code>./start.sh</code>.</div>`;
   }
 }
 
@@ -831,19 +1085,53 @@ $("corr").onchange = e => {
   try { localStorage.setItem("corr", state.corr ? "1" : "0"); } catch (err) {}
   render();
 };
-window.addEventListener("hashchange", () => { const id = location.hash.slice(1); if (id && id !== state.id && state.data) show(id); });
 let rt;
-window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => state.m && render(), 120); });
+window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => viewOf() === "mg" && state.m && render(), 120); });
 // e-mail je ve zdroji zakódovaný (pozpátku + base64), skládá se až v prohlížeči kvůli robotům sbírajícím adresy
 document.querySelectorAll("a.mail").forEach(a => {
   const m = atob(a.dataset.m).split("").reverse().join("");
   a.textContent = m;
   a.addEventListener("click", e => { e.preventDefault(); location.href = "mai" + "lto:" + m; });
 });
+// česká typografie: jednopísmenná slova (v, k, s, z, o, u, a, i), čísla ani pomlčka nesmí zůstat na konci řádku;
+// mezeru za nimi nahradí nezlomitelnou (&nbsp;) – u statického textu i všeho, co se dokreslí později
+const NBSP = " ";
+// pravidla podle české typografie (ČSN 01 6910):
+// - jednopísmenné předložky a spojky (k, s, v, z, o, u, a, i) se nenechávají na konci řádku
+// - číslo se nerozděluje od toho, co k němu patří: jednotky (5 m, 10 °C, 50 %), data (3. 11. 2026), tisíce (1 000)
+// - zkratky jako např., tzv., č., str. se nerozdělují od následujícího slova, stejně tak § a č. od čísla
+// - pomlčka nezačíná nový řádek
+function typo(t) {
+  for (let k = 0; k < 2; k++) t = t
+    .replace(/(^|[\s(„"])([AaIiKkOoSsUuVvZz])[ \t\n]+(?=\S)/g, `$1$2${NBSP}`)
+    .replace(/(^|[\s(„"])(\d[^\s]*)[ \t\n]+(?=\S)/g, `$1$2${NBSP}`)
+    .replace(/(^|[\s(„"])(např|tzv|tj|resp|cca|apod|atd|č|čl|odst|str|s|p|sv|tel|ing|mgr|bc|dr|prof|doc)\.[ \t\n]+(?=\S)/gi, `$1$2.${NBSP}`)
+    .replace(/§[ \t\n]+(?=\d)/g, `§${NBSP}`);
+  return t.replace(/[ \t\n]+([–—])(?=\s)/g, `${NBSP}$1`);
+}
+const TYPO_SKIP = "script, style, textarea, input, code, pre, svg";
+function typoNode(n) {
+  if (!n.parentElement || n.parentElement.closest(TYPO_SKIP)) return;
+  const t = typo(n.data);
+  if (t !== n.data) n.data = t;
+}
+function typoTree(root) {
+  if (root.nodeType === 1 && root.closest(TYPO_SKIP)) return;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  for (let n; (n = w.nextNode());) typoNode(n);
+}
+typoTree(document.body);
+new MutationObserver(ms => {
+  for (const m of ms) {
+    if (m.type === "characterData") typoNode(m.target);
+    else m.addedNodes.forEach(n => n.nodeType === 3 ? typoNode(n) : n.nodeType === 1 && typoTree(n));
+  }
+}).observe(document.body, { childList: true, subtree: true, characterData: true });
+
 skeleton();
 skeletonSidebar();
 route();
-init().then(route);
+init();
 </script>
 </body>
 </html>
