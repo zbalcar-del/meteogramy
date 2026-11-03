@@ -210,8 +210,8 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .hc-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .hc-h b { display: block; font-size: 22px; letter-spacing: -.02em; line-height: 1.15; }
 .hc-h span { font-size: 13px; color: #6e6e73; }
-.hc-h .tag { flex: 0 0 auto; font-size: 10.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: #c4473f;
-  background: #fff1f0; border-radius: 7px; padding: 3px 8px; }
+.hc-h .tag { flex: 0 0 auto; font-size: 10.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: #6e6e73;
+  background: #f2f3f5; border-radius: 7px; padding: 3px 8px; }
 .hc-now { display: flex; align-items: baseline; gap: 12px; margin-top: 8px; }
 .hc-now b { font-size: 52px; font-weight: 600; letter-spacing: -.035em; line-height: 1; color: var(--temp); font-variant-numeric: tabular-nums; }
 .hc-now span { font-size: 14px; color: #6e6e73; font-variant-numeric: tabular-nums; }
@@ -244,6 +244,13 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .hl .st b { font-size: 24px; }
 .hl .sx { display: block; overflow: hidden; text-overflow: ellipsis; }
 .hl .sx em { font-style: normal; color: var(--ink); font-weight: 600; }
+.hl .sx .gd { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
+.hl .lb { overflow: hidden; text-overflow: ellipsis; }
+.hl .fe { justify-content: center; gap: 6px; background: transparent; box-shadow: none; border: 1.5px dashed #d5d9e0; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.hl .fe b { display: inline; margin: 0; font-size: 13px; color: var(--ink-2); }
+.sech { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 16px; margin: 0 8px 12px; }
+.sech h2 { margin: 0; font-size: 22px; letter-spacing: -.015em; }
+.sech span { font-size: 13px; color: var(--muted); }
 @media (max-width: 1020px) { .hl { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 860px) {
   .hhero { grid-template-columns: 1fr; gap: 20px; padding: 14px 0 22px 4px; }
@@ -346,6 +353,8 @@ h1, h2, .about .lead { text-wrap: balance; }
       <div id="hcard"></div>
     </div>
     <div class="hl" id="hl"></div>
+    <div class="sech"><h2>Oblíbené</h2><span>nejčastěji prohlížené</span></div>
+    <div class="hl" id="favs"></div>
   </section>
 
   <div class="sheet" id="mg">
@@ -406,6 +415,14 @@ const RANGES = ["Krkonoše", "Jizerské hory", "Ještěd a Kozákov", "Lužické
   "Orlické hory", "Králický Sněžník", "Hrubý Jeseník", "Nízký Jeseník", "Beskydy", "Javorníky", "Hostýnské vrchy", "Bílé Karpaty"];
 
 try { state.corr = localStorage.getItem("corr") === "1"; } catch (e) {}
+// oblíbené = stanice, které si návštěvník prohlíží nejčastěji (počty si pamatuje jen jeho prohlížeč)
+const FAV_MAX = 4;
+state.visits = {};
+try { state.visits = JSON.parse(localStorage.getItem("visits") || "{}"); } catch (e) {}
+function countVisit(id) {
+  state.visits[id] = (state.visits[id] || 0) + 1;
+  try { localStorage.setItem("visits", JSON.stringify(state.visits)); } catch (e) {}
+}
 $("corr").checked = state.corr;
 
 const fmtParts = new Intl.DateTimeFormat("cs-CZ", { timeZone: TZ, weekday: "short", day: "numeric", month: "numeric",
@@ -825,6 +842,15 @@ async function home() {
     (snowy.sn >= 0.5 ? tile(snowy, "drop", "Nejvíc sněhu · 24 h", `≈ ${Math.round(snowy.sn)} <span>cm</span>`)
       : tile(wet, "drop", "Nejvíc srážek · 24 h", `${fmtNum(wet.pr)} <span>mm</span>`, wet.pr < 0.1 ? "nikde neprší" : "")) +
     tile(sunny, "sun", "Nejvíc slunce · 24 h", `${fmtNum(sunny.sun)} <span>h</span>`);
+
+  // oblíbené: nejčastěji prohlížené stanice
+  const favs = Object.keys(state.visits).filter(id => rows[id])
+    .sort((a, b) => state.visits[b] - state.visits[a]).slice(0, FAV_MAX).map(id => rows[id]);
+  const fprec = r => r.sn >= 0.5 ? `${Math.round(r.sn)} cm sněhu` : r.pr < 0.1 ? "bez srážek" : `${fmtNum(r.pr)} mm`;
+  $("favs").innerHTML = favs.map(r => `<a class="st" href="/#${r.p.id}"><div class="lb">${r.p.range} · ${r.p.alt} m</div>` +
+    `<b>${fmtNum(r.now)}°</b><div class="sx"><em>${r.p.name}</em></div>` +
+    `<div class="sx"><i class="gd" style="background:${gust(r.gmax)[1]}"></i>${Math.round(r.gmax)} m/s · ${fprec(r)}</div></a>`).join("") ||
+    `<div class="st fe">Tady se objeví stanice, které si prohlížíte nejčastěji.</div>`;
 }
 
 const PAGES = { "/o-projektu/": "O projektu – Meteogramy.cz" };
@@ -850,7 +876,7 @@ function route() {
   if (v === "home") {
     document.title = HOME_TITLE;
     if (!state.data) return;
-    state.id = null;
+    state.id = state.counted = null;
     picker();
     return home();
   }
@@ -904,6 +930,8 @@ async function show(id) {
     const t = setTimeout(skeleton, 120);  // u rychlého načtení skeleton nebliká
     try { state.cache[key] = await (await fetch(`/data/${key}.json`)).json(); } finally { clearTimeout(t); }
   }
+  // návštěva se počítá jednou za otevření stanice, ne při přepnutí běhu modelu
+  if (state.counted !== meta.id) { countVisit(meta.id); state.counted = meta.id; }
   state.id = meta.id;
   try { localStorage.setItem("last", meta.id); } catch (e) {}
   state.m = { ...meta, ...state.cache[key] };
