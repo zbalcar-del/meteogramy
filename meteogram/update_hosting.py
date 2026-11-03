@@ -30,12 +30,18 @@ def read_runs(raw):
     return runs
 
 
-def restore(sftp):
-    """Obnoví publikované běhy, aby se nestahovaly stejné GRIB soubory každou hodinu."""
-    DATA.mkdir(parents=True, exist_ok=True)
+def remote_runs(sftp):
+    """Seznam publikovaných běhů z hostingu (surový obsah index.json a běhy)."""
     with sftp.open('index.json', 'rb') as source:
         raw = source.read()
-    runs = read_runs(raw)
+    return raw, read_runs(raw)
+
+
+def restore(sftp):
+    """Obnoví všechny publikované běhy. Potřeba jen před publikací nového běhu: fetch z nich skládá
+    seznam běhů pro výběr na webu a nestahuje znovu stejné GRIB soubory."""
+    DATA.mkdir(parents=True, exist_ok=True)
+    raw, runs = remote_runs(sftp)
     for run in runs:
         dest = DATA / run
         dest.mkdir(exist_ok=True)
@@ -47,6 +53,17 @@ def restore(sftp):
             raise RuntimeError(f'Neúplná publikovaná data běhu {run}.')
     (DATA / 'index.json').write_bytes(raw)
     return runs
+
+
+def restore_latest(sftp, raw, runs):
+    """Pro samotné nasazení webu stačí z posledního běhu seznam stanic a souhrn (čte je build_pages)."""
+    if not runs:
+        raise RuntimeError('Na hostingu není žádný publikovaný běh.')
+    dest = DATA / runs[0]
+    dest.mkdir(parents=True, exist_ok=True)
+    for name in ('index.json', 'summary.json'):
+        sftp.get(f'{runs[0]}/{name}', str(dest / name))
+    (DATA / 'index.json').write_bytes(raw)
 
 
 def publish(sftp, previous_runs):
@@ -147,22 +164,29 @@ def main():
         client.get_transport().set_keepalive(30)
         with client.open_sftp() as sftp:
             sftp.chdir(posixpath.join(remote, 'data'))
-            previous = restore(sftp)
+            raw, previous = remote_runs(sftp)
         runs = fetch.list_runs()
         needed = set(fetch.FIELDS) | {fetch.OROGRAPHY}
         complete = sorted((run for run, fields in runs.items() if needed <= fields.keys()), reverse=True)
         if not complete:
             raise RuntimeError('ČHMÚ neposkytlo žádný úplný běh.')
         published = False
+        deploy = os.environ.get('GITHUB_EVENT_NAME') != 'schedule'
         if previous and complete[0] <= max(previous):
             print('Na hostingu už je nejnovější dostupný běh.', flush=True)
+            if deploy:
+                with client.open_sftp() as sftp:
+                    sftp.chdir(posixpath.join(remote, 'data'))
+                    restore_latest(sftp, raw, previous)
         else:
+            with client.open_sftp() as sftp:
+                sftp.chdir(posixpath.join(remote, 'data'))
+                previous = restore(sftp)
             if not fetch.main():
                 raise RuntimeError('Nový běh se nepodařilo zpracovat; hosting zůstává beze změny.')
             with client.open_sftp() as sftp:
                 sftp.chdir(posixpath.join(remote, 'data'))
                 published = publish(sftp, previous)
-        deploy = os.environ.get('GITHUB_EVENT_NAME') != 'schedule'
         if published or deploy:
             build_pages.main(SITE, DATA)
             with client.open_sftp() as sftp:
