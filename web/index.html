@@ -673,6 +673,7 @@ const $ = id => document.getElementById(id);
 const state = { run: null, data: null, id: null, m: null, corr: false, cache: {}, sum: {}, open: new Set(), q: "" };
 
 // pořadí pohoří ve výběru
+// všechna pohoří (pro adresy /krkonose/); pořadí určuje groups() podle nejvyšší stanice
 const RANGES = ["Krkonoše", "Jizerské hory", "Ještěd a Kozákov", "Lužické hory", "České středohoří", "Krušné hory",
   "Doupovské hory", "Slavkovský les", "Český les", "Šumava", "Novohradské hory", "Brdy", "Vysočina",
   "Orlické hory", "Králický Sněžník", "Hrubý Jeseník", "Nízký Jeseník", "Beskydy", "Javorníky", "Hostýnské vrchy", "Bílé Karpaty"];
@@ -1149,7 +1150,7 @@ const card = (r, label = `${r.p.range} · ${r.p.alt} m`) => `<a class="st" href=
 // karta pohoří s vrstevnicemi terénu z web/assets/pohori (kreslí build_relief.py); stejné HTML generuje build_pages.py
 const stanic = n => n < 5 ? "stanice" : "stanic";
 const rangeLinks = except => groups().filter(([r]) => r !== except)
-  .map(([r, list]) => `<a class="rc" href="/${slug(r)}/"><span class="th"><img src="/assets/pohori/${slug(r)}.svg?v=5" alt="" width="400" height="300" loading="lazy" decoding="async"></span><span class="tt"><b>${r}</b>` +
+  .map(([r, list]) => `<a class="rc" href="/${slug(r)}/"><span class="th"><img src="/assets/pohori/${slug(r)}.svg?v=7" alt="" width="400" height="300" loading="lazy" decoding="async"></span><span class="tt"><b>${r}</b>` +
     `<small>${list.length} ${stanic(list.length)} · až ${list[0].alt} m</small></span></a>`).join("");
 // šipky u poličky: posun o viditelnou šířku, na krajích se vypnou
 function shelfArrows() {
@@ -1287,7 +1288,7 @@ async function rangeView() {
   const list = state.data.places.filter(p => p.range === name).sort((a, b) => b.alt - a.alt);
   document.title = `${name} – meteogramy ALADIN, počasí na horách | Meteogramy.cz`;
   $("rtitle").textContent = `${name} – meteogramy a počasí na horách`;
-  $("rimg").src = `/assets/pohori/${slug(name)}-siroka.svg?v=5`;
+  $("rimg").src = `/assets/pohori/${slug(name)}-siroka.svg?v=7`;
   $("rimg").alt = `Vrstevnice v okolí nejvyšší stanice: ${list[0].name}`;
   $("rlead").textContent = `Hodinová předpověď modelu ALADIN pro ${list.length} ${list.length === 1 ? "horskou stanici" : list.length < 5 ? "horské stanice" : "horských stanic"} ČHMÚ v pohoří ${name}. Teplota, vítr a nárazy, srážky a sníh na tři dny dopředu.`;
   $("rmore").innerHTML = rangeLinks(name);
@@ -1453,10 +1454,12 @@ const FEATURED_ID = "praded";  // stanice na kartě v úvodu
 const PEAK = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 19.5 9 8.5l4 6.5 2.5-4 6 8.5z"/></svg>`;
 const fold = t => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
+// pohoří od toho s nejvyšší stanicí, ve skupině stanice od nejvyšší (stejně jako groups() v build_pages.py)
 function groups() {
   const ps = state.data.places;
-  const order = [...RANGES, ...new Set(ps.map(p => p.range).filter(r => !RANGES.includes(r)))];
-  return order.map(r => [r, ps.filter(p => p.range === r).sort((a, b) => b.alt - a.alt)]).filter(g => g[1].length);
+  return [...new Set(ps.map(p => p.range))]
+    .map(r => [r, ps.filter(p => p.range === r).sort((a, b) => b.alt - a.alt)])
+    .sort((a, b) => b[1][0].alt - a[1][0].alt);
 }
 
 // sidebar: pohoří jako rozbalovací skupiny, ve skupině stanice; při hledání se vše rozbalí a vyfiltruje

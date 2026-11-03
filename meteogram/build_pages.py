@@ -23,11 +23,6 @@ WEB = ROOT / 'web'
 SITE = 'https://meteogramy.cz'
 TZ = ZoneInfo('Europe/Prague')
 WD = ['po', 'út', 'st', 'čt', 'pá', 'so', 'ne']
-# stejné pořadí jako RANGES v index.html
-RANGES = ['Krkonoše', 'Jizerské hory', 'Ještěd a Kozákov', 'Lužické hory', 'České středohoří', 'Krušné hory',
-          'Doupovské hory', 'Slavkovský les', 'Český les', 'Šumava', 'Novohradské hory', 'Brdy', 'Vysočina',
-          'Orlické hory', 'Králický Sněžník', 'Hrubý Jeseník', 'Nízký Jeseník', 'Beskydy', 'Javorníky',
-          'Hostýnské vrchy', 'Bílé Karpaty']
 PAGES = {
     'o-projektu': ('O projektu – Meteogramy.cz',
                    'Odkud jsou data, jak meteogramy ALADIN pro české hory vznikají a jak číst předpověď z modelu.'),
@@ -150,13 +145,13 @@ def card(p, r):
 
 
 def groups(places):
-    order = RANGES + sorted({p['range'] for p in places} - set(RANGES))
-    out = [(r, sorted((p for p in places if p['range'] == r), key=lambda p: -p['alt'])) for r in order]
-    return [(r, ps) for r, ps in out if ps]
+    """Pohoří od toho s nejvyšší stanicí, ve skupině stanice od nejvyšší (stejně jako groups() v index.html)."""
+    out = [(r, sorted((p for p in places if p['range'] == r), key=lambda p: -p['alt'])) for r in {p['range'] for p in places}]
+    return sorted(out, key=lambda g: -g[1][0]['alt'])
 
 
 def range_links(places, except_=None):
-    return ''.join(f'<a class="rc" href="/{slug(r)}/"><span class="th"><img src="/assets/pohori/{slug(r)}.svg?v=5" alt="" width="400" height="300" '
+    return ''.join(f'<a class="rc" href="/{slug(r)}/"><span class="th"><img src="/assets/pohori/{slug(r)}.svg?v=7" alt="" width="400" height="300" '
                    f'loading="lazy" decoding="async"></span><span class="tt"><b>{escape(r)}</b>'
                    f'<small>{len(ps)} {"stanic" if len(ps) >= 5 else "stanice"} · až {ps[0]["alt"]} m</small></span></a>'
                    for r, ps in groups(places) if r != except_)
@@ -294,7 +289,7 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
         html = visible(template, {'range'})
         html = fill(html, 'rtitle', f'{escape(r)} – meteogramy a počasí na horách')
         html = fill(html, 'rlead', escape(lead))
-        html = html.replace('<img id="rimg" src="" alt=""', f'<img id="rimg" src="/assets/pohori/{slug(r)}-siroka.svg?v=5" '
+        html = html.replace('<img id="rimg" src="" alt=""', f'<img id="rimg" src="/assets/pohori/{slug(r)}-siroka.svg?v=7" '
                             f'alt="Vrstevnice v okolí nejvyšší stanice: {escape(ps[0]["name"])}"', 1)
         html = fill(html, 'rlist', ''.join(card(p, summary_row(p, summary['places'][p['id']], times))
                                            for p in ps if p['id'] in summary['places']), f' data-r="{escape(r)}"')
