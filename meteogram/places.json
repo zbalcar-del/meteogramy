@@ -1,0 +1,1092 @@
+[
+ {
+  "id": "snezka-postovna",
+  "name": "Sněžka, Poštovna",
+  "range": "Krkonoše",
+  "lat": 50.73583,
+  "lon": 15.74028,
+  "alt": 1602,
+  "station": "H7SNEZ01",
+  "since": 2008
+ },
+ {
+  "id": "praded",
+  "name": "Praděd",
+  "range": "Hrubý Jeseník",
+  "lat": 50.08294,
+  "lon": 17.22983,
+  "alt": 1490,
+  "station": "O1PRAD01",
+  "since": 1941
+ },
+ {
+  "id": "lucni-bouda",
+  "name": "Luční bouda",
+  "range": "Krkonoše",
+  "lat": 50.73532,
+  "lon": 15.69786,
+  "alt": 1413,
+  "station": "H1LUCB01",
+  "since": 1964
+ },
+ {
+  "id": "maly-ded",
+  "name": "Malý Děd",
+  "range": "Hrubý Jeseník",
+  "lat": 50.10258,
+  "lon": 17.22075,
+  "alt": 1367,
+  "station": "O4MDED01",
+  "since": 2024
+ },
+ {
+  "id": "serak",
+  "name": "Šerák",
+  "range": "Hrubý Jeseník",
+  "lat": 50.1875,
+  "lon": 17.10833,
+  "alt": 1328,
+  "station": "O1SERA01",
+  "since": 1897
+ },
+ {
+  "id": "lysa-hora",
+  "name": "Lysá hora",
+  "range": "Beskydy",
+  "lat": 49.54611,
+  "lon": 18.4475,
+  "alt": 1322,
+  "station": "O1LYSA01",
+  "since": 1897
+ },
+ {
+  "id": "labska-bouda",
+  "name": "Labská bouda",
+  "range": "Krkonoše",
+  "lat": 50.76988,
+  "lon": 15.54493,
+  "alt": 1320,
+  "station": "H1LBOU01",
+  "since": 1979
+ },
+ {
+  "id": "cerna-hora",
+  "name": "Černá hora",
+  "range": "Krkonoše",
+  "lat": 50.65311,
+  "lon": 15.74132,
+  "alt": 1297,
+  "station": "H4CEHO01",
+  "since": 2020
+ },
+ {
+  "id": "jeleni-studanka",
+  "name": "Jelení studánka",
+  "range": "Hrubý Jeseník",
+  "lat": 50.03172,
+  "lon": 17.20071,
+  "alt": 1238,
+  "station": "O4JEST01",
+  "since": 2024
+ },
+ {
+  "id": "klinovec",
+  "name": "Klínovec",
+  "range": "Krušné hory",
+  "lat": 50.3948,
+  "lon": 12.96796,
+  "alt": 1236,
+  "station": "L3KLIN01",
+  "since": 1902
+ },
+ {
+  "id": "richtrovy-boudy",
+  "name": "Richtrovy Boudy",
+  "range": "Krkonoše",
+  "lat": 50.71204,
+  "lon": 15.69246,
+  "alt": 1222,
+  "station": "H4RBOU01",
+  "since": 2020
+ },
+ {
+  "id": "zlaty-stolecek",
+  "name": "Zlatý stoleček",
+  "range": "Šumava",
+  "lat": 49.10444,
+  "lon": 13.33639,
+  "alt": 1197,
+  "station": "C4ZLST01",
+  "since": 2018
+ },
+ {
+  "id": "vetrin",
+  "name": "Větřín",
+  "range": "Šumava",
+  "lat": 48.97861,
+  "lon": 13.83694,
+  "alt": 1157,
+  "station": "C4VETR01",
+  "since": 2018
+ },
+ {
+  "id": "churanov",
+  "name": "Churáňov",
+  "range": "Šumava",
+  "lat": 49.06833,
+  "lon": 13.61528,
+  "alt": 1118,
+  "station": "C1CHUR01",
+  "since": 1953
+ },
+ {
+  "id": "dvoracky",
+  "name": "Dvoračky",
+  "range": "Krkonoše",
+  "lat": 50.74817,
+  "lon": 15.51453,
+  "alt": 1115,
+  "station": "P2DVOR01",
+  "since": 2002
+ },
+ {
+  "id": "filipova-hut",
+  "name": "Filipova Huť",
+  "range": "Šumava",
+  "lat": 49.02983,
+  "lon": 13.51971,
+  "alt": 1110,
+  "station": "C1FILH01",
+  "since": 1897
+ },
+ {
+  "id": "dolni-morava-slamenka",
+  "name": "Dolní Morava, Slaměnka",
+  "range": "Králický Sněžník",
+  "lat": 50.15064,
+  "lon": 16.83254,
+  "alt": 1105,
+  "station": "O2SLAM01",
+  "since": 2011
+ },
+ {
+  "id": "velka-destna",
+  "name": "Velká Deštná",
+  "range": "Orlické hory",
+  "lat": 50.30312,
+  "lon": 16.39646,
+  "alt": 1105,
+  "station": "H4VDES01",
+  "since": 2024
+ },
+ {
+  "id": "rokytska-slat",
+  "name": "Rokytská slať",
+  "range": "Šumava",
+  "lat": 49.01456,
+  "lon": 13.41817,
+  "alt": 1098,
+  "station": "C4ROKY01",
+  "since": 2020
+ },
+ {
+  "id": "klet",
+  "name": "Kleť",
+  "range": "Šumava",
+  "lat": 48.86398,
+  "lon": 14.28468,
+  "alt": 1062,
+  "station": "C2KLET01",
+  "since": 1899
+ },
+ {
+  "id": "kvilda",
+  "name": "Kvilda",
+  "range": "Šumava",
+  "lat": 49.0192,
+  "lon": 13.5792,
+  "alt": 1059,
+  "station": "C1KVIL01",
+  "since": 1910
+ },
+ {
+  "id": "horska-kvilda",
+  "name": "Horská Kvilda",
+  "range": "Šumava",
+  "lat": 49.05332,
+  "lon": 13.56525,
+  "alt": 1052,
+  "station": "C1HKVI01",
+  "since": 1990
+ },
+ {
+  "id": "bela-pod-pradedem-cervenohorske-sedlo",
+  "name": "Bělá pod Pradědem, Červenohorské sedlo",
+  "range": "Hrubý Jeseník",
+  "lat": 50.12501,
+  "lon": 17.15426,
+  "alt": 1010,
+  "station": "O1BECS01",
+  "since": 1895
+ },
+ {
+  "id": "stare-mesto-pod-sneznikem-paprsek",
+  "name": "Staré Město pod Sněžníkem, Paprsek",
+  "range": "Hrubý Jeseník",
+  "lat": 50.20944,
+  "lon": 16.98889,
+  "alt": 1001,
+  "station": "O2PAPR01",
+  "since": 2003
+ },
+ {
+  "id": "kubova-hut",
+  "name": "Kubova Huť",
+  "range": "Šumava",
+  "lat": 48.98617,
+  "lon": 13.77154,
+  "alt": 997,
+  "station": "C1KHUT01",
+  "since": 1955
+ },
+ {
+  "id": "suchy-vrch",
+  "name": "Suchý vrch",
+  "range": "Orlické hory",
+  "lat": 50.04986,
+  "lon": 16.69337,
+  "alt": 995,
+  "station": "H4SUVR01",
+  "since": 2010
+ },
+ {
+  "id": "josefuv-dul-rozmezi",
+  "name": "Josefův Důl, Rozmezí",
+  "range": "Jizerské hory",
+  "lat": 50.82287,
+  "lon": 15.22405,
+  "alt": 993,
+  "station": "P4JDRO01",
+  "since": 2016
+ },
+ {
+  "id": "horni-mala-upa-nikluv-vrch",
+  "name": "Horní Malá Úpa, Niklův vrch",
+  "range": "Krkonoše",
+  "lat": 50.7245,
+  "lon": 15.79287,
+  "alt": 985,
+  "station": "H1POMB01",
+  "since": 1997
+ },
+ {
+  "id": "spicak",
+  "name": "Špičák",
+  "range": "Šumava",
+  "lat": 49.16951,
+  "lon": 13.21582,
+  "alt": 973,
+  "station": "L1SPIC01",
+  "since": 1944
+ },
+ {
+  "id": "sucha-rudna-hubertka",
+  "name": "Suchá Rudná, Hubertka",
+  "range": "Hrubý Jeseník",
+  "lat": 50.06746,
+  "lon": 17.32438,
+  "alt": 956,
+  "station": "O4SRHU01",
+  "since": 2025
+ },
+ {
+  "id": "nydek-velka-cantoryje",
+  "name": "Nýdek, Velká Čantoryje",
+  "range": "Beskydy",
+  "lat": 49.6789,
+  "lon": 18.7948,
+  "alt": 952,
+  "station": "O4CANT01",
+  "since": 2020
+ },
+ {
+  "id": "obri-dul",
+  "name": "Obří důl",
+  "range": "Krkonoše",
+  "lat": 50.7258,
+  "lon": 15.72702,
+  "alt": 950,
+  "station": "H4ODUL01",
+  "since": 2020
+ },
+ {
+  "id": "dylen",
+  "name": "Dyleň",
+  "range": "Slavkovský les",
+  "lat": 49.96808,
+  "lon": 12.50285,
+  "alt": 939,
+  "station": "L2DYLE01",
+  "since": 1998
+ },
+ {
+  "id": "srni-vchynice-tetov-i",
+  "name": "Srní, Vchynice - Tetov I",
+  "range": "Šumava",
+  "lat": 49.06062,
+  "lon": 13.50412,
+  "alt": 930,
+  "station": "C1SRNI01",
+  "since": 1982
+ },
+ {
+  "id": "trinec-oldrichovice-javorovy",
+  "name": "Třinec, Oldřichovice, Javorový",
+  "range": "Beskydy",
+  "lat": 49.62833,
+  "lon": 18.62722,
+  "alt": 930,
+  "station": "O1JAVR01",
+  "since": 2010
+ },
+ {
+  "id": "kepelske-zhuri",
+  "name": "Kepelské Zhůří",
+  "range": "Šumava",
+  "lat": 49.18361,
+  "lon": 13.31639,
+  "alt": 928,
+  "station": "C4KEPZ01",
+  "since": 2018
+ },
+ {
+  "id": "krasna-mari",
+  "name": "Krásná Máří",
+  "range": "Jizerské hory",
+  "lat": 50.8518,
+  "lon": 15.17433,
+  "alt": 910,
+  "station": "U4MARI01",
+  "since": 2024
+ },
+ {
+  "id": "prebuz",
+  "name": "Přebuz",
+  "range": "Krušné hory",
+  "lat": 50.37246,
+  "lon": 12.61547,
+  "alt": 904,
+  "station": "L3PREB01",
+  "since": 1987
+ },
+ {
+  "id": "borova-lada",
+  "name": "Borová Lada",
+  "range": "Šumava",
+  "lat": 48.99055,
+  "lon": 13.66196,
+  "alt": 898,
+  "station": "C1BLAD01",
+  "since": 1958
+ },
+ {
+  "id": "abertamy",
+  "name": "Abertamy",
+  "range": "Krušné hory",
+  "lat": 50.36774,
+  "lon": 12.81645,
+  "alt": 893,
+  "station": "L3ABER01",
+  "since": 1905
+ },
+ {
+  "id": "bily-kriz-uvgz",
+  "name": "Bílý Kříž, ÚVGZ",
+  "range": "Beskydy",
+  "lat": 49.50261,
+  "lon": 18.53858,
+  "alt": 892,
+  "station": "O4BIKR01",
+  "since": 2025
+ },
+ {
+  "id": "prasily",
+  "name": "Prášily",
+  "range": "Šumava",
+  "lat": 49.1069,
+  "lon": 13.3786,
+  "alt": 883,
+  "station": "C1PRAS01",
+  "since": 1903
+ },
+ {
+  "id": "luisino-udoli-destne-v-orlickych-horach",
+  "name": "Luisino údolí, Deštné v Orlických horách",
+  "range": "Orlické hory",
+  "lat": 50.287,
+  "lon": 16.38829,
+  "alt": 875,
+  "station": "H2LUIS01",
+  "since": 1939
+ },
+ {
+  "id": "dolni-dvur-hanapetrova-paseka",
+  "name": "Dolní Dvůr, Hanapetrova paseka",
+  "range": "Krkonoše",
+  "lat": 50.67607,
+  "lon": 15.65473,
+  "alt": 875,
+  "station": "H4DDHP01",
+  "since": 2009
+ },
+ {
+  "id": "novy-hrozenkov-kohutka",
+  "name": "Nový Hrozenkov, Kohútka",
+  "range": "Javorníky",
+  "lat": 49.29547,
+  "lon": 18.22295,
+  "alt": 868,
+  "station": "O4KOHU01",
+  "since": 2020
+ },
+ {
+  "id": "hojsova-straz",
+  "name": "Hojsova Stráž",
+  "range": "Šumava",
+  "lat": 49.21247,
+  "lon": 13.19715,
+  "alt": 866,
+  "station": "L1HOJS01",
+  "since": 1974
+ },
+ {
+  "id": "praha-brdy",
+  "name": "Praha, Brdy",
+  "range": "Brdy",
+  "lat": 49.65889,
+  "lon": 13.81838,
+  "alt": 862,
+  "station": "L4PRAH01",
+  "since": 2015
+ },
+ {
+  "id": "jeleni-v-krusnych-horach",
+  "name": "Jelení, v Krušných horách",
+  "range": "Krušné hory",
+  "lat": 50.39388,
+  "lon": 12.67166,
+  "alt": 860,
+  "station": "L3JUMO01",
+  "since": 2025
+ },
+ {
+  "id": "korenov-jizerka",
+  "name": "Kořenov, Jizerka",
+  "range": "Jizerské hory",
+  "lat": 50.81988,
+  "lon": 15.34427,
+  "alt": 858,
+  "station": "P2KORE01",
+  "since": 1898
+ },
+ {
+  "id": "velke-karlovice-benesky",
+  "name": "Velké Karlovice, Benešky",
+  "range": "Beskydy",
+  "lat": 49.39704,
+  "lon": 18.29439,
+  "alt": 855,
+  "station": "O3BENE01",
+  "since": 2010
+ },
+ {
+  "id": "pasecna-predni-vyton",
+  "name": "Pasečná, Přední Výtoň",
+  "range": "Šumava",
+  "lat": 48.61083,
+  "lon": 14.10778,
+  "alt": 848,
+  "station": "C2PASC01",
+  "since": 2008
+ },
+ {
+  "id": "kynzvart-lazy",
+  "name": "Kynžvart, Lazy",
+  "range": "Slavkovský les",
+  "lat": 50.05,
+  "lon": 12.62322,
+  "alt": 845,
+  "station": "L3LAZY01",
+  "since": 1987
+ },
+ {
+  "id": "pernink",
+  "name": "Pernink",
+  "range": "Krušné hory",
+  "lat": 50.36323,
+  "lon": 12.77928,
+  "alt": 842,
+  "station": "L4PERK01",
+  "since": 2013
+ },
+ {
+  "id": "lazne-kynzvart-kralovka",
+  "name": "Lázně Kynžvart, Královka",
+  "range": "Slavkovský les",
+  "lat": 50.0114,
+  "lon": 12.6417,
+  "alt": 835,
+  "station": "L4LAKY01",
+  "since": 2014
+ },
+ {
+  "id": "bily-potok-smedava",
+  "name": "Bílý Potok, Smědava",
+  "range": "Jizerské hory",
+  "lat": 50.84452,
+  "lon": 15.27318,
+  "alt": 834,
+  "station": "U2SMED01",
+  "since": 2013
+ },
+ {
+  "id": "milesovka",
+  "name": "Milešovka",
+  "range": "České středohoří",
+  "lat": 50.555,
+  "lon": 13.93083,
+  "alt": 830,
+  "station": "U1MILE01",
+  "since": 1905
+ },
+ {
+  "id": "prichovice",
+  "name": "Příchovice",
+  "range": "Jizerské hory",
+  "lat": 50.74645,
+  "lon": 15.35358,
+  "alt": 830,
+  "station": "P4PRIC01",
+  "since": 2025
+ },
+ {
+  "id": "medenec",
+  "name": "Měděnec",
+  "range": "Krušné hory",
+  "lat": 50.42936,
+  "lon": 13.13256,
+  "alt": 828,
+  "station": "U1MEDE01",
+  "since": 1897
+ },
+ {
+  "id": "zakouti",
+  "name": "Zákoutí",
+  "range": "Krušné hory",
+  "lat": 50.54986,
+  "lon": 13.35497,
+  "alt": 828,
+  "station": "U4ZAKO01",
+  "since": 2013
+ },
+ {
+  "id": "stare-hute-hojna-voda",
+  "name": "Staré Hutě, Hojná Voda",
+  "range": "Novohradské hory",
+  "lat": 48.72333,
+  "lon": 14.72333,
+  "alt": 821,
+  "station": "C2SHUT01",
+  "since": 1897
+ },
+ {
+  "id": "pec-pod-snezkou",
+  "name": "Pec pod Sněžkou",
+  "range": "Krkonoše",
+  "lat": 50.69194,
+  "lon": 15.72889,
+  "alt": 816,
+  "station": "H1PECS01",
+  "since": 1898
+ },
+ {
+  "id": "knizeci-strom",
+  "name": "Knížecí strom",
+  "range": "Český les",
+  "lat": 49.76412,
+  "lon": 12.48385,
+  "alt": 812,
+  "station": "L4KNST01",
+  "since": 2025
+ },
+ {
+  "id": "strazny",
+  "name": "Strážný",
+  "range": "Šumava",
+  "lat": 48.90544,
+  "lon": 13.72068,
+  "alt": 811,
+  "station": "C1STRZ01",
+  "since": 1974
+ },
+ {
+  "id": "jeleni-nova-pec",
+  "name": "Jelení, Nová Pec",
+  "range": "Šumava",
+  "lat": 48.80323,
+  "lon": 13.88961,
+  "alt": 810,
+  "station": "C1JELE01",
+  "since": 1950
+ },
+ {
+  "id": "kliny",
+  "name": "Klíny",
+  "range": "Krušné hory",
+  "lat": 50.63875,
+  "lon": 13.55153,
+  "alt": 807,
+  "station": "U1KLIN01",
+  "since": 1899
+ },
+ {
+  "id": "zamysl",
+  "name": "Zámyšl",
+  "range": "Šumava",
+  "lat": 49.22629,
+  "lon": 13.3744,
+  "alt": 800,
+  "station": "C1ZAMY01",
+  "since": 2011
+ },
+ {
+  "id": "pusty-zamek",
+  "name": "Pustý zámek",
+  "range": "Doupovské hory",
+  "lat": 50.23489,
+  "lon": 13.10992,
+  "alt": 798,
+  "station": "U4PUST01",
+  "since": 2020
+ },
+ {
+  "id": "stozec",
+  "name": "Stožec",
+  "range": "Šumava",
+  "lat": 48.85705,
+  "lon": 13.82172,
+  "alt": 797,
+  "station": "C1STOZ01",
+  "since": 1936
+ },
+ {
+  "id": "karlova-studanka",
+  "name": "Karlova Studánka",
+  "range": "Hrubý Jeseník",
+  "lat": 50.07405,
+  "lon": 17.30683,
+  "alt": 795,
+  "station": "O1KAST01",
+  "since": 1939
+ },
+ {
+  "id": "zbytiny",
+  "name": "Zbytiny",
+  "range": "Šumava",
+  "lat": 48.92618,
+  "lon": 13.9692,
+  "alt": 792,
+  "station": "C1ZBYT01",
+  "since": 1971
+ },
+ {
+  "id": "strazne",
+  "name": "Strážné",
+  "range": "Krkonoše",
+  "lat": 50.66347,
+  "lon": 15.61368,
+  "alt": 791,
+  "station": "H1STRA01",
+  "since": 2012
+ },
+ {
+  "id": "benecko",
+  "name": "Benecko",
+  "range": "Krkonoše",
+  "lat": 50.6713,
+  "lon": 15.5499,
+  "alt": 780,
+  "station": "P2BENE01",
+  "since": 1932
+ },
+ {
+  "id": "bedrichov-nova-louka",
+  "name": "Bedřichov, Nová louka",
+  "range": "Jizerské hory",
+  "lat": 50.81445,
+  "lon": 15.15822,
+  "alt": 780,
+  "station": "P2BNLO01",
+  "since": 1983
+ },
+ {
+  "id": "stare-hute",
+  "name": "Staré Hutě",
+  "range": "Novohradské hory",
+  "lat": 48.71085,
+  "lon": 14.70646,
+  "alt": 780,
+  "station": "C4STHU01",
+  "since": 2014
+ },
+ {
+  "id": "bedrichov",
+  "name": "Bedřichov",
+  "range": "Jizerské hory",
+  "lat": 50.81511,
+  "lon": 15.13708,
+  "alt": 777,
+  "station": "U2BEDR01",
+  "since": 1897
+ },
+ {
+  "id": "slavkov",
+  "name": "Slavkov",
+  "range": "Šumava",
+  "lat": 48.76421,
+  "lon": 14.24313,
+  "alt": 777,
+  "station": "C2SLAV01",
+  "since": 1961
+ },
+ {
+  "id": "mala-moravka-karlov",
+  "name": "Malá Morávka, Karlov",
+  "range": "Hrubý Jeseník",
+  "lat": 50.02528,
+  "lon": 17.25944,
+  "alt": 775,
+  "station": "O1MAMO01",
+  "since": 1941
+ },
+ {
+  "id": "vidly",
+  "name": "Vidly",
+  "range": "Hrubý Jeseník",
+  "lat": 50.10544,
+  "lon": 17.27034,
+  "alt": 774,
+  "station": "O1VIDL01",
+  "since": 1889
+ },
+ {
+  "id": "pohorska-ves",
+  "name": "Pohorská Ves",
+  "range": "Novohradské hory",
+  "lat": 48.6701,
+  "lon": 14.64896,
+  "alt": 773,
+  "station": "C2PVES01",
+  "since": 1964
+ },
+ {
+  "id": "desna-sous",
+  "name": "Desná, Souš",
+  "range": "Jizerské hory",
+  "lat": 50.78935,
+  "lon": 15.31929,
+  "alt": 772,
+  "station": "P2DESN01",
+  "since": 1922
+ },
+ {
+  "id": "bila-hlavata",
+  "name": "Bílá, Hlavatá",
+  "range": "Beskydy",
+  "lat": 49.42129,
+  "lon": 18.37984,
+  "alt": 770,
+  "station": "O1BILH01",
+  "since": 1930
+ },
+ {
+  "id": "dlouhe-strane-kouty-nad-desnou",
+  "name": "Dlouhé stráně, Kouty nad Desnou",
+  "range": "Hrubý Jeseník",
+  "lat": 50.08541,
+  "lon": 17.17944,
+  "alt": 765,
+  "station": "O2DSDN01",
+  "since": 1998
+ },
+ {
+  "id": "ktis-tisovka",
+  "name": "Ktiš, Tisovka",
+  "range": "Šumava",
+  "lat": 48.90351,
+  "lon": 14.10596,
+  "alt": 758,
+  "station": "C1KTIS01",
+  "since": 1994
+ },
+ {
+  "id": "zelezna-ruda",
+  "name": "Železná Ruda",
+  "range": "Šumava",
+  "lat": 49.13824,
+  "lon": 13.22873,
+  "alt": 754,
+  "station": "L1ZRUD01",
+  "since": 1955
+ },
+ {
+  "id": "volary",
+  "name": "Volary",
+  "range": "Šumava",
+  "lat": 48.90167,
+  "lon": 13.89611,
+  "alt": 749,
+  "station": "C1VOLR01",
+  "since": 2009
+ },
+ {
+  "id": "cervena",
+  "name": "Červená",
+  "range": "Nízký Jeseník",
+  "lat": 49.77722,
+  "lon": 17.54194,
+  "alt": 748,
+  "station": "O1CERV01",
+  "since": 1952
+ },
+ {
+  "id": "polom-sedlonov",
+  "name": "Polom, Sedloňov",
+  "range": "Orlické hory",
+  "lat": 50.35028,
+  "lon": 16.32222,
+  "alt": 747,
+  "station": "H2POLO01",
+  "since": 2004
+ },
+ {
+  "id": "nydek-filipka",
+  "name": "Nýdek, Filipka",
+  "range": "Beskydy",
+  "lat": 49.61668,
+  "lon": 18.7886,
+  "alt": 745,
+  "station": "O1NYFI01",
+  "since": 2016
+ },
+ {
+  "id": "kozakov",
+  "name": "Kozákov",
+  "range": "Ještěd a Kozákov",
+  "lat": 50.59461,
+  "lon": 15.26288,
+  "alt": 744,
+  "station": "P4KOZA01",
+  "since": 2017
+ },
+ {
+  "id": "primda",
+  "name": "Přimda",
+  "range": "Český les",
+  "lat": 49.66944,
+  "lon": 12.67806,
+  "alt": 743,
+  "station": "L2PRIM01",
+  "since": 1954
+ },
+ {
+  "id": "ostruzna-ramzova",
+  "name": "Ostružná, Ramzová",
+  "range": "Hrubý Jeseník",
+  "lat": 50.19722,
+  "lon": 17.0652,
+  "alt": 740,
+  "station": "O1RAMZ01",
+  "since": 1895
+ },
+ {
+  "id": "cesky-jiretin-flaje",
+  "name": "Český Jiřetín, Fláje",
+  "range": "Krušné hory",
+  "lat": 50.68706,
+  "lon": 13.58558,
+  "alt": 740,
+  "station": "U1CEJI01",
+  "since": 1924
+ },
+ {
+  "id": "cerna-v-posumavi",
+  "name": "Černá v Pošumaví",
+  "range": "Šumava",
+  "lat": 48.73558,
+  "lon": 14.10732,
+  "alt": 740,
+  "station": "C1CERP01",
+  "since": 1993
+ },
+ {
+  "id": "olesnice-cihalka",
+  "name": "Olešnice, Čihalka",
+  "range": "Orlické hory",
+  "lat": 50.3749,
+  "lon": 16.35283,
+  "alt": 740,
+  "station": "H2OLES01",
+  "since": 2001
+ },
+ {
+  "id": "vysluni",
+  "name": "Výsluní",
+  "range": "Krušné hory",
+  "lat": 50.46428,
+  "lon": 13.23853,
+  "alt": 738,
+  "station": "U1VYSL01",
+  "since": 1897
+ },
+ {
+  "id": "vacov-peckov",
+  "name": "Vacov, Peckov",
+  "range": "Šumava",
+  "lat": 49.13521,
+  "lon": 13.7264,
+  "alt": 738,
+  "station": "C1VACP01",
+  "since": 1955
+ },
+ {
+  "id": "svratouch",
+  "name": "Svratouch",
+  "range": "Vysočina",
+  "lat": 49.735,
+  "lon": 16.03417,
+  "alt": 734,
+  "station": "H3SVRA01",
+  "since": 1951
+ },
+ {
+  "id": "lipno",
+  "name": "Lipno",
+  "range": "Šumava",
+  "lat": 48.6336,
+  "lon": 14.2383,
+  "alt": 730,
+  "station": "C2LIPN01",
+  "since": 1952
+ },
+ {
+  "id": "cachrov",
+  "name": "Čachrov",
+  "range": "Šumava",
+  "lat": 49.26414,
+  "lon": 13.30169,
+  "alt": 729,
+  "station": "L1CACH01",
+  "since": 1897
+ },
+ {
+  "id": "kasperske-hory",
+  "name": "Kašperské Hory",
+  "range": "Šumava",
+  "lat": 49.14556,
+  "lon": 13.55,
+  "alt": 728,
+  "station": "C1KHOR01",
+  "since": 1897
+ },
+ {
+  "id": "bila-salajka",
+  "name": "Bílá, Salajka",
+  "range": "Beskydy",
+  "lat": 49.41329,
+  "lon": 18.42066,
+  "alt": 725,
+  "station": "O1BILA01",
+  "since": 1908
+ },
+ {
+  "id": "nova-ves-v-horach",
+  "name": "Nová Ves v Horách",
+  "range": "Krušné hory",
+  "lat": 50.59244,
+  "lon": 13.48561,
+  "alt": 725,
+  "station": "U1NOVE01",
+  "since": 1939
+ },
+ {
+  "id": "nedvezi",
+  "name": "Nedvězí",
+  "range": "Vysočina",
+  "lat": 49.6344,
+  "lon": 16.3097,
+  "alt": 722,
+  "station": "B2NEDV01",
+  "since": 1951
+ },
+ {
+  "id": "vesin-tesliny",
+  "name": "Věšín, Teslíny",
+  "range": "Brdy",
+  "lat": 49.61913,
+  "lon": 13.76182,
+  "alt": 720,
+  "station": "L4TESL01",
+  "since": 2014
+ },
+ {
+  "id": "cerny-dul",
+  "name": "Černý Důl",
+  "range": "Krkonoše",
+  "lat": 50.64868,
+  "lon": 15.71256,
+  "alt": 715,
+  "station": "H1CDUL01",
+  "since": 1986
+ },
+ {
+  "id": "marenice-penkavci-vrch",
+  "name": "Mařenice, Pěnkavčí vrch",
+  "range": "Lužické hory",
+  "lat": 50.84891,
+  "lon": 14.61683,
+  "alt": 711,
+  "station": "U4PEVR01",
+  "since": 2025
+ },
+ {
+  "id": "bila-kavalcanky",
+  "name": "Bílá, Kavalčanky",
+  "range": "Beskydy",
+  "lat": 49.42388,
+  "lon": 18.46598,
+  "alt": 711,
+  "station": "O4BIKA01",
+  "since": 2025
+ },
+ {
+  "id": "rybnik",
+  "name": "Rybník",
+  "range": "Český les",
+  "lat": 49.51539,
+  "lon": 12.69832,
+  "alt": 710,
+  "station": "L4RYBN01",
+  "since": 2015
+ },
+ {
+  "id": "mala-morava-sklene",
+  "name": "Malá Morava, Sklené",
+  "range": "Králický Sněžník",
+  "lat": 50.12165,
+  "lon": 16.84196,
+  "alt": 701,
+  "station": "O2SKLE01",
+  "since": 1958
+ }
+]

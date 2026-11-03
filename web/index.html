@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meteogramy.cz – horský meteogram z modelu ALADIN</title>
+<meta name="description" content="Meteogram pro české hory: teplota, vítr, nárazy, srážky, sníh, tlak a oblačnost na 3 dny z modelu ALADIN CZ 1 km (data ČHMÚ).">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22f%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%232fd2fc%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231c6ef2%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2223%22%20fill%3D%22url%28%23f%29%22/%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.5%22%20stroke-width%3D%221.6%22%3E%3Cpath%20d%3D%22M9%200V100M0%209H100%22/%3E%3Cpath%20d%3D%22M27.5%200V100M0%2027.5H100%22/%3E%3Cpath%20d%3D%22M50%200V100M0%2050H100%22/%3E%3Cpath%20d%3D%22M72.5%200V100M0%2072.5H100%22/%3E%3Cpath%20d%3D%22M91%200V100M0%2091H100%22/%3E%3Cpath%20d%3D%22M0%200L100%20100M100%200L0%20100%22/%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2241%22/%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2222.5%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="canonical" href="https://meteogramy.cz/">
+<style>
+:root {
+  --bg: #f8f8fa;
+  --paper: #ffffff;
+  --ink: #15191f;
+  --ink-2: #4a515b;
+  --muted: #858c96;
+  --line: #dde1e7;
+  --soft: #f5f7fa;
+  --grid: #e7e9ec;
+  --frame: #8e949c;
+  --accent: #1f5fbf;
+  --accent-bg: #e8f0fc;
+  --temp: #e8312f;
+  --wind: #c4389a;
+  --gust: #8fb6e6;
+  --dir: #e8312f;
+  --prec: #2f5fa8;
+  --snow: #2e9b3e;
+  --rh: #1d2a6b;
+  --pres: #f29a12;
+  --cl-total: #d4d6da;
+  --cl-low: #6c7178;
+  --cl-mid: #d9453b;
+  --cl-high: #3a74c9;
+  --night: rgba(30, 40, 70, 0.045);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+button, select { font: inherit; }
+.app { display: grid; grid-template-columns: 264px minmax(0, 1fr); min-height: 100vh; }
+.side { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; background: #f3f4f7; border-right: 1px solid #e2e4e9;
+  padding: 18px 0 12px; display: flex; flex-direction: column; }
+/* hlavička (logo, hledání) a patička (běh modelu) stojí, posouvá se jen seznam */
+.side > * { flex: 0 0 auto; margin-left: 12px; margin-right: 12px; }
+.logo { display: flex; align-items: center; gap: 11px; padding: 0 6px; min-width: 0; }
+.logo .appicon { flex: 0 0 auto; display: block; }
+.logo .bn { font-weight: 700; font-size: 17px; letter-spacing: -.01em; line-height: 1.15; white-space: nowrap; }
+.logo .tag { font-size: 12px; color: var(--muted); line-height: 1.3; margin-top: 1px; }
+.search { margin-top: 16px; margin-bottom: 10px; position: relative; }
+.search input { width: 100%; height: 36px; padding: 0 44px 0 34px; border: 1px solid transparent; border-radius: 9px; background: #e7e9ee;
+  font: inherit; font-size: 14px; color: var(--ink); outline: none; transition: border-color .12s, background .12s, box-shadow .12s; }
+.search input::placeholder { color: #8a9099; }
+.search input::-webkit-search-cancel-button { display: none; }
+.search input:focus { background: var(--paper); border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+.search svg { position: absolute; left: 11px; top: 11px; color: #8a9099; pointer-events: none; }
+.search kbd { position: absolute; right: 8px; top: 8px; font: inherit; font-size: 11.5px; color: #8a9099; background: var(--paper);
+  border: 1px solid #dcdfe5; border-radius: 5px; padding: 0 5px; line-height: 18px; pointer-events: none; }
+.search input:focus ~ kbd { display: none; }
+.side > .picker { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 0; padding: 2px 12px 12px;
+  scrollbar-width: thin; scrollbar-color: rgba(0,0,0,.18) transparent; transition: box-shadow .15s; }
+.picker::-webkit-scrollbar { width: 8px; }
+.picker::-webkit-scrollbar-thumb { background: rgba(0,0,0,.16); border-radius: 4px; border: 2px solid #f3f4f7; }
+.picker.sh-top { box-shadow: inset 0 1px 0 #e2e4e9, inset 0 8px 8px -8px rgba(0,0,0,.08); }
+.picker.sh-bot { box-shadow: inset 0 -8px 8px -8px rgba(0,0,0,.08); }
+.picker.sh-top.sh-bot { box-shadow: inset 0 1px 0 #e2e4e9, inset 0 8px 8px -8px rgba(0,0,0,.08), inset 0 -8px 8px -8px rgba(0,0,0,.08); }
+.gh, .pk { display: flex; align-items: center; gap: 9px; width: 100%; min-height: 34px; border: 0; background: transparent; color: var(--ink);
+  cursor: pointer; padding: 0 10px; border-radius: 8px; text-align: left; transition: background .1s; }
+.gh { font-size: 14.5px; font-weight: 600; margin-top: 1px; }
+.gh:hover, .pk:hover { background: rgba(20, 30, 50, .055); }
+.gh > span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* dlouhé názvy: na konci se prolnou, při najetí se plynule posunou a ukážou celé */
+.nm { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; }
+.nm .in { display: inline-block; }
+.nm.ov { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 22px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 22px), transparent); }
+.pk:hover .nm.ov, .pk:focus-visible .nm.ov {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10px, #000 calc(100% - 10px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 10px, #000 calc(100% - 10px), transparent); }
+.pk:hover .nm.ov .in, .pk:focus-visible .nm.ov .in { animation: marquee var(--t, 3s) ease-in-out .35s infinite alternate; }
+@keyframes marquee { 0%, 15% { transform: translateX(0); } 85%, 100% { transform: translateX(var(--d)); } }
+@media (prefers-reduced-motion: reduce) { .pk:hover .nm.ov .in { animation: none; } .pk:hover .nm.ov { white-space: normal; -webkit-mask-image: none; mask-image: none; } }
+.gh small { color: #8a9099; font-weight: 500; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.gh svg { color: #9aa0a9; transition: transform .18s ease; flex: 0 0 auto; }
+.grp.open .gh svg { transform: rotate(90deg); }
+.items { display: none; padding: 1px 0 6px; }
+.grp.open .items { display: block; }
+.nores { padding: 10px; font-size: 13.5px; color: var(--muted); }
+.pk { font-size: 14px; padding-left: 28px; }
+.pk svg { flex: 0 0 auto; color: var(--accent); }
+.pk small { color: #8a9099; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.pk.on { background: var(--accent); color: #fff; }
+.pk.on svg, .pk.on small { color: rgba(255,255,255,.85); }
+.runsel { padding: 12px 6px 0; border-top: 1px solid #e2e4e9; }
+.sfoot { display: flex; flex-wrap: wrap; gap: 3px 12px; padding: 14px 6px 0; font-size: 11.5px; }
+.sfoot a { color: #6e6e73; text-decoration: none; }
+.sfoot a:hover { color: var(--ink); text-decoration: underline; }
+.sfoot small { flex-basis: 100%; margin-top: 2px; font-size: 11px; color: #a1a1a6; }
+.runsel .rl { font-size: 10.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.dd { position: relative; margin-top: 6px; }
+.dd-btn { width: 100%; height: 34px; display: flex; align-items: center; gap: 8px; padding: 0 8px 0 10px;
+  border: 1px solid #dcdfe5; border-radius: 9px; background: var(--paper); color: var(--ink); cursor: pointer; font-size: 13.5px;
+  text-align: left; transition: border-color .12s, background .12s, box-shadow .12s; }
+.dd-btn:hover { background: var(--paper); border-color: #c9ced6; }
+.dd-btn[aria-expanded="true"], .dd-btn:focus-visible { background: var(--paper); border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); outline: none; }
+.dd-btn .lab { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.dd-btn svg { flex: 0 0 auto; color: var(--muted); }
+.dot { flex: 0 0 auto; width: 7px; height: 7px; border-radius: 50%; background: #b8bec7; }
+.dot.live { background: #22a34a; box-shadow: 0 0 0 3px rgba(34,163,74,.15); }
+.dd-list { position: absolute; left: 0; right: 0; bottom: calc(100% + 6px); margin: 0; padding: 4px; list-style: none; background: var(--paper);
+  border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 10px 30px rgba(20,30,50,.14); max-height: 320px; overflow: auto; z-index: 10; outline: none; }
+.dd-list li { display: flex; align-items: center; gap: 7px; padding: 7px 8px; border-radius: 6px;
+  cursor: pointer; font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dd-list li span:nth-child(2) { flex: 1; }
+.dd-list li.act { background: var(--soft); }
+.dd-list li[aria-selected="true"] { color: var(--accent); }
+.dd small { color: var(--muted); font-size: 11.5px; font-weight: 400; }
+.src { font-size: 11px; color: var(--muted); padding: 10px 6px 0; line-height: 1.4; }
+.src a { color: var(--muted); }
+select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink); }
+.mbar { display: none; }
+.main { min-width: 0; padding: 20px 24px 28px; }
+.main > .sheet { max-width: 1180px; margin: 0 auto; }
+
+.sheet { background: var(--paper); border-radius: 18px; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.04), 0 8px 28px rgba(0,0,0,.05); }
+.hero { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px 24px; flex-wrap: wrap;
+  padding: 24px 28px 20px; }
+.hero h1 { margin: 0; font-size: 32px; line-height: 1.08; font-weight: 700; letter-spacing: -.022em; }
+.hero .sub { margin-top: 6px; color: #6e6e73; font-size: 15px; }
+.hero .sub b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.stats { width: 100%; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 1020px) { .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.st { background: #f5f5f7; border-radius: 16px; padding: 11px 16px 12px; min-width: 0; display: flex; flex-direction: column; }
+.st .lb { display: flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+  color: #8e8e93; white-space: nowrap; }
+.st b { display: flex; align-items: center; gap: 5px; margin-top: 4px; font-size: 22px; font-weight: 600; letter-spacing: -.015em;
+  font-variant-numeric: tabular-nums; white-space: nowrap; line-height: 1.15; }
+.st b span { font-size: 13px; font-weight: 500; color: #6e6e73; letter-spacing: 0; }
+.st b svg { flex: 0 0 auto; }
+.st .sx { display: flex; align-items: center; gap: 5px; margin-top: 3px; font-size: 12px; color: #6e6e73; white-space: nowrap; }
+.st .sx i { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }
+.st .bar { position: relative; height: 5px; border-radius: 3px; background: #e3e3e8; margin: 9px 0 3px; }
+.st .bar em { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
+.st .bar u { position: absolute; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.18), 0 1px 2px rgba(0,0,0,.2); }
+.st.now { background: #fff1f0; }
+.st.now .lb { color: #c4473f; }
+.st.now b { font-size: 26px; color: var(--temp); }
+
+.metabar { display: flex; justify-content: space-between; align-items: center; gap: 10px 20px; flex-wrap: wrap;
+  padding: 12px 28px; border-top: 1px solid #ececf0; border-bottom: 1px solid #ececf0; font-size: 13px; color: #6e6e73; }
+.metabar b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.tgl { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; color: var(--ink); }
+.tgl input { display: none; }
+.tgl i { width: 38px; height: 23px; border-radius: 12px; background: #e3e3e8; position: relative; transition: background .2s; flex: 0 0 auto; }
+.tgl i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 19px; height: 19px; border-radius: 50%; background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2), 0 0 0 .5px rgba(0,0,0,.04); transition: left .2s; }
+.tgl input:checked + i { background: #34c759; }
+.tgl input:checked + i::after { left: 17px; }
+
+#chart { position: relative; padding: 18px 16px 10px; }
+#chart svg { display: block; width: 100%; height: auto; font-variant-numeric: tabular-nums; }
+#tip { position: absolute; pointer-events: none; display: none; min-width: 210px; padding: 10px 12px 7px; font-size: 12.5px;
+  background: rgba(255,255,255,.8); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
+  border: .5px solid rgba(0,0,0,.1); border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,.12), 0 1px 3px rgba(0,0,0,.08); }
+#tip .t { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding-bottom: 6px; }
+#tip .t b { font-size: 17px; font-weight: 600; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+#tip .t span { font-size: 12px; color: #8e8e93; }
+#tip .g { padding: 5px 0; border-top: .5px solid rgba(0,0,0,.09); }
+#tip .r { display: flex; align-items: center; gap: 8px; line-height: 1.6; }
+#tip .r i { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+#tip .r span { flex: 1; color: #6e6e73; }
+#tip .r b { font-weight: 600; color: #1d1d1f; font-variant-numeric: tabular-nums; white-space: nowrap; }
+#tip .r b small { font-size: 11px; font-weight: 500; color: #8e8e93; margin-left: 2px; }
+#tip .r.big b { font-size: 15px; }
+.about { max-width: 760px; margin: 0 auto; padding: 36px 8px 8px; font-size: 17px; line-height: 1.55; }
+.about a { color: #0071e3; text-decoration: none; }
+.about a:hover { text-decoration: underline; }
+.about .eyebrow { font-size: 14px; font-weight: 600; color: #86868b; margin: 0 0 10px; }
+.about h1 { font-size: 48px; line-height: 1.08; letter-spacing: -.03em; font-weight: 700; margin: 0 0 18px; }
+.about .lead { font-size: 21px; line-height: 1.45; color: #6e6e73; margin: 0 0 36px; }
+.about .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0 0 40px; }
+.about .fact { background: #fff; border-radius: 18px; padding: 18px 20px; }
+.about .fact b { display: block; font-size: 30px; line-height: 1.1; letter-spacing: -.02em; }
+.about .fact span { font-size: 14px; color: #6e6e73; }
+.about section { background: #fff; border-radius: 18px; padding: 26px 28px; margin: 0 0 12px; }
+.about h2 { font-size: 22px; letter-spacing: -.015em; margin: 0 0 8px; }
+.about section p { margin: 0 0 10px; color: #424245; }
+.about section p:last-child { margin-bottom: 0; }
+.about .note { font-size: 15px; color: #6e6e73; }
+.sfoot a.on { color: var(--ink); font-weight: 600; }
+@media (max-width: 860px) {
+  .about { padding-top: 16px; }
+  .about h1 { font-size: 34px; }
+  .about .lead { font-size: 18px; }
+  .about .facts { grid-template-columns: 1fr; }
+  .about section { padding: 20px; }
+}
+/* skeletony při načítání: jemný lesk přes šedé bloky */
+.sk { display: block; border-radius: 7px; background: linear-gradient(100deg, #ebebef 30%, #f6f6f8 45%, #ebebef 60%);
+  background-size: 300% 100%; animation: sk 1.5s ease-in-out infinite; }
+@keyframes sk { from { background-position: 100% 0; } to { background-position: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .sk { animation: none; } }
+.st .sk + .sk { margin-top: 8px; }
+.skchart { padding: 6px 10px 10px; }
+.skchart .row { display: flex; gap: 14px; align-items: center; margin: 18px 0 12px 50px; }
+.skchart .plot { height: 150px; margin: 0 52px 0 50px; border-radius: 10px; }
+.skrow { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; }
+.foot { text-align: center; font-size: 12px; color: var(--muted); margin: 16px 0 0; }
+.foot a { color: var(--muted); }
+.msg { text-align: center; padding: 60px 0; color: var(--muted); }
+
+@media (max-width: 860px) {
+  .app { display: block; }
+  .side { display: none; }
+  .mbar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .mbar .logo { padding: 0; gap: 9px; }
+  .mbar .bn { font-size: 15px; }
+  .mbar select { flex: 1; min-width: 0; font-size: 15px; padding: 8px 10px; }
+  .main { padding: 10px 10px 20px; }
+  .foot { display: block; }
+  .hero { padding: 14px 14px 12px; }
+  .hero h1 { font-size: 22px; }
+  .st { padding: 8px 10px 9px; }
+  .stats { gap: 8px; }
+  .st b { font-size: 17px; }
+  .st.now b { font-size: 21px; }
+  .st .bar { min-width: 0; }
+  .metabar { padding: 8px 14px; }
+  #chart { padding: 10px 2px 4px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="logo">
+      <svg class="appicon" width="34" height="34" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="ig1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2fd2fc"/><stop offset="1" stop-color="#1c6ef2"/></linearGradient></defs><rect width="100" height="100" rx="23" fill="url(#ig1)"/><g fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.6"><path d="M9 0V100M0 9H100"/><path d="M27.5 0V100M0 27.5H100"/><path d="M50 0V100M0 50H100"/><path d="M72.5 0V100M0 72.5H100"/><path d="M91 0V100M0 91H100"/><path d="M0 0L100 100M100 0L0 100"/><circle cx="50" cy="50" r="41"/><circle cx="50" cy="50" r="22.5"/></g></svg>
+      <div><div class="bn">Meteogramy.cz</div><div class="tag">horské meteogramy</div></div>
+    </div>
+    <div class="search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Hledat stanici" autocomplete="off" aria-label="Hledat stanici">
+      <kbd id="qk">⌘K</kbd>
+    </div>
+    <nav class="picker" id="picker"></nav>
+    <div class="runsel">
+      <div class="rl" id="ddlab">Běh modelu</div>
+      <div class="dd" id="dd">
+        <button type="button" class="dd-btn" id="ddbtn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="ddlab ddbtn">
+          <span class="dot" id="dddot"></span><span class="lab"></span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 9l4-4 4 4M8 15l4 4 4-4"/></svg>
+        </button>
+        <ul class="dd-list" id="ddlist" role="listbox" tabindex="-1" aria-labelledby="ddlab" hidden></ul>
+      </div>
+    </div>
+    <nav class="sfoot" aria-label="Informace">
+      <a href="/o-projektu/">O projektu</a>
+      <a href="/ochrana-soukromi/">Ochrana soukromí</a>
+      <a href="/cookies/">Cookies</a>
+      <small>© 2026 Meteogramy.cz</small>
+    </nav>
+  </aside>
+
+  <main class="main">
+  <div class="mbar">
+    <div class="logo">
+      <svg class="appicon" width="26" height="26" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="ig2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2fd2fc"/><stop offset="1" stop-color="#1c6ef2"/></linearGradient></defs><rect width="100" height="100" rx="23" fill="url(#ig2)"/><g fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.6"><path d="M9 0V100M0 9H100"/><path d="M27.5 0V100M0 27.5H100"/><path d="M50 0V100M0 50H100"/><path d="M72.5 0V100M0 72.5H100"/><path d="M91 0V100M0 91H100"/><path d="M0 0L100 100M100 0L0 100"/><circle cx="50" cy="50" r="41"/><circle cx="50" cy="50" r="22.5"/></g></svg>
+      <div class="bn">Meteogramy.cz</div>
+    </div>
+    <select id="picksel" aria-label="Hora"></select>
+  </div>
+
+  <div class="sheet" id="mg">
+    <div class="hero">
+      <div>
+        <h1 id="title">Meteogram</h1>
+        <div class="sub" id="sub"></div>
+      </div>
+      <div class="stats" id="stats"></div>
+    </div>
+    <div class="metabar">
+      <div id="meta"></div>
+      <label class="tgl"><input type="checkbox" id="corr"><i></i>Teplota přepočtená na výšku stanice</label>
+    </div>
+    <div id="chart"><div class="msg">Načítám data…</div><div id="tip"></div></div>
+  </div>
+  <article class="about" id="about" hidden>
+    <p class="eyebrow">O projektu</p>
+    <h1>Meteogram, na který jste byli zvyklí.</h1>
+    <p class="lead">Meteogramy.cz navazují na oblíbený meteogram ALADIN, který ČHMÚ přestalo zveřejňovat. Stejná data, stejné přehledné grafy – jen v moderním kabátě a zaměřené na hory.</p>
+    <div class="facts">
+      <div class="fact"><b>109</b><span>horských stanic ČHMÚ</span></div>
+      <div class="fact"><b>1 km</b><span>rozlišení modelu ALADIN</span></div>
+      <div class="fact"><b>4× denně</b><span>nová předpověď na 3 dny</span></div>
+    </div>
+    <section>
+      <h2>Odkud jsou data</h2>
+      <p>Předpověď pochází z numerického modelu ALADIN CZ, který počítá Český hydrometeorologický ústav. ČHMÚ ji zveřejňuje jako otevřená data na <a href="https://opendata.chmi.cz/meteorology/weather/nwp_aladin/" target="_blank" rel="noopener">opendata.chmi.cz</a>. Každý nový běh modelu stáhneme a zpracujeme automaticky.</p>
+    </section>
+    <section>
+      <h2>Jak to funguje</h2>
+      <p>Pro každou stanici vybereme nejbližší bod výpočetní sítě modelu, jehož nadmořská výška nejlépe odpovídá skutečnosti. Z něj sestavíme meteogram: teplotu, vítr a nárazy, srážky a sníh, vlhkost, tlak a oblačnost po hodinách na tři dny dopředu.</p>
+      <p>Model krajinu vyhlazuje, takže uzel modelu může ležet o pár desítek metrů jinde než stanice. Přepínačem nad grafy si teplotu můžete přepočítat na skutečnou výšku stanice.</p>
+    </section>
+    <section>
+      <h2>Důležité upozornění</h2>
+      <p>Jde o automatickou modelovou předpověď bez zásahu meteorologa a bez záruky. V horách se počasí mění rychle – před túrou vždy sledujte i <a href="https://www.chmi.cz/" target="_blank" rel="noopener">výstrahy ČHMÚ</a> a aktuální podmínky.</p>
+      <p class="note">Meteogramy.cz nejsou oficiální službou ČHMÚ.</p>
+    </section>
+    <section>
+      <h2>Kontakt</h2>
+      <p>Máte nápad, našli jste chybu nebo vám chybí stanice? Napište na <a class="mail" href="#" data-m="bW9jLmR1b2xjaUByYWNsYWJ6">e-mail se zobrazí po načtení stránky</a>.</p>
+    </section>
+  </article>
+  <div class="foot">Data: ČHMÚ – otevřená data, model ALADIN CZ 1 km · <a href="https://opendata.chmi.cz/meteorology/weather/nwp_aladin/" target="_blank" rel="noopener">opendata.chmi.cz</a></div>
+  </main>
+</div>
+
+<script>
+const TZ = "Europe/Prague";
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const state = { run: null, data: null, id: null, m: null, corr: false, cache: {}, open: new Set(), q: "" };
+
+// pořadí pohoří ve výběru
+const RANGES = ["Krkonoše", "Jizerské hory", "Ještěd a Kozákov", "Lužické hory", "České středohoří", "Krušné hory",
+  "Doupovské hory", "Slavkovský les", "Český les", "Šumava", "Novohradské hory", "Brdy", "Vysočina",
+  "Orlické hory", "Králický Sněžník", "Hrubý Jeseník", "Nízký Jeseník", "Beskydy", "Javorníky", "Hostýnské vrchy", "Bílé Karpaty"];
+
+try { state.corr = localStorage.getItem("corr") === "1"; } catch (e) {}
+$("corr").checked = state.corr;
+
+const fmtParts = new Intl.DateTimeFormat("cs-CZ", { timeZone: TZ, weekday: "short", day: "numeric", month: "numeric",
+  hour: "2-digit", hourCycle: "h23", timeZoneName: "short" });
+function local(d) {
+  const p = {};
+  for (const x of fmtParts.formatToParts(d)) p[x.type] = x.value;
+  const wd = p.weekday.replace(".", "");
+  return { day: +p.day, month: +p.month, hour: +p.hour, wd: wd[0].toUpperCase() + wd.slice(1),
+    tz: /GMT\+2|SELČ|CEST/.test(p.timeZoneName) ? "SELČ" : "SEČ" };
+}
+const fmtNum = (v, d = 1) => v.toFixed(d).replace(".", ",").replace("-", "−");
+const pad = n => String(n).padStart(2, "0");
+const compass = d => ["S", "SV", "V", "JV", "J", "JZ", "Z", "SZ"][Math.round(d / 45) % 8];
+const sum = a => a.reduce((x, y) => x + y, 0);
+// šipka směru větru jako v původním meteogramu: čárka s hrotem, míří ve směru proudění
+const ARROW = col => `<line x1="-6" y1="0" x2="2" y2="0" stroke="${col}" stroke-width="1.4" stroke-linecap="round"/>` +
+  `<path d="M6.5 0 L1 -3.2 L1 3.2 Z" fill="${col}"/>`;
+
+// východ a západ slunce (NOAA, přesnost ~1 min), výsledek v minutách UTC
+function sunUTC(date, lat, lon) {
+  const start = Date.UTC(date.getUTCFullYear(), 0, 0);
+  const n = Math.floor((date - start) / 864e5);
+  const g = 2 * Math.PI / 365 * (n - 1);
+  const eq = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+  const dec = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+  const r = Math.PI / 180;
+  const ha = Math.acos(Math.cos(90.833 * r) / (Math.cos(lat * r) * Math.cos(dec)) - Math.tan(lat * r) * Math.tan(dec)) / r;
+  return { rise: 720 - 4 * (lon + ha) - eq, set: 720 - 4 * (lon - ha) - eq };
+}
+function isNight(d, lat, lon) {
+  const s = sunUTC(d, lat, lon);
+  const m = d.getUTCHours() * 60 + d.getUTCMinutes();
+  return m < s.rise || m > s.set;
+}
+
+function niceRange(vals, step, minSpan) {
+  let lo = Math.floor(Math.min(...vals) / step) * step;
+  let hi = Math.ceil(Math.max(...vals) / step) * step;
+  while (hi - lo < minSpan) { hi += step; if (hi - lo < minSpan) lo -= step; }
+  return [lo, hi];
+}
+const ticks = (lo, hi, step) => { const t = []; for (let v = lo; v <= hi + 1e-9; v += step) t.push(+v.toFixed(6)); return t; };
+
+const ICONS = {
+  thermo: '<path d="M10 14V5a2 2 0 1 1 4 0v9a4 4 0 1 1-4 0z"/>',
+  wind: '<path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/>',
+  range: '<path d="M12 3v18M8 7l4-4 4 4M8 17l4 4 4-4"/>',
+  gust: '<path d="M3 7h9a3 3 0 1 0-3-3M3 12h13M3 17h9a3 3 0 1 1-3 3"/>',
+  drop: '<path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+};
+const ICON = k => `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[k]}</svg>`;
+const WIND_NAMES = { S: "severní", SV: "severovýchodní", V: "východní", JV: "jihovýchodní", J: "jižní", JZ: "jihozápadní", Z: "západní", SZ: "severozápadní" };
+
+function header(m, T, times) {
+  const d = state.data;
+  const run = local(new Date(d.run));
+  const dz = m.alt - m.node.alt;
+  $("title").textContent = m.name;
+  $("sub").innerHTML = `${m.range} · <b>${m.alt} m n. m.</b> · stanice ČHMÚ${m.since ? ` (od ${m.since})` : ""}`;
+  $("meta").innerHTML = `${d.model} · běh <b>${run.day}. ${run.month}. ${pad(run.hour)}:00 ${run.tz}</b> · uzel modelu ` +
+    `<b>${m.node.alt} m</b>, ${fmtNum(m.node.dist, 1)} km od stanice` +
+    (state.corr ? ` · teplota ${dz >= 0 ? "snížena" : "zvýšena"} o ${fmtNum(Math.abs(0.0065 * dz), 1)} °C` : "");
+  document.title = `Meteogram ${m.name} (${m.alt} m) – předpověď ALADIN | Meteogramy.cz`;
+
+  // teď a příštích 24 h
+  const now = Date.now();
+  let i0 = Math.round((now - times[0]) / 36e5);
+  i0 = Math.max(0, Math.min(times.length - 1, i0));
+  const nx = [i0, Math.min(times.length, i0 + 24)];
+  const sl = a => a.slice(nx[0], nx[1]);
+  const tMin = Math.min(...sl(T)), tMax = Math.max(...sl(T));
+  const pr = sum(sl(m.prec)), sn = sum(sl(m.snow)), gmax = Math.max(...sl(m.gust)), sun = sum(sl(m.sun)) / 60;
+  const nowT = T[i0], ws = m.ws[i0], wd = m.wd[i0], kmh = ws * 3.6;
+  const feels = nowT <= 10 && kmh > 4.8 ? 13.12 + 0.6215 * nowT - 11.37 * kmh ** 0.16 + 0.3965 * nowT * kmh ** 0.16 : nowT;
+  const day0 = times[i0], sunT = sunUTC(day0, m.lat, m.lon);
+  const hm = min => new Intl.DateTimeFormat("cs-CZ", { timeZone: TZ, hour: "numeric", minute: "2-digit" })
+    .format(new Date(Date.UTC(day0.getUTCFullYear(), day0.getUTCMonth(), day0.getUTCDate()) + min * 6e4));
+  const deg = v => `${Math.round(v)}°`.replace("-", "−");
+  const gust = g => g < 8 ? ["slabé", "#30d158"] : g < 14 ? ["mírné", "#ffd60a"] : g < 20 ? ["silné", "#ff9f0a"] : g < 25 ? ["velmi silné", "#ff453a"] : ["vichřice", "#bf1a2f"];
+  // pruh rozsahu teplot: stupnice = rozsah celé předpovědi, barevný úsek = příštích 24 h, tečka = teď
+  let tLo = Math.min(...T), tHi = Math.max(...T);
+  if (tHi - tLo < 4) { tLo -= 2; tHi += 2; }
+  const tf = v => Math.max(0, Math.min(100, (v - tLo) / (tHi - tLo) * 100));
+  const tcol = v => v < -10 ? "#5e5ce6" : v < 0 ? "#0a84ff" : v < 5 ? "#64d2ff" : v < 15 ? "#ffd60a" : v < 25 ? "#ff9f0a" : "#ff453a";
+  const bar = `<div class="bar"><em style="left:${tf(tMin)}%;width:${Math.max(2, tf(tMax) - tf(tMin))}%;background:linear-gradient(90deg,${tcol(tMin)},${tcol(tMax)})"></em><u style="left:${tf(nowT)}%"></u></div>`;
+  // stejná šipka jako v grafu větru: míří ve směru proudění
+  const arrow = `<svg width="18" height="18" viewBox="-8 -8 16 16" aria-hidden="true"><g transform="rotate(${Math.round(wd + 90)})">${ARROW("#0a84ff")}</g></svg>`;
+  const [gTxt, gCol] = gust(gmax);
+  const tile = (cls, icon, label, val, sub) => `<div class="st ${cls}"><div class="lb">${ICON(icon)}${label}</div><b>${val}</b>${sub}</div>`;
+  const sx = t => `<div class="sx">${t}</div>`;
+  $("stats").innerHTML =
+    tile("now", "thermo", `Teď · ${pad(local(times[i0]).hour)}:00`, fmtNum(nowT) + "°",
+      sx(Math.abs(feels - nowT) >= 1 ? `pocitově ${deg(feels)}` : "bez vlivu větru")) +
+    tile("", "wind", "Vítr", `${arrow}${Math.round(ws)} <span>m/s</span>`, sx(WIND_NAMES[compass(wd)])) +
+    tile("", "range", "24 h teplota", `${deg(tMin)} <span>/</span> ${deg(tMax)}`, bar) +
+    tile("", "gust", "24 h nárazy", `${Math.round(gmax)} <span>m/s</span>`, sx(`<i style="background:${gCol}"></i>${gTxt}`)) +
+    tile("", "drop", "24 h srážky", `${fmtNum(pr)} <span>mm</span>`,
+      sx(pr < 0.1 ? "bez srážek" : sn >= 0.5 ? `≈ ${Math.round(sn)} cm sněhu` : "převážně déšť")) +
+    tile("", "sun", "24 h slunce", `${fmtNum(sun)} <span>h</span>`, sx(`${hm(sunT.rise)} – ${hm(sunT.set)}`));
+}
+
+function render() {
+  const m = state.m;
+  const times = m.times.map(t => new Date(t));
+  const n = times.length;
+  const lt = times.map(local);
+  const dz = m.alt - m.node.alt;
+  const T = state.corr ? m.t.map(v => v - 0.0065 * dz) : m.t;
+
+  header(m, T, times);
+
+  // rozměry
+  const box = $("chart");
+  const W = Math.max(320, box.clientWidth - 20);
+  const narrow = W < 560;
+  const L = narrow ? 40 : 60, R = narrow ? 30 : 52, pw = W - L - R;
+  const x = i => L + (i + 0.5) / n * pw;
+  const bw = pw / n;
+  const fs = narrow ? 10 : 11;
+
+  const C = {
+    temp: css("--temp"), wind: css("--wind"), gust: css("--gust"), dir: css("--dir"), prec: css("--prec"), snow: css("--snow"),
+    rh: css("--rh"), pres: css("--pres"), clt: css("--cl-total"), cll: css("--cl-low"), clm: css("--cl-mid"), clh: css("--cl-high"),
+    grid: css("--grid"), frame: css("--frame"), ink: css("--ink"), ink2: css("--ink-2"), muted: css("--muted"), night: css("--night"),
+  };
+
+  const panels = [];
+  let y = 0;
+  const add = (key, h) => { const p = { key, top: y + 54, h }; panels.push(p); y = p.top + h + 30; return p; };
+  const pT = add("t", narrow ? 120 : 150);
+  const pW = add("w", narrow ? 120 : 150);
+  const pP = add("p", narrow ? 120 : 150);
+  const pM = add("m", narrow ? 120 : 150);
+  const pC = add("c", narrow ? 120 : 150);
+  const H = y - 4;
+
+  let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="inherit">`;
+  const text = (X, Y, t, o = {}) =>
+    `<text x="${X}" y="${Y}" font-size="${o.fs || fs}" fill="${o.c || C.ink2}" text-anchor="${o.a || "middle"}"` +
+    `${o.w ? ` font-weight="${o.w}"` : ""}${o.rot ? ` transform="rotate(-90 ${X} ${Y})"` : ""}>${t}</text>`;
+  const path = (arr, Y, col, w = 2) =>
+    `<path d="${arr.map((v, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + Y(v).toFixed(1)).join("")}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"/>`;
+
+  // legenda nad panelem: [druh, barva, text]
+  function legend(p, title, items) {
+    const yy = p.top - 38;
+    s += text(L, yy + 4, title, { a: "start", c: C.ink, w: 600, fs: fs + 1.5 });
+    let xx = L + title.length * (fs + 1.5) * 0.58 + 16;
+    for (const [kind, col, lab] of items) {
+      if (narrow && xx > W - 90) break;
+      if (kind === "line") s += `<line x1="${xx}" x2="${xx + 16}" y1="${yy}" y2="${yy}" stroke="${col}" stroke-width="2.5" stroke-linecap="round"/>`;
+      else if (kind === "bar") s += `<rect x="${xx + 2}" y="${yy - 5}" width="12" height="10" rx="1.5" fill="${col}"/>`;
+      else if (kind === "area") s += `<rect x="${xx + 1}" y="${yy - 5}" width="14" height="10" rx="1.5" fill="${col}"/>`;
+      else if (kind === "arrow") s += `<g transform="translate(${xx + 8} ${yy})">${ARROW(col)}</g>`;
+      s += text(xx + 21, yy + 4, lab, { a: "start", c: C.ink2 });
+      xx += 21 + lab.length * fs * 0.56 + 16;
+    }
+  }
+
+  function frame(p, lo, hi, step, title, right) {
+    const Y = v => p.top + p.h - (v - lo) / (hi - lo) * p.h;
+    for (let i = 0; i < n; i++)
+      if (isNight(times[i], m.lat, m.lon)) s += `<rect x="${(x(i) - bw / 2).toFixed(1)}" y="${p.top}" width="${(bw + .5).toFixed(1)}" height="${p.h}" fill="${C.night}"/>`;
+    for (const t of ticks(lo, hi, step)) {
+      s += `<line x1="${L}" x2="${L + pw}" y1="${Y(t)}" y2="${Y(t)}" stroke="${C.grid}" stroke-dasharray="${t === lo || t === hi ? "" : "3 3"}"/>`;
+      const lab = Number.isInteger(step) ? String(t).replace("-", "−") : fmtNum(t, 1);
+      s += text(L - 5, Y(t) + 3.5, lab, { a: "end" });
+      if (!right) s += text(L + pw + 5, Y(t) + 3.5, lab, { a: "start" });
+    }
+    if (right) for (const t of ticks(right.lo, right.hi, right.step)) {
+      const yy = p.top + p.h - (t - right.lo) / (right.hi - right.lo) * p.h;
+      s += text(L + pw + 5, yy + 3.5, String(t), { a: "start", c: right.c });
+    }
+    for (let i = 0; i < n; i++) {
+      const xx = x(i) - bw / 2;
+      if (lt[i].hour === 0) {
+        s += `<line x1="${xx}" x2="${xx}" y1="${p.top - 4}" y2="${p.top + p.h}" stroke="${C.frame}" stroke-width="1"/>`;
+        s += text(xx, p.top - 7, `${lt[i].day}. ${lt[i].month}. ${lt[i].wd}`, { c: C.ink, w: 600 });
+      } else if (lt[i].hour % 6 === 0) {
+        s += `<line x1="${xx}" x2="${xx}" y1="${p.top}" y2="${p.top + p.h}" stroke="${C.grid}" stroke-dasharray="3 3"/>`;
+      }
+      if (lt[i].hour % (narrow ? 12 : 6) === 0) s += text(xx, p.top + p.h + 13, pad(lt[i].hour));
+    }
+    s += text(L + pw / 2, p.top + p.h + 25, `${lt[0].tz} [h]`, { c: C.muted, fs: fs - 1 });
+    if (!narrow) s += text(14, p.top + p.h / 2, title, { rot: 1, c: C.muted });
+    if (right && !narrow) s += text(W - 8, p.top + p.h / 2, right.title, { rot: 1, c: C.muted });
+    p.Y = Y;
+    return Y;
+  }
+  const close = p => { s += `<rect x="${L}" y="${p.top}" width="${pw}" height="${p.h}" fill="none" stroke="${C.frame}"/>`; };
+
+  // 1 teplota
+  let [lo, hi] = niceRange(T, 2, 6);
+  legend(pT, "Teplota", [["line", C.temp, "2 m nad zemí [°C]"]]);
+  let Y = frame(pT, lo, hi, hi - lo > 16 ? 4 : 2, "[°C]");
+  if (lo < 0 && hi > 0) s += `<line x1="${L}" x2="${L + pw}" y1="${Y(0)}" y2="${Y(0)}" stroke="${C.frame}" stroke-width="1"/>`;
+  s += path(T, Y, C.temp, 2.4);
+  close(pT);
+
+  // 2 vítr
+  const wmax = Math.max(20, Math.ceil((Math.max(...m.gust) + 3) / 5) * 5);
+  legend(pW, "Vítr", [["line", C.wind, "rychlost [m/s]"], ["bar", C.gust, "nárazy [m/s]"], ["arrow", C.dir, "směr"]]);
+  Y = frame(pW, 0, wmax, 5, "[m/s]");
+  for (let i = 0; i < n; i++) {
+    const w = Math.max(1.5, bw * 0.45);
+    s += `<rect x="${(x(i) - w / 2).toFixed(1)}" y="${Y(m.gust[i]).toFixed(1)}" width="${w.toFixed(1)}" height="${(Y(0) - Y(m.gust[i])).toFixed(1)}" fill="${C.gust}"/>`;
+  }
+  s += path(m.ws, Y, C.wind, 2.2);
+  const every = narrow ? 3 : 2;
+  for (let i = 0; i < n; i += every) {
+    const cy = pW.top + 11;
+    s += `<g transform="translate(${x(i).toFixed(1)} ${cy}) rotate(${(m.wd[i] + 90).toFixed(0)})">${ARROW(C.dir)}</g>`;
+  }
+  close(pW);
+
+  // 3 srážky a vlhkost
+  const pmax = Math.max(1, Math.ceil(Math.max(...m.prec) * 1.15));
+  const pstep = pmax <= 2 ? 0.5 : pmax <= 5 ? 1 : 2;
+  const pTop = Math.ceil(pmax / pstep) * pstep;
+  legend(pP, "Srážky", [["bar", C.prec, "celkem [mm/h]"], ["bar", C.snow, "sníh [mm/h]"], ["line", C.rh, "rel. vlhkost [%]"]]);
+  Y = frame(pP, 0, pTop, pstep, "[mm/h]", { lo: 0, hi: 100, step: 20, c: C.rh, title: "[%]" });
+  for (let i = 0; i < n; i++) {
+    const w = Math.max(1.5, bw * 0.4);
+    if (m.prec[i] >= 0.05) s += `<rect x="${(x(i) - w).toFixed(1)}" y="${Y(m.prec[i]).toFixed(1)}" width="${w.toFixed(1)}" height="${(Y(0) - Y(m.prec[i])).toFixed(1)}" fill="${C.prec}"/>`;
+    if (m.snow[i] >= 0.05) s += `<rect x="${x(i).toFixed(1)}" y="${Y(m.snow[i]).toFixed(1)}" width="${w.toFixed(1)}" height="${(Y(0) - Y(m.snow[i])).toFixed(1)}" fill="${C.snow}"/>`;
+  }
+  const Yrh = v => pP.top + pP.h - v / 100 * pP.h;
+  s += path(m.rh, Yrh, C.rh, 2);
+  close(pP);
+
+  // 4 tlak
+  [lo, hi] = niceRange(m.mslp, 4, 8);
+  legend(pM, "Tlak", [["line", C.pres, "přepočtený na hladinu moře [hPa]"]]);
+  Y = frame(pM, lo, hi, 4, "[hPa]");
+  s += path(m.mslp, Y, C.pres, 2.4);
+  close(pM);
+
+  // 5 oblačnost
+  legend(pC, "Oblačnost", [["area", C.clt, "celková"], ["area", C.cll, "nízká"], ["line", C.clm, "střední"], ["line", C.clh, "vysoká [%]"]]);
+  Y = frame(pC, 0, 100, 20, "[%]");
+  const area = (arr, col) => `<path d="M${x(0)} ${Y(0)}${arr.map((v, i) => `L${x(i).toFixed(1)} ${Y(v).toFixed(1)}`).join("")}L${x(n - 1)} ${Y(0)}Z" fill="${col}"/>`;
+  s += area(m.clt, C.clt);
+  s += area(m.cll, C.cll);
+  s += path(m.clh, Y, C.clh, 1.6);
+  s += path(m.clm, Y, C.clm, 1.6);
+  close(pC);
+
+  // teď
+  const ni = (Date.now() - times[0]) / 36e5;
+  if (ni >= -0.5 && ni <= n - 0.5) {
+    const xn = L + (ni + 0.5) / n * pw;
+    for (const p of panels) s += `<line x1="${xn}" x2="${xn}" y1="${p.top}" y2="${p.top + p.h}" stroke="${C.ink}" stroke-width="1" stroke-dasharray="2 2" opacity=".5"/>`;
+  }
+
+  // kurzor
+  s += `<g id="cur" visibility="hidden">${panels.map(p => `<line class="cl" y1="${p.top}" y2="${p.top + p.h}" stroke="${C.ink}" stroke-width="1" opacity=".55"/>`).join("")}`;
+  s += `<circle id="cT" r="3.5" fill="${C.temp}" stroke="#fff" stroke-width="1.5"/><circle id="cW" r="3.5" fill="${C.wind}" stroke="#fff" stroke-width="1.5"/>`;
+  s += `<circle id="cR" r="3.5" fill="${C.rh}" stroke="#fff" stroke-width="1.5"/><circle id="cM" r="3.5" fill="${C.pres}" stroke="#fff" stroke-width="1.5"/></g>`;
+  s += `<rect id="hit" x="${L}" y="0" width="${pw}" height="${H}" fill="transparent"/></svg>`;
+
+  const tip = $("tip");
+  box.innerHTML = s;
+  box.appendChild(tip);
+
+  const svg = box.querySelector("svg"), cur = $("cur"), hit = $("hit");
+  const row = (col, k, v, unit = "", cls = "") =>
+    `<div class="r ${cls}"><i style="background:${col}"></i><span>${k}</span><b>${v}${unit ? `<small>${unit}</small>` : ""}</b></div>`;
+  const grp = rows => `<div class="g">${rows}</div>`;
+  function move(ev) {
+    const pt = ev.touches ? ev.touches[0] : ev;
+    const r = svg.getBoundingClientRect();
+    const br = box.getBoundingClientRect();
+    const sx = (pt.clientX - r.left) / r.width * W;
+    const i = Math.max(0, Math.min(n - 1, Math.floor((sx - L) / pw * n)));
+    const xi = x(i);
+    cur.setAttribute("visibility", "visible");
+    cur.querySelectorAll(".cl").forEach(l => { l.setAttribute("x1", xi); l.setAttribute("x2", xi); });
+    const dot = (id, yy) => { const c = $(id); c.setAttribute("cx", xi); c.setAttribute("cy", yy); };
+    dot("cT", pT.Y(T[i])); dot("cW", pW.Y(m.ws[i])); dot("cR", Yrh(m.rh[i])); dot("cM", pM.Y(m.mslp[i]));
+    const l = lt[i];
+    tip.innerHTML = `<div class="t"><b>${pad(l.hour)}:00</b><span>${l.wd} ${l.day}. ${l.month}. · ${l.tz}</span></div>` +
+      grp(row(C.temp, "Teplota", fmtNum(T[i]), "°C", "big")) +
+      grp(row(C.wind, "Vítr", `${compass(m.wd[i])} ${fmtNum(m.ws[i])}`, "m/s") + row(C.gust, "Nárazy", fmtNum(m.gust[i]), "m/s")) +
+      grp(row(C.prec, "Srážky", fmtNum(m.prec[i]), "mm") + (m.snow[i] >= 0.05 ? row(C.snow, "z toho sníh", fmtNum(m.snow[i]), "mm") : "") +
+        row(C.rh, "Vlhkost", Math.round(m.rh[i]), "%")) +
+      grp(row(C.pres, "Tlak", fmtNum(m.mslp[i]), "hPa")) +
+      grp(row(C.cll, "Oblačnost", Math.round(m.clt[i]), "%") +
+        row(C.clt, "nízká · stř. · vys.", `${Math.round(m.cll[i])} · ${Math.round(m.clm[i])} · ${Math.round(m.clh[i])}`, "%") +
+        row("#ffcc00", "Slunce", Math.round(m.sun[i]), "min"));
+    tip.style.display = "block";
+    const px = r.left - br.left + xi / W * r.width;
+    const tw = tip.offsetWidth;
+    tip.style.left = (px + 14 + tw > br.width ? px - 14 - tw : px + 14) + "px";
+    const py = pt.clientY - br.top;
+    tip.style.top = Math.max(0, Math.min(br.height - tip.offsetHeight, py - tip.offsetHeight / 2)) + "px";
+  }
+  function leave() { cur.setAttribute("visibility", "hidden"); tip.style.display = "none"; }
+  hit.addEventListener("mousemove", move);
+  hit.addEventListener("mouseleave", leave);
+  hit.addEventListener("touchstart", move, { passive: true });
+  hit.addEventListener("touchmove", move, { passive: true });
+  hit.addEventListener("touchend", leave);
+}
+
+const PAGES = { "/o-projektu/": "O projektu – Meteogramy.cz" };
+const pagePath = () => location.pathname.replace(/\/?$/, "/");
+
+// přepne pohled podle adresy; meteogram se při návratu překreslí na správnou šířku
+function route() {
+  const page = PAGES[pagePath()] ? pagePath() : null;
+  $("mg").hidden = !!page;
+  $("about").hidden = page !== "/o-projektu/";
+  document.querySelectorAll(".sfoot a").forEach(a => a.classList.toggle("on", a.getAttribute("href") === page));
+  if (page) { document.title = PAGES[page]; window.scrollTo(0, 0); }
+  else if (state.m) render();
+}
+
+document.addEventListener("click", e => {
+  const a = e.target.closest("a[href^='/']");
+  if (!a || e.metaKey || e.ctrlKey || e.shiftKey || !PAGES[a.getAttribute("href")]) return;
+  e.preventDefault();
+  if (pagePath() !== a.getAttribute("href")) history.pushState(null, "", a.getAttribute("href"));
+  route();
+});
+window.addEventListener("popstate", route);
+
+function select(id) {
+  if (PAGES[pagePath()]) history.pushState(null, "", "/#" + id);
+  else history.replaceState(null, "", "#" + id);
+  route();
+  show(id);
+}
+
+// načte časové řady stanice (s cache) a vykreslí meteogram
+// skeletony místo obsahu, dokud se data načítají
+const SK = (w, h, r) => `<i class="sk" style="width:${w};height:${h}px${r ? `;border-radius:${r}px` : ""}"></i>`;
+function skeleton() {
+  $("title").innerHTML = SK("220px", 30, 9);
+  $("sub").innerHTML = SK("300px", 14);
+  $("meta").innerHTML = SK("360px", 12);
+  $("stats").innerHTML = Array.from({ length: 6 }, () =>
+    `<div class="st">${SK("62%", 10)}${SK("48%", 22)}${SK("74%", 10)}</div>`).join("");
+  const box = $("chart"), tip = $("tip");
+  box.innerHTML = `<div class="skchart">` + Array.from({ length: 5 }, () =>
+    `<div class="row">${SK("72px", 13)}${SK("120px", 10)}${SK("90px", 10)}</div>${SK("auto", 150, 10).replace('class="sk"', 'class="sk plot"')}`).join("") + `</div>`;
+  box.appendChild(tip);
+}
+function skeletonSidebar() {
+  $("ddbtn").querySelector(".lab").innerHTML = SK("110px", 12);
+  $("picker").innerHTML = Array.from({ length: 12 }, (_, k) =>
+    `<div class="skrow">${SK("13px", 13, 4)}${SK(`${[62, 48, 70, 55, 44, 66][k % 6]}%`, 13)}</div>`).join("");
+}
+
+async function show(id) {
+  const ps = state.data.places;
+  const meta = ps.find(x => x.id === id) || ps.find(x => x.id === DEFAULT_ID) || ps[0];
+  const key = `${state.run}/${meta.id}`;
+  if (!state.cache[key]) {
+    const t = setTimeout(skeleton, 120);  // u rychlého načtení skeleton nebliká
+    try { state.cache[key] = await (await fetch(`/data/${key}.json`)).json(); } finally { clearTimeout(t); }
+  }
+  state.id = meta.id;
+  try { localStorage.setItem("last", meta.id); } catch (e) {}
+  state.m = { ...meta, ...state.cache[key] };
+  render();
+  picker();
+}
+
+const DEFAULT_ID = "snezka-postovna";
+const PEAK = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 19.5 9 8.5l4 6.5 2.5-4 6 8.5z"/></svg>`;
+const fold = t => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+function groups() {
+  const ps = state.data.places;
+  const order = [...RANGES, ...new Set(ps.map(p => p.range).filter(r => !RANGES.includes(r)))];
+  return order.map(r => [r, ps.filter(p => p.range === r).sort((a, b) => b.alt - a.alt)]).filter(g => g[1].length);
+}
+
+// sidebar: pohoří jako rozbalovací skupiny, ve skupině stanice; při hledání se vše rozbalí a vyfiltruje
+function picker() {
+  const q = fold(state.q.trim());
+  const chev = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>`;
+  let html = "";
+  for (const [r, list] of groups()) {
+    const hits = q ? list.filter(p => fold(p.name).includes(q) || fold(r).includes(q)) : list;
+    if (!hits.length) continue;
+    const open = q || state.open.has(r);
+    html += `<div class="grp${open ? " open" : ""}"><button class="gh" data-r="${r}" aria-expanded="${!!open}">${chev}<span>${r}</span><small>${hits.length}</small></button>` +
+      `<div class="items">${hits.map(p =>
+        `<button class="pk${p.id === state.id ? " on" : ""}" data-id="${p.id}">${PEAK}<span class="nm"><span class="in">${p.name}</span></span><small>${p.alt}</small></button>`).join("")}</div></div>`;
+  }
+  $("picker").innerHTML = html || `<div class="nores">Nic nenalezeno</div>`;
+  $("picker").querySelectorAll(".gh").forEach(b => b.onclick = () => {
+    const r = b.dataset.r;
+    state.open.has(r) ? state.open.delete(r) : state.open.add(r);
+    if (!q) picker();
+  });
+  $("picker").querySelectorAll(".pk").forEach(c => c.onclick = () => select(c.dataset.id));
+  // názvy, které se nevejdou: připravit posun (o kolik a jak dlouho)
+  $("picker").querySelectorAll(".nm").forEach(nm => {
+    const over = nm.firstChild.scrollWidth - nm.clientWidth;
+    nm.classList.toggle("ov", over > 1);
+    if (over > 1) { nm.style.setProperty("--d", `${-over - 6}px`); nm.style.setProperty("--t", `${Math.max(1.6, over / 28)}s`); }
+  });
+  const ps = $("picksel");
+  if (!ps.options.length) {
+    ps.innerHTML = groups().map(([r, list]) =>
+      `<optgroup label="${r}">${list.map(p => `<option value="${p.id}">${p.name} (${p.alt} m)</option>`).join("")}</optgroup>`).join("");
+    ps.onchange = e => select(e.target.value);
+  }
+  ps.value = state.id;
+  pickerEdge();
+}
+
+if (!/Mac|iPhone|iPad/.test(navigator.platform)) $("qk").textContent = "Ctrl K";
+document.addEventListener("keydown", e => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); $("q").focus(); $("q").select(); }
+});
+// stín nahoře/dole, jen když je seznam odscrollovaný / pokračuje dál
+const pickerEdge = () => {
+  const el = $("picker");
+  el.classList.toggle("sh-top", el.scrollTop > 2);
+  el.classList.toggle("sh-bot", el.scrollTop + el.clientHeight < el.scrollHeight - 2);
+};
+window.addEventListener("resize", pickerEdge);
+$("picker").addEventListener("scroll", pickerEdge, { passive: true });
+$("q").addEventListener("input", e => { state.q = e.target.value; picker(); });
+$("q").addEventListener("keydown", e => {
+  if (e.key === "Enter") { const b = $("picker").querySelector(".pk"); if (b) b.click(); }
+  if (e.key === "Escape") { e.target.value = ""; state.q = ""; picker(); }
+});
+
+async function loadRun(run) {
+  state.run = run;
+  state.data = await (await fetch(`/data/${run}/index.json`)).json();
+  $("picksel").innerHTML = "";
+  await show(state.id);
+}
+
+const runDate = r => new Date(Date.UTC(+r.slice(0, 4), +r.slice(4, 6) - 1, +r.slice(6, 8), +r.slice(8, 10)));
+function runText(r) { const l = local(runDate(r)); return `${l.wd} ${l.day}. ${l.month}. · ${pad(l.hour)}:00`; }
+function ago(d) { const h = Math.max(0, Math.round((Date.now() - d) / 36e5)); return h < 24 ? `před ${h} h` : `před ${Math.round(h / 24)} d`; }
+
+// vlastní dropdown pro výběr běhu modelu (otevírá se nahoru, ovladatelný klávesnicí)
+function runsDropdown(runs) {
+  const btn = $("ddbtn"), list = $("ddlist");
+  let act = -1;
+  const paint = () => {
+    const latest = state.run === runs[0];
+    btn.querySelector(".lab").textContent = runText(state.run);
+    $("dddot").className = "dot" + (latest ? " live" : "");
+    btn.title = latest ? "Nejnovější běh modelu" : `Starší běh modelu (${ago(runDate(state.run))})`;
+    list.innerHTML = runs.map((r, k) =>
+      `<li role="option" id="ro${k}" data-r="${r}" aria-selected="${r === state.run}"><span class="dot${k === 0 ? " live" : ""}"></span>` +
+      `<span>${runText(r)}</span><small>${k === 0 ? "nejnovější" : ago(runDate(r))}</small></li>`).join("");
+  };
+  const setAct = k => {
+    act = Math.max(0, Math.min(runs.length - 1, k));
+    [...list.children].forEach((li, j) => li.classList.toggle("act", j === act));
+    list.setAttribute("aria-activedescendant", "ro" + act);
+    list.children[act].scrollIntoView({ block: "nearest" });
+  };
+  const open = () => { paint(); list.hidden = false; btn.setAttribute("aria-expanded", "true"); setAct(runs.indexOf(state.run)); list.focus(); };
+  const close = focus => { list.hidden = true; btn.setAttribute("aria-expanded", "false"); if (focus) btn.focus(); };
+  const pick = r => { close(true); if (r !== state.run) loadRun(r).then(paint); };
+  btn.onclick = () => list.hidden ? open() : close();
+  btn.onkeydown = e => { if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); open(); } };
+  list.onclick = e => { const li = e.target.closest("li"); if (li) pick(li.dataset.r); };
+  list.onmousemove = e => { const li = e.target.closest("li"); if (li) setAct([...list.children].indexOf(li)); };
+  list.onkeydown = e => {
+    if (e.key === "ArrowDown") { e.preventDefault(); setAct(act + 1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setAct(act - 1); }
+    else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(runs[act]); }
+    else if (e.key === "Escape") close(true);
+    else if (e.key === "Tab") close(false);
+  };
+  document.addEventListener("click", e => { if (!$("dd").contains(e.target)) close(false); });
+  paint();
+}
+
+async function init() {
+  try {
+    const idx = await (await fetch("/data/index.json")).json();
+    let last = null;
+    try { last = localStorage.getItem("last"); } catch (e) {}
+    // pořadí: odkaz v adrese, naposledy prohlížená stanice, výchozí Sněžka
+    state.id = location.hash.slice(1) || last || DEFAULT_ID;
+    await loadRun(idx.runs[0]);
+    runsDropdown(idx.runs);
+  } catch (e) {
+    $("chart").innerHTML = `<div class="msg">Data zatím nejsou stažená. Spusťte <code>./start.sh</code>.</div>`;
+  }
+}
+
+$("corr").onchange = e => {
+  state.corr = e.target.checked;
+  try { localStorage.setItem("corr", state.corr ? "1" : "0"); } catch (err) {}
+  render();
+};
+window.addEventListener("hashchange", () => { const id = location.hash.slice(1); if (id && id !== state.id && state.data) show(id); });
+let rt;
+window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => state.m && render(), 120); });
+// e-mail je ve zdroji zakódovaný (pozpátku + base64), skládá se až v prohlížeči kvůli robotům sbírajícím adresy
+document.querySelectorAll("a.mail").forEach(a => {
+  const m = atob(a.dataset.m).split("").reverse().join("");
+  a.textContent = m;
+  a.addEventListener("click", e => { e.preventDefault(); location.href = "mai" + "lto:" + m; });
+});
+skeleton();
+skeletonSidebar();
+route();
+init().then(route);
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+# Stránky, které vykresluje aplikace v index.html (stejné jako APP_ROUTES v meteogram/server.py)
+RewriteEngine On
+RewriteRule ^o-projektu/?$ index.html [L]
+
+# data se mění s každým během modelu
+<FilesMatch "\.json$">
+  Header set Cache-Control "no-cache"
+</FilesMatch>

@@ -1,0 +1,22 @@
+# Python prostředí a cache
+.venv/
+__pycache__/
+*.pyc
+
+# stažená a vygenerovaná data (vznikají při každém běhu modelu)
+web/data/
+meteogram/osm_cache/
+*.grb
+*.grb.bz2
+*.tmp
+
+# testovací stránky a systémové soubory
+web/_t*.html
+.DS_Store
+
+# přístupové údaje (FTP, tokeny) nikdy do gitu
+.env
+.env.*
+*.pem
+*.key
+secrets*
