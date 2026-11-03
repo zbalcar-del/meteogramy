@@ -1,4 +1,8 @@
-"""Nasazení obsahu web/ přes SFTP: python3 deploy.py [--dry-run]."""
+"""Ruční nasazení statických souborů z web/ přes SFTP: python3 deploy.py [--dry-run].
+
+Běžně se web nasazuje pushem do main (GitHub akce update-data.yml), která nahraje i vygenerované
+stránky s aktuální předpovědí. Tento skript proto index.html ani stránky stanic nenahrává.
+"""
 
 import argparse
 import os
@@ -52,15 +56,7 @@ def main():
         f'open -p {config["SFTP_PORT"]} -u {quote(config["SFTP_USER"] + "," + config["SFTP_PASSWORD"])} {quote("sftp://" + config["SFTP_HOST"])}',
         *([f'cd {quote(config["SFTP_REMOTE_DIR"])}', 'cls -la'] if args.list else [
             f'cd {quote(config["SFTP_REMOTE_DIR"])}',
-            f'mirror --reverse --verbose {"--dry-run " if args.dry_run else ""}--no-perms --exclude-glob .DS_Store --exclude-glob data/ --exclude-glob api/stats/ {quote(str(root / "web"))} .',
-            # Webglobe může neexistující cesty předat index.php před zpracováním .htaccess.
-            # Stejný vstup aplikace proto publikujeme také pod informační stránkou.
-            *([] if args.dry_run else [
-                'cls -d o-projektu || mkdir o-projektu',
-                f'put {quote(str(root / "web" / "index.html"))} -o o-projektu/index.html',
-                'cls -d ochrana-soukromi || mkdir ochrana-soukromi',
-                f'put {quote(str(root / "web" / "index.html"))} -o ochrana-soukromi/index.html',
-            ]),
+            f'mirror --reverse --verbose {"--dry-run " if args.dry_run else ""}--no-perms --exclude-glob .DS_Store --exclude-glob data/ --exclude-glob api/stats/ --exclude-glob index.html {quote(str(root / "web"))} .',
             *([] if args.dry_run else ['rm -f .DS_Store data/.DS_Store']),
             *([
                 'rm -r wp-admin wp-content wp-includes',

@@ -1,8 +1,15 @@
 DirectoryIndex index.html
+ErrorDocument 404 /404.html
 
-# Stránky, které vykresluje aplikace v index.html (stejné jako APP_ROUTES v meteogram/server.py)
 RewriteEngine On
-RewriteRule ^(o-projektu|ochrana-soukromi)/?$ /index.html [L]
+# jedna adresa webu: https://meteogramy.cz (hosting může HTTPS ukončovat na proxy, proto i X-Forwarded-Proto)
+RewriteCond %{HTTP_HOST} ^www\. [NC]
+RewriteRule ^ https://meteogramy.cz%{REQUEST_URI} [R=301,L]
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+RewriteRule ^ https://meteogramy.cz%{REQUEST_URI} [R=301,L]
+
+# Stránky stanic, pohoří a informační stránky jsou vygenerované složky (meteogram/build_pages.py).
 
 # data se mění s každým během modelu
 <FilesMatch "\.json$">

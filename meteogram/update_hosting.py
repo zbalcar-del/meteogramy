@@ -1,4 +1,8 @@
-"""Aktualizuje jen veřejná JSON data. Přístupy čte z prostředí GitHub Actions."""
+"""Aktualizuje data předpovědi a stránky webu na hostingu. Přístupy čte z prostředí GitHub Actions.
+
+Plánovaný běh (každou hodinu) nahraje nový běh modelu a s ním přegenerované stránky stanic.
+Push nebo ruční spuštění navíc nasadí statické soubory z web/ a stránky vygeneruje vždy.
+"""
 
 import json
 import os
@@ -8,7 +12,11 @@ import re
 import stat
 
 ROOT = Path(__file__).resolve().parent.parent
-DATA = ROOT / 'web' / 'data'
+WEB = ROOT / 'web'
+DATA = WEB / 'data'
+SITE = ROOT / 'build' / 'site'
+# z web/ se nenahrávají data (řeší publish), počty návštěv ani šablona index.html (nahrazuje ji vygenerovaná)
+SKIP = ('data/', 'api/stats/')
 RUN = re.compile(r'20\d{8}')
 
 
@@ -45,7 +53,7 @@ def publish(sftp, previous_runs):
         raise RuntimeError('Chybí zpracovaná předpověď; publikace zrušena.')
     if runs == previous_runs:
         print('Novější běh zatím není k dispozici.', flush=True)
-        return
+        return False
     for run in runs:
         if run in previous_runs:
             continue
@@ -62,10 +70,46 @@ def publish(sftp, previous_runs):
     sftp.posix_rename('.index.json.uploading', 'index.json')
     print(f'Publikován běh {runs[0]}.', flush=True)
     # Starší adresáře na hostingu nemažeme; veřejný index drží KEEP_RUNS běhů.
+    return True
+
+
+def upload(sftp, files):
+    """Nahraje soubory {cesta na hostingu: místní soubor}; každý se přepne až po úplném přenosu."""
+    dirs = set()
+    for remote, source in sorted(files.items()):
+        parent = posixpath.dirname(remote)
+        parts = parent.split('/') if parent else []
+        for i in range(len(parts)):
+            d = '/'.join(parts[:i + 1])
+            if d in dirs:
+                continue
+            try:
+                sftp.mkdir(d)
+            except OSError:
+                if not stat.S_ISDIR(sftp.stat(d).st_mode):
+                    raise
+            dirs.add(d)
+        sftp.put(str(source), remote + '.uploading')
+        sftp.posix_rename(remote + '.uploading', remote)
+    print(f'Nahráno {len(files)} souborů webu.', flush=True)
+
+
+def site_files(static):
+    files = {}
+    if static:
+        for f in WEB.rglob('*'):
+            rel = f.relative_to(WEB).as_posix()
+            if f.is_file() and rel != 'index.html' and f.name != '.DS_Store' and not rel.startswith(SKIP):
+                files[rel] = f
+    for f in SITE.rglob('*'):
+        if f.is_file():
+            files[f.relative_to(SITE).as_posix()] = f
+    return files
 
 
 def main():
     import paramiko
+    import build_pages
     import fetch
 
     keys = ('SFTP_HOST', 'SFTP_PORT', 'SFTP_USER', 'SFTP_PASSWORD', 'SFTP_REMOTE_DIR')
@@ -94,14 +138,21 @@ def main():
         complete = sorted((run for run, fields in runs.items() if needed <= fields.keys()), reverse=True)
         if not complete:
             raise RuntimeError('ČHMÚ neposkytlo žádný úplný běh.')
+        published = False
         if previous and complete[0] <= max(previous):
             print('Na hostingu už je nejnovější dostupný běh.', flush=True)
-            return
-        if not fetch.main():
-            raise RuntimeError('Nový běh se nepodařilo zpracovat; hosting zůstává beze změny.')
-        with client.open_sftp() as sftp:
-            sftp.chdir(posixpath.join(remote, 'data'))
-            publish(sftp, previous)
+        else:
+            if not fetch.main():
+                raise RuntimeError('Nový běh se nepodařilo zpracovat; hosting zůstává beze změny.')
+            with client.open_sftp() as sftp:
+                sftp.chdir(posixpath.join(remote, 'data'))
+                published = publish(sftp, previous)
+        deploy = os.environ.get('GITHUB_EVENT_NAME') != 'schedule'
+        if published or deploy:
+            build_pages.main(SITE, DATA)
+            with client.open_sftp() as sftp:
+                sftp.chdir(remote)
+                upload(sftp, site_files(static=deploy))
 
 
 if __name__ == '__main__':

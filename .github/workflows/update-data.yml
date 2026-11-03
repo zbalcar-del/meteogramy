@@ -8,6 +8,8 @@ on:
       - 'meteogram/update_hosting.py'
       - 'meteogram/fetch.py'
       - 'meteogram/hosting_known_hosts'
+      - 'meteogram/build_pages.py'
+      - 'web/**'
   schedule:
     - cron: '17 * * * *'
   workflow_dispatch:
@@ -32,7 +34,7 @@ jobs:
           python-version: '3.12'
       - name: Instalace závislostí
         run: python -m pip install eccodes numpy paramiko
-      - name: Kontrola a publikace dat
+      - name: Kontrola a publikace dat a stránek
         env:
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
           SFTP_PORT: ${{ secrets.SFTP_PORT }}
