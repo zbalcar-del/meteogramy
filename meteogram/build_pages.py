@@ -110,17 +110,24 @@ def station_info(m, places, series, times, run):
     near = sorted((p for p in places if p['id'] != m['id']), key=lambda p: km(m, p))[:6]
     name, rng = escape(m['name']), escape(m['range'])
     geo = lambda v: f'{v:.4f}'.replace('.', ',')
-    since = f' a měří od roku {m["since"]}' if m.get('since') else ''
+    spec = [
+        ('Stanice', f'ČHMÚ, měří od roku {m["since"]}' if m.get('since') else 'ČHMÚ'),
+        ('Pohoří', rng),
+        ('Nadmořská výška', f'{m["alt"]} m n. m.'),
+        ('Souřadnice', f'{geo(m["lat"])}° s. š., {geo(m["lon"])}° v. d.'),
+        ('Bod modelu', f'{m["node"]["alt"]} m n. m., {num(m["node"]["dist"])} km od stanice'),
+        ('Model', 'ALADIN CZ, ČHMÚ'),
+        ('Předpověď', '3 dny po hodinách, 4× denně'),
+        ('Veličiny', 'teplota, vítr a nárazy, srážky, sníh, vlhkost, tlak, oblačnost'),
+    ]
     return (
         f'<div><h2>Předpověď po dnech</h2><table class="days"><thead><tr><th>Den</th><th>Teplota</th><th>Nárazy</th>'
         f'<th>Srážky</th><th>Sníh</th><th class="hm">Slunce</th></tr></thead><tbody>{rows}</tbody></table>'
         f'<p class="src">Model ALADIN CZ, běh {lt.day}. {lt.month}. {lt.hour:02d}:00 {tz_name(lt)}. '
         f'Teplota ve výšce uzlu modelu {m["node"]["alt"]} m.</p></div>'
-        f'<div><h2>O stanici</h2><p>Meteorologická stanice ČHMÚ {name} leží v pohoří {rng} v nadmořské výšce {m["alt"]} m '
-        f'({geo(m["lat"])}° s. š., {geo(m["lon"])}° v. d.){since}. Meteogram ukazuje hodinovou předpověď '
-        f'numerického modelu ALADIN CZ na tři dny: teplotu, vítr a nárazy, srážky a sníh, vlhkost, tlak a oblačnost. '
-        f'Předpověď počítáme pro bod modelu ve výšce {m["node"]["alt"]} m, {num(m["node"]["dist"])} km od stanice, '
-        f'a obnovujeme ji čtyřikrát denně.</p>'
+        f'<div><h2>O stanici</h2><dl class="spec">'
+        + ''.join(f'<div><dt>{k}</dt><dd>{v}</dd></div>' for k, v in spec)
+        + '</dl>'
         f'<h2>Stanice v okolí</h2><nav class="near" aria-label="Stanice v okolí">'
         + ''.join(f'<a href="/{p["id"]}/">{escape(p["name"])} <small>{p["alt"]} m</small></a>' for p in near)
         + f'</nav><a class="more" href="/{slug(m["range"])}/">Všechny stanice: {rng} →</a></div>'

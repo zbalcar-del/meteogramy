@@ -78,9 +78,10 @@ button, select { font: inherit; }
 .gl { position: relative; display: block; flex: 0 0 auto; border-radius: 22.75%;
   box-shadow: 0 1px 2px rgba(16,60,120,.16), 0 4px 12px rgba(16,60,120,.14); }
 .gl > img, .gl > svg { display: block; border-radius: inherit; }
-.gl::after { content: ""; position: absolute; inset: 0; padding: 2px; border-radius: inherit; pointer-events: none;
-  background: linear-gradient(155deg, #fff, rgba(255,255,255,.5) 30%, rgba(255,255,255,.18) 60%, rgba(255,255,255,.75));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.gl::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,0) 42%);
+  box-shadow: inset 0 0 0 .5px rgba(255,255,255,.4), inset 0 1.5px 1px -.5px rgba(255,255,255,.85),
+    inset 1px 0 1px -.5px rgba(255,255,255,.35), inset 0 -1px 1px -.5px rgba(255,255,255,.45); }
 .logo .bn { font-weight: 700; font-size: 17px; letter-spacing: -.01em; line-height: 1.15; white-space: nowrap; }
 .logo .tag { font-size: 12px; color: var(--muted); line-height: 1.3; margin-top: 1px; }
 .search { margin-top: 16px; margin-bottom: 10px; position: relative; }
@@ -353,7 +354,7 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .ck-x { position: absolute; top: 12px; right: 12px; display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 0;
   border-radius: 50%; background: rgba(0,0,0,.06); color: #6e6e73; cursor: pointer; transition: background .15s; }
 .ck-x:hover { background: rgba(0,0,0,.1); color: var(--ink); }
-.ck h2 { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; font-size: 16px; letter-spacing: -.01em; }
+.ck h2 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 16px; letter-spacing: -.01em; }
 .ck h2 { gap: 10px; }
 /* ikona ve stylu Apple: zaoblený čtverec s jemným přechodem */
 .ck-i { display: grid; place-items: center; flex: 0 0 auto; width: 34px; height: 34px; color: #fff;
@@ -392,6 +393,12 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .sinfo h2 { font-size: 17px; letter-spacing: -.01em; margin: 0 0 10px; }
 .sinfo h2 + .near { margin-top: 2px; }
 .sinfo p { margin: 0 0 16px; font-size: 14.5px; line-height: 1.55; color: #424245; text-wrap: pretty; }
+/* technické údaje o stanici: řádky popisek – hodnota */
+.spec { margin: 0 0 20px; }
+.spec div { display: grid; grid-template-columns: 9.5em minmax(0, 1fr); gap: 12px; padding: 8px 0; border-top: 1px solid #f0f1f4; font-size: 14px; line-height: 1.4; }
+.spec div:first-child { border-top: 0; padding-top: 2px; }
+.spec dt { color: var(--muted); }
+.spec dd { margin: 0; color: var(--ink); font-variant-numeric: tabular-nums; }
 .sinfo .src { font-size: 12.5px; color: var(--muted); margin: 12px 0 0; }
 .sinfo .more { font-size: 14px; font-weight: 500; color: #0071e3; text-decoration: none; }
 .sinfo .more:hover { text-decoration: underline; }
@@ -596,7 +603,7 @@ h1, h2 { text-wrap: balance; }
         <li><b>Králický Sněžník</b> – <a href="https://commons.wikimedia.org/wiki/File:Widok_na_Ma%C5%82y_%C5%9Anie%C5%BAnik_zim%C4%85.jpg" target="_blank" rel="noopener">Piotr Kuźniar</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/pl/deed.en" target="_blank" rel="noopener">CC BY-SA 3.0 pl</a></li>
         <li><b>Hrubý Jeseník</b> – <a href="https://commons.wikimedia.org/wiki/File:Praded_v_zime.jpg" target="_blank" rel="noopener">Witeg (cs.wikipedia)</a>, Public domain</li>
         <li><b>Nízký Jeseník</b> – <a href="https://commons.wikimedia.org/wiki/File:Brunt%C3%A1l_-_zima.jpg" target="_blank" rel="noopener">Jacob.sousek7119</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
-        <li><b>Beskydy</b> – <a href="https://commons.wikimedia.org/wiki/File:739_15_B%C3%ADl%C3%A1,_Czech_Republic_-_panoramio_(2).jpg" target="_blank" rel="noopener">Michal Gorski</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0" target="_blank" rel="noopener">CC BY-SA 3.0</a></li>
+        <li><b>Beskydy</b> – <a href="https://pixabay.com/photos/mountains-6938495/" target="_blank" rel="noopener">dragon77, Pixabay</a>, <a href="https://pixabay.com/cs/service/license-summary/" target="_blank" rel="noopener">licence Pixabay</a></li>
         <li><b>Javorníky</b> – <a href="https://commons.wikimedia.org/wiki/File:Na_b%C4%9B%C5%BEk%C3%A1ch_Velk%C3%BDmi_Karlovicemi_to_byla_dlouh%C3%A1_j%C3%ADzda.jpg" target="_blank" rel="noopener">Ladislav Boháč</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
       </ul>
     </section>
@@ -1328,10 +1335,16 @@ function stationInfo(m) {
   return `<div><h2>Předpověď po dnech</h2><table class="days"><thead><tr><th>Den</th><th>Teplota</th><th>Nárazy</th>` +
     `<th>Srážky</th><th>Sníh</th><th class="hm">Slunce</th></tr></thead><tbody>${rowsHtml}</tbody></table>` +
     `<p class="src">Model ALADIN CZ, běh ${run.day}. ${run.month}. ${pad(run.hour)}:00 ${run.tz}. Teplota ${dz ? `přepočtená na výšku stanice ${m.alt} m` : `ve výšce uzlu modelu ${m.node.alt} m`}.</p></div>` +
-    `<div><h2>O stanici</h2><p>Meteorologická stanice ČHMÚ ${m.name} leží v pohoří ${m.range} v nadmořské výšce ${m.alt} m ` +
-    `(${geo(m.lat)}° s. š., ${geo(m.lon)}° v. d.)${m.since ? ` a měří od roku ${m.since}` : ""}. Meteogram ukazuje hodinovou předpověď ` +
-    `numerického modelu ALADIN CZ na tři dny: teplotu, vítr a nárazy, srážky a sníh, vlhkost, tlak a oblačnost. ` +
-    `Předpověď počítáme pro bod modelu ve výšce ${m.node.alt} m, ${fmtNum(m.node.dist, 1)} km od stanice, a obnovujeme ji čtyřikrát denně.</p>` +
+    `<div><h2>O stanici</h2><dl class="spec">${[
+      ["Stanice", `ČHMÚ${m.since ? `, měří od roku ${m.since}` : ""}`],
+      ["Pohoří", m.range],
+      ["Nadmořská výška", `${m.alt} m n. m.`],
+      ["Souřadnice", `${geo(m.lat)}° s. š., ${geo(m.lon)}° v. d.`],
+      ["Bod modelu", `${m.node.alt} m n. m., ${fmtNum(m.node.dist, 1)} km od stanice`],
+      ["Model", "ALADIN CZ, ČHMÚ"],
+      ["Předpověď", "3 dny po hodinách, 4× denně"],
+      ["Veličiny", "teplota, vítr a nárazy, srážky, sníh, vlhkost, tlak, oblačnost"],
+    ].map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>` +
     `<h2>Stanice v okolí</h2><nav class="near" aria-label="Stanice v okolí">${near.map(p => `<a href="/${p.id}/">${p.name} <small>${p.alt} m</small></a>`).join("")}</nav>` +
     `<a class="more" href="/${slug(m.range)}/">Všechny stanice: ${m.range} →</a></div>`;
 }
