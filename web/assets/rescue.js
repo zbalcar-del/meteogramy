@@ -6,6 +6,8 @@
   const list = document.getElementById('hs-list');
   if (!card || !home || !list) return;
   const date = new Intl.DateTimeFormat('cs-CZ', {timeZone: 'Europe/Prague', day: 'numeric', month: 'numeric', year: 'numeric'});
+  const checked = document.getElementById('hs-checked');
+  const stamp = new Intl.DateTimeFormat('cs-CZ', {timeZone: 'Europe/Prague', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit'});
   const MAX_AGE = 30 * 24 * 3600 * 1000;
   const TAGS = [[/pohřešov|pátrá|hledá|hledat/i, 'Pátrání']];
   let loadedAt = 0, pending = false;
@@ -18,7 +20,9 @@
   const valid = data => data?.version === 1 && data.ok === true && Array.isArray(data.items)
     && data.items.every(i => typeof i.title === 'string' && i.title && typeof i.summary === 'string'
       && typeof i.url === 'string' && i.url.startsWith('https://www.horskasluzba.cz/') && Number.isFinite(Date.parse(i.published)));
-  function render(items) {
+  function render(items, retrieved) {
+    // stejně jako u výstrah ČHMÚ: kdy jsme zprávy naposledy stáhli
+    if (checked) checked.textContent = Number.isFinite(Date.parse(retrieved)) ? `Ověřeno ${stamp.format(new Date(retrieved))}` : '';
     const fresh = items.filter(i => Date.now() - Date.parse(i.published) < MAX_AGE);
     card.hidden = !fresh.length;
     list.replaceChildren(...fresh.map(i => {
@@ -43,7 +47,7 @@
       const data = await response.json();
       if (!valid(data)) throw new Error('Neplatná data');
       loadedAt = Date.now();
-      render(data.items);
+      render(data.items, data.retrieved_at);
     } catch (error) {
       card.hidden = true;
     } finally {
