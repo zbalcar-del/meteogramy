@@ -124,3 +124,23 @@
 @media (max-width: 700px) {
   .snow-toolbar .snow-dd { flex: 1 1 calc(50% - 4px); }
 }
+
+/* Souhrny kombinují sněhová data s typografií a grafy karty na úvodu. */
+.snow-highlight { border-radius: 24px; padding: 24px; border: 0; box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.04), 0 12px 36px rgba(0,0,0,.045); }
+.snow-highlight-main { background: linear-gradient(145deg,#f8fbff,#eaf2ff); }
+.snow-highlight > span:first-child { font-size: 10.5px; letter-spacing: .055em; text-transform: uppercase; color: #7c8798; }
+.snow-highlight > strong { font-size: 52px; margin: 18px 0 12px; letter-spacing: -.035em; }
+.snow-highlight > b { font-size: 17px; letter-spacing: -.02em; }
+.snow-highlight > .snow-card-foot { display: block; margin-top: 18px; padding-top: 12px; border-top: 1px solid rgba(130,155,190,.16); font-size: 11px; font-weight: 500; color: #748091; }
+.snow-highlight-main > .snow-card-foot { color: var(--accent); }
+@media (max-width: 700px) {
+  .snow-highlight { padding: 20px 16px; border-radius: 20px; }
+  .snow-highlight > strong { font-size: 40px; }
+  .snow-highlight-main > strong { font-size: 52px; }
+  .snow-highlight > b { font-size: 14px; }
+  .snow-highlight > span:first-child { font-size: 10px; }
+  .snow-highlight > .snow-card-foot { font-size: 10px; }
+}
+
+.snow-highlight > span:first-child { display: flex; align-items: center; gap: 6px; }
+.snow-highlight > span:first-child svg { flex: 0 0 auto; }
