@@ -143,6 +143,7 @@ def main():
     import paramiko
     import build_pages
     import fetch
+    import snow
 
     keys = ('SFTP_HOST', 'SFTP_PORT', 'SFTP_USER', 'SFTP_PASSWORD', 'SFTP_REMOTE_DIR')
     config = {key: os.environ.get(key, '') for key in keys}
@@ -165,6 +166,35 @@ def main():
         with client.open_sftp() as sftp:
             sftp.chdir(posixpath.join(remote, 'data'))
             raw, previous = remote_runs(sftp)
+        # Sněhová měření se obnovují nezávisle na tom, zda vyšel nový ALADIN.
+        snow_ready = False
+        try:
+            snow.main()
+            snow_ready = True
+        except Exception as error:
+            print(f'Obnovení sněhu selhalo: {error}', flush=True)
+            # Nový runner nesmí při výpadku zdroje přepsat poslední zveřejněná data.
+            try:
+                with client.open_sftp() as sftp:
+                    with sftp.open(posixpath.join(remote, 'data/snow.json'), 'rb') as source:
+                        saved = source.read()
+                snapshot = json.loads(saved)
+                if snapshot.get('version') != 1 or not snapshot.get('stations') or not snapshot.get('latest_at'):
+                    raise ValueError('Neplatný uložený sněhový přehled.')
+                DATA.mkdir(parents=True, exist_ok=True)
+                snow.OUT.write_bytes(saved)
+                snow_ready = True
+            except (OSError, ValueError):
+                print('Předchozí sněhová data zatím nejsou k dispozici.', flush=True)
+        if snow_ready:
+            build_pages.write_snow_page(SITE, DATA)
+            with client.open_sftp() as sftp:
+                sftp.chdir(remote)
+                upload(sftp, {
+                    'snehove-zpravodajstvi/index.html': SITE / 'snehove-zpravodajstvi/index.html',
+                    'data/snow-fragment.html': SITE / 'data/snow-fragment.html',
+                    'data/snow.json': snow.OUT,
+                })
         runs = fetch.list_runs()
         needed = set(fetch.FIELDS) | {fetch.OROGRAPHY}
         complete = sorted((run for run, fields in runs.items() if needed <= fields.keys()), reverse=True)

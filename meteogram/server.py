@@ -13,6 +13,7 @@ from pathlib import Path
 
 import build_pages
 import fetch
+import snow
 
 PORT = int(os.environ.get("PORT", 8765))
 CHECK_EVERY_S = 20 * 60
@@ -51,6 +52,10 @@ def updater():
             fetch.main()
         except Exception as e:
             fetch.log(f"aktualizace selhala: {e}")
+        try:
+            snow.main()
+        except Exception as e:
+            fetch.log(f"aktualizace sněhu selhala: {e}")
         build()
         time.sleep(CHECK_EVERY_S)
 

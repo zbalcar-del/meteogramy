@@ -629,6 +629,7 @@ h1, h2 { text-wrap: balance; }
 }
 @media (hover: none) { .hl a.st:hover, .hc:hover, .rc:hover { transform: none; } }
 </style>
+<link rel="stylesheet" href="/assets/snow.css">
 </head>
 <body>
 <div class="app">
@@ -647,6 +648,7 @@ h1, h2 { text-wrap: balance; }
     </div>
     <nav class="picker" id="picker" aria-label="Horské stanice"></nav>
     <span class="sr-only" id="search-status" role="status" aria-live="polite"></span>
+    <nav class="side-tools" aria-label="Další přehledy"><a class="snow-nav" href="/snehove-zpravodajstvi/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M3.34 7l17.32 10M3.34 17L20.66 7M8 4l4 3 4-3M8 20l4-3 4 3M3.6 11.5l4.6-2-.6-5M16.4 19.5l-.6-5 4.6-2M3.6 12.5l4.6 2-.6 5M16.4 4.5l-.6 5 4.6 2"/></svg><span>Sněhové zpravodajství</span></a></nav>
     <div class="runsel">
       <div class="rl" id="ddlab">Běh modelu</div>
       <div class="dd" id="dd">
@@ -725,6 +727,27 @@ h1, h2 { text-wrap: balance; }
     <div id="chart" aria-describedby="chart-help"><div class="msg">Načítám data…</div><div id="tip"></div><div id="info" role="tooltip"></div></div>
   </div>
   <section class="sinfo" id="sinfo" hidden></section>
+  <section class="snow-page" id="snow" hidden>
+    <header class="snow-hero">
+      <div><p class="eyebrow">Sníh na českých horách</p><h1>Sněhové zpravodajství</h1>
+      <p class="lead">Kolik sněhu leží na horách? Poslední dostupná denní měření ČHMÚ, změna pokrývky a její vývoj na horských stanicích.</p></div>
+    </header>
+    <div class="snow-toolbar" role="search" aria-label="Filtrovat sněhová měření">
+      <label class="snow-search"><span class="sr-only">Stanice nebo pohoří</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><input id="snow-search" type="search" placeholder="Stanice nebo pohoří" autocomplete="off" spellcheck="false" enterkeyhint="search"></label>
+      <select id="snow-range" aria-label="Pohoří"><option value="">Všechna pohoří</option></select>
+      <select id="snow-sort" aria-label="Seřadit stanice"><option value="depth">Nejvíce sněhu</option><option value="change">Denní přírůstek</option><option value="alt">Nadmořská výška</option><option value="name">Název stanice</option></select>
+      <button class="snow-only" id="snow-only" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M3.34 7l17.32 10M3.34 17L20.66 7M8 4l4 3 4-3M8 20l4-3 4 3M3.6 11.5l4.6-2-.6-5M16.4 19.5l-.6-5 4.6-2M3.6 12.5l4.6 2-.6 5M16.4 4.5l-.6 5 4.6 2"/></svg> Jen se sněhem</button>
+    </div>
+    <p class="snow-fetch-status" id="snow-fetch-status" role="status" hidden></p>
+    <div id="snow-body"></div>
+    <details class="snow-explainer"><summary>Jak číst sněhová měření</summary>
+      <p>Výška sněhu je celková naměřená sněhová pokrývka v centimetrech. Denní měření probíhá v 06:00 UTC, tedy v 7:00 SEČ nebo v 8:00 SELČ. Otevřená data mohou být zveřejněna se zpožděním; datum a čas uvádíme u každé stanice.</p>
+      <p>Denní změna je rozdíl výšky pokrývky za 24 hodin. Ovlivňuje ji také tání a sesedání sněhu, proto neudává množství nově napadaného sněhu. Pomlčka znamená chybějící nebo nepoužitelné měření, nikoli nulu. Příznaky poprašku, nesouvislé pokrývky a odhadnutých hodnot jsou uvedené u stanice.</p>
+      <p>Souhrn nejvyšší pokrývky a největšího přírůstku porovnává stanice ve stejném posledním dostupném termínu. Přehled zahrnuje horské stanice našeho webu, nejde o úplný přehled všech stanic ČHMÚ ani o zpravodajství lyžařských areálů.</p>
+    </details>
+    <p class="snow-source">Zdroj: <a href="https://www.chmi.cz/namerena-data/data-z-mericich-stanic/vyska-snehu" target="_blank" rel="noopener">Český hydrometeorologický ústav</a> · <a href="https://opendata.chmi.cz/meteorology/climate/recent/" target="_blank" rel="noopener">Otevřená data ČHMÚ</a>. Meteogramy.cz nejsou oficiální službou ČHMÚ.</p>
+  </section>
+
   <article class="about" id="about" hidden>
     <p class="eyebrow">O projektu</p>
     <h1>Meteogramy, jak je znáte i neznáte.</h1>
@@ -826,6 +849,7 @@ h1, h2 { text-wrap: balance; }
   <div class="ck-f"><button type="button" id="ckmore">Nastavení</button><a href="/ochrana-soukromi/#cookies">Více o cookies</a></div>
 </section>
 
+<script src="/assets/snow.js"></script>
 <script>
 const TZ = "Europe/Prague";
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -923,7 +947,7 @@ function mobileContext() {
   if (view === "home") $("mobile-home").setAttribute("aria-current", "page");
   $("mobile-stations").classList.toggle("active", view === "mg" || view === "range");
   $("mobile-context").textContent = view === "mg" ? state.data?.places.find(p => p.id === pathId())?.name || "Horská předpověď"
-    : view === "range" ? RANGE_OF[pathId()] : view === "/o-projektu/" ? "O projektu" : view === "/ochrana-soukromi/" ? "Ochrana soukromí" : "horské meteogramy";
+    : view === "/snehove-zpravodajstvi/" ? "Sněhové zpravodajství" : view === "range" ? RANGE_OF[pathId()] : view === "/o-projektu/" ? "O projektu" : view === "/ochrana-soukromi/" ? "Ochrana soukromí" : "horské meteogramy";
 }
 
 // pořadí pohoří ve výběru
@@ -1648,7 +1672,7 @@ function stationInfo(m) {
     `<a class="more" href="/${slug(m.range)}/">Všechny stanice: ${m.range} →</a></div>`;
 }
 
-const PAGES = { "/o-projektu/": "O projektu – Meteogramy.cz", "/ochrana-soukromi/": "Ochrana soukromí – Meteogramy.cz" };
+const PAGES = { "/snehove-zpravodajstvi/": "Sněhové zpravodajství – výška sněhu na horách | Meteogramy.cz", "/o-projektu/": "O projektu – Meteogramy.cz", "/ochrana-soukromi/": "Ochrana soukromí – Meteogramy.cz" };
 const HOME_TITLE = "Meteogramy.cz – meteogramy ALADIN pro české hory";
 const pagePath = () => location.pathname.replace(/\/?$/, "/");
 const pathId = () => decodeURIComponent(pagePath().slice(1, -1));
@@ -1667,7 +1691,20 @@ function route() {
   $("range").hidden = v !== "range";
   $("about").hidden = v !== "/o-projektu/";
   $("privacy").hidden = v !== "/ochrana-soukromi/";
+  $("snow").hidden = v !== "/snehove-zpravodajstvi/";
+  document.querySelectorAll(".snow-nav").forEach(a => {
+    if (v === "/snehove-zpravodajstvi/") a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
+  });
   document.querySelectorAll(".sfoot a").forEach(a => a.classList.toggle("on", a.getAttribute("href") === v));
+  if (v === "/snehove-zpravodajstvi/") {
+    state.id = state.counted = null;
+    state.open.clear();
+    if (state.data) picker();
+    $("picker").scrollTop = 0;
+    document.title = PAGES[v];
+    return window.MeteogramSnow.open();
+  }
   // Dokud se načítá seznam stanic nového běhu, nepoužíváme data předchozího.
   if (state.loadingRun && (v === "home" || v === "range" || v === "mg")) { skeletonView(); return; }
   if (v === "mg") {
@@ -1715,7 +1752,7 @@ async function go(href) {
     if (visibleHeading) { visibleHeading.setAttribute("tabindex", "-1"); visibleHeading.focus({ preventScroll: true }); }
   }
 }
-const VIEW_EL = { home: ["home"], range: ["range"], mg: ["mg", "sinfo"], "/o-projektu/": ["about"], "/ochrana-soukromi/": ["privacy"] };
+const VIEW_EL = { "/snehove-zpravodajstvi/": ["snow"], home: ["home"], range: ["range"], mg: ["mg", "sinfo"], "/o-projektu/": ["about"], "/ochrana-soukromi/": ["privacy"] };
 function reveal() {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   (VIEW_EL[viewOf()] || []).forEach((id, k) => $(id).animate(

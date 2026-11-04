@@ -9,6 +9,7 @@ on:
       - 'meteogram/fetch.py'
       - 'meteogram/hosting_known_hosts'
       - 'meteogram/build_pages.py'
+      - 'meteogram/snow.py'
       - 'web/**'
   schedule:
     - cron: '17 * * * *'

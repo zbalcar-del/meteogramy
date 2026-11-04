@@ -14,6 +14,7 @@ import math
 from pathlib import Path
 import re
 import shutil
+import snow
 import sys
 import unicodedata
 from zoneinfo import ZoneInfo
@@ -29,7 +30,10 @@ PAGES = {
     'ochrana-soukromi': ('Ochrana soukromí – Meteogramy.cz',
                          'Jak Meteogramy.cz nakládají s údaji a cookies. Web používáte bez účtu; návštěvnost měříme pomocí Google Analytics jen s vaším souhlasem.'),
 }
-RESERVED = {'data', 'api', 'assets', *PAGES}
+SNOW_PATH = '/snehove-zpravodajstvi/'
+SNOW_TITLE = 'Sněhové zpravodajství – výška sněhu na horách | Meteogramy.cz'
+SNOW_DESC = 'Naměřená výška sněhu na českých horách podle ČHMÚ. Denní změna pokrývky, vývoj a čas posledního měření pro horské stanice podle pohoří.'
+RESERVED = {'data', 'api', 'assets', SNOW_PATH.strip('/'), *PAGES}
 # AI asistenti a jejich vyhledávače, kterým robots.txt výslovně povoluje přístup
 AI_BOTS = ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'Claude-User',
            'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'Applebot-Extended', 'CCBot']
@@ -165,7 +169,7 @@ def fill(html, el_id, inner, attrs=''):
 
 
 def visible(html, show):
-    for el_id in ('home', 'range', 'mg', 'sinfo', 'about', 'privacy'):
+    for el_id in ('home', 'range', 'mg', 'sinfo', 'about', 'privacy', 'snow'):
         html, n = re.subn(rf'id="{el_id}"( hidden)?', f'id="{el_id}"' + ('' if el_id in show else ' hidden'), html, count=1)
         assert n == 1, el_id
     return html
@@ -221,6 +225,22 @@ def write(out, path, text):
     dest = out / path.strip('/') / 'index.html' if path.endswith('/') else out / path
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(text)
+
+
+def write_snow_page(out, data):
+    try:
+        snapshot = json.loads((data / 'snow.json').read_text())
+    except (OSError, ValueError):
+        snapshot = None
+    fragment = snow.render(snapshot)
+    html = visible((WEB / 'index.html').read_text(), {'snow'})
+    html = fill(html, 'snow-body', fragment)
+    html = html.replace('class="snow-nav"', 'class="snow-nav" aria-current="page"', 1)
+    modified = snapshot.get('retrieved_at') if snapshot else None
+    write(out, SNOW_PATH, page(html, SNOW_PATH, SNOW_TITLE, SNOW_DESC, modified=modified,
+                              extra=[crumbs(('Meteogramy.cz', '/'), ('Sněhové zpravodajství', SNOW_PATH))]))
+    write(out, 'data/snow-fragment.html', fragment)
+    return modified
 
 
 def not_found():
@@ -326,10 +346,13 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
         write(out, path, page(html, path, title, desc))
         urls.append(path)
 
+    snow_modified = write_snow_page(out, data)
+    urls.append(SNOW_PATH)
     write(out, '404.html', not_found())
+    lastmods = {u: snow_modified or modified if u == SNOW_PATH else modified for u in urls}
     write(out, 'sitemap.xml', '<?xml version="1.0" encoding="UTF-8"?>\n'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-          + ''.join(f'  <url><loc>{SITE}{u}</loc>{"" if u[1:-1] in PAGES else f"<lastmod>{modified}</lastmod>"}</url>\n' for u in urls)
+          + ''.join(f'  <url><loc>{SITE}{u}</loc>{"" if u[1:-1] in PAGES else f"<lastmod>{lastmods[u]}</lastmod>"}</url>\n' for u in urls)
           + '</urlset>\n')
     # dokud má web noindex, roboti ho neprocházejí; po zveřejnění jsou vítaní vyhledávače i AI asistenti
     if hidden:
@@ -363,6 +386,7 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
         '',
         '## Další',
         '',
+        f'- [Sněhové zpravodajství]({SITE}{SNOW_PATH}): naměřená výška sněhu a denní změna pokrývky, ČHMÚ',
         f'- [O projektu]({SITE}/o-projektu/): odkud jsou data a jak meteogramy vznikají',
         f'- [Ochrana soukromí]({SITE}/ochrana-soukromi/)',
         '',
