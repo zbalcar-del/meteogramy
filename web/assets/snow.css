@@ -1,5 +1,5 @@
 /* Samostatný přehled naměřeného sněhu ve vizuálním systému Meteogramy.cz. */
-.side-tools { padding: 10px 0; border-top: 1px solid #e2e4e9; }
+.side-tools { padding: 10px 0; }
 .snow-nav { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 8px 10px; border-radius: 12px;
   color: var(--ink-2); font-size: 13px; font-weight: 600; text-decoration: none; transition: background .15s, color .15s; }
 .snow-nav svg { width: 21px; height: 21px; flex: 0 0 auto; color: var(--accent); }
@@ -161,14 +161,11 @@
 .ava-problems p { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; margin: 8px 0; font-size: 13px; }
 .ava-problems p span { color: var(--muted); }
 .ava-scale h2 { margin: 0; font-size: 20px; letter-spacing: -.02em; }
-.ava-scale-list { list-style: none; display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); padding: 0 22px; margin: 4px 0 18px; gap: 8px; }
-.ava-scale-list li { display: flex; align-items: center; gap: 10px; font-size: 12px; }
-.ava-scale-list b { display: grid; place-items: center; width: 32px; height: 32px; flex: 0 0 auto; border-radius: 9px; font-size: 16px; background: var(--soft); }
-.ava-scale-list li:nth-child(1) b, .ava-card[data-level="1"] .ava-level { color: #367246; }
-.ava-scale-list li:nth-child(2) b, .ava-card[data-level="2"] .ava-level { color: #937013; }
-.ava-scale-list li:nth-child(3) b, .ava-card[data-level="3"] .ava-level { color: #bc621d; }
-.ava-scale-list li:nth-child(4) b, .ava-card[data-level="4"] .ava-level { color: #c73339; }
-.ava-scale-list li:nth-child(5) b, .ava-card[data-level="5"] .ava-level { color: #77252a; }
+.ava-card[data-level="1"] .ava-level { color: #367246; }
+.ava-card[data-level="2"] .ava-level { color: #937013; }
+.ava-card[data-level="3"] .ava-level { color: #bc621d; }
+.ava-card[data-level="4"] .ava-level { color: #c73339; }
+.ava-card[data-level="5"] .ava-level { color: #77252a; }
 .ava-scale-note { margin: 0; padding: 0 22px 22px; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .ava-scale-note a { color: var(--accent); }
 @media (max-width: 700px) {
@@ -176,8 +173,46 @@
   .ava-card h2 { font-size: 24px; }
   .ava-rating { margin-top: 24px; }
   .ava-level { font-size: 64px; }
-  .ava-scale-list { grid-template-columns: minmax(0,1fr); padding: 0 16px; gap: 10px; }
   .ava-scale-note { padding: 0 16px 20px; }
 }
 
 .ava-infobar { margin: 0 0 20px; background: var(--accent-bg); color: var(--accent); line-height: 1.6; }
+
+.ava-scale { --scale-tone: #367246; --scale-index: 0; }
+.ava-scale[data-scale="2"] { --scale-tone: #937013; }
+.ava-scale[data-scale="3"] { --scale-tone: #bc621d; }
+.ava-scale[data-scale="4"] { --scale-tone: #c73339; }
+.ava-scale[data-scale="5"] { --scale-tone: #77252a; }
+.ava-scale .snow-group-head { padding-bottom: 4px; }
+.ava-scale-intro { margin: 0; padding: 0 22px 18px; font-size: 13px; color: var(--muted); }
+.ava-scale-tabs { position: relative; display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); padding: 4px; margin: 0 22px; border-radius: 16px; background: #eef0f5; isolation: isolate; }
+.ava-scale-tabs::before { content: ''; position: absolute; z-index: -1; inset: 4px auto 4px 4px; width: calc((100% - 8px) / 5); background: #fff; border-radius: 12px; box-shadow: 0 2px 7px rgba(25,40,65,.10), 0 0 0 1px rgba(25,40,65,.025); transform: translateX(calc(var(--scale-index) * 100%)); transition: transform .28s var(--ease); }
+.ava-scale-tab { display: flex; align-items: center; justify-content: center; gap: 9px; min-width: 0; min-height: 60px; padding: 8px 6px; border: 0; border-radius: 12px; background: transparent; color: #657080; font: inherit; font-size: 12px; cursor: pointer; transition: color .2s; }
+.ava-scale-tab b { font-size: 22px; font-weight: 600; letter-spacing: -.03em; }
+.ava-scale-tab[aria-selected="true"] { color: var(--scale-tone); }
+.ava-scale-tab:hover { color: var(--ink); }
+.ava-scale-tab:focus-visible { outline-offset: -3px; }
+.ava-scale-panel { display: grid; grid-template-columns: 72px minmax(0,1fr); align-items: stretch; gap: 22px; padding: 26px 22px 24px; }
+.ava-scale-number { display: grid; place-items: center; min-height: 72px; border-radius: 20px; background: #f3f6f7; background: color-mix(in srgb,var(--scale-tone) 9%,white); color: var(--scale-tone); font-size: 42px; font-weight: 600; letter-spacing: -.04em; }
+.ava-scale-panel .ava-scale-kicker { margin: 0 0 4px; color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.ava-scale-panel h3 { margin: 0 0 8px; font-size: 22px; letter-spacing: -.025em; }
+.ava-scale-panel p { margin: 0; color: var(--ink-2); font-size: 14px; line-height: 1.65; }
+@media (max-width: 700px) {
+  .ava-scale-intro { padding: 0 16px 16px; }
+  .ava-scale-tabs { margin: 0 16px; }
+  .ava-scale-tab { flex-direction: column; gap: 3px; min-height: 68px; font-size: 10px; }
+  .ava-scale-tab b { font-size: 21px; }
+  .ava-scale-panel { grid-template-columns: 52px minmax(0,1fr); gap: 14px; padding: 22px 16px; }
+  .ava-scale-number { min-height: 52px; border-radius: 15px; font-size: 32px; }
+  .ava-scale-panel h3 { font-size: 19px; }
+  .ava-scale-panel p { font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ava-scale-tabs::before, .ava-scale-tab { transition: none; }
+}
+
+.ava-hero { flex-wrap: wrap; align-items: flex-start; }
+.ava-hero > div { flex: 1 1 560px; min-width: 0; }
+.ava-contact { flex: 0 0 auto; flex-direction: column; align-items: flex-start; gap: 3px; margin: 0; min-height: 48px; padding: 12px 16px; }
+.ava-contact span { color: var(--muted); font-size: 11px; font-weight: 500; }
+.ava-contact b { color: #c73339; font-size: 20px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }

@@ -96,14 +96,17 @@ def render(snapshot, now=None):
     # Starý uložený snapshot sám o sobě nepotvrzuje dostupnost zdroje.
     verified = ok and checked and timedelta(0) <= now - parse_time(checked) < timedelta(hours=2)
     records = {r['region']: r for r in snapshot.get('reports', [])} if verified else {}
-    status = 'Zdroj ověřen' if verified else 'Dostupnost předpovědi není ověřena'
-    out = f'<div class="snow-updated"><span>{status}</span>'
-    if checked:
-        out += f'<time datetime="{escape(checked, quote=True)}">{display_time(checked)}</time>'
     today = now.astimezone(TZ).date().isoformat()
     current = sum(1 for report in records.values()
                   if parse_time(report['issued_at']).astimezone(TZ).date().isoformat() == today
                   and parse_time(report['issued_at']) <= now and degree(report.get('level')))
+    status = ('Aktuální lavinové bulletiny' if current == len(REGIONS) else 'Část bulletinů dostupná' if current
+              else 'Čekáme na lavinové bulletiny' if verified else 'Zdroj není dostupný')
+    out = (f'<div class="snow-updated"><span class="snow-status{" old" if current != len(REGIONS) else ""}">{status}</span>'
+           '<span>Horská služba ČR</span>')
+    if checked:
+        out += (f'<span class="snow-collected">{"Zdroj ověřen" if verified else "Poslední pokus o ověření"} '
+                f'<time datetime="{escape(checked, quote=True)}">{display_time(checked)}</time></span>')
     info = ('Čekáme na aktuální lavinová data Horské služby. Jakmile budou dostupná, zobrazí se zde při aktualizaci přehledu.'
             if verified else 'Dostupnost lavinových dat se nepodařilo ověřit. Aktuální předpověď najdete na webu Horské služby.')
     out += (f'</div><p class="snow-notice ava-infobar" role="status"{" hidden" if current == len(REGIONS) else ""}>'

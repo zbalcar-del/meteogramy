@@ -143,7 +143,7 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .pk small { color: #8a9099; font-size: 12.5px; font-variant-numeric: tabular-nums; }
 .pk.on { background: var(--accent); color: #fff; }
 .pk.on svg, .pk.on small { color: rgba(255,255,255,.85); }
-.runsel { padding: 12px 6px 0; border-top: 1px solid #e2e4e9; }
+.runsel { padding: 12px 6px 0; }
 .sfoot { display: flex; flex-wrap: wrap; gap: 3px 8px; padding: 14px 6px 0; font-size: 11.5px; }
 .sfoot a { color: #6e6e73; text-decoration: none; white-space: nowrap; }
 .sfoot a:hover { color: var(--ink); text-decoration: underline; }
@@ -648,7 +648,7 @@ h1, h2 { text-wrap: balance; }
     </div>
     <nav class="picker" id="picker" aria-label="Horské stanice"></nav>
     <span class="sr-only" id="search-status" role="status" aria-live="polite"></span>
-    <nav class="side-tools" aria-label="Další přehledy"><a class="snow-nav" href="/snehove-zpravodajstvi/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M3.34 7l17.32 10M3.34 17L20.66 7M8 4l4 3 4-3M8 20l4-3 4 3M3.6 11.5l4.6-2-.6-5M16.4 19.5l-.6-5 4.6-2M3.6 12.5l4.6 2-.6 5M16.4 4.5l-.6 5 4.6 2"/></svg><span>Sněhové zpravodajství</span></a><a class="snow-nav avalanche-nav" href="/lavinova-predpoved/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 20 9-16 9 16H3Z"/><path d="M12 10v4m0 3h.01"/></svg><span>Lavinová předpověď</span></a></nav>
+    <nav class="side-tools" aria-label="Další přehledy"><a class="snow-nav" href="/snehove-zpravodajstvi/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M3.34 7l17.32 10M3.34 17L20.66 7M8 4l4 3 4-3M8 20l4-3 4 3M3.6 11.5l4.6-2-.6-5M16.4 19.5l-.6-5 4.6-2M3.6 12.5l4.6 2-.6 5M16.4 4.5l-.6 5 4.6 2"/></svg><span>Sněhové zpravodajství</span></a><a class="snow-nav avalanche-nav" href="/lavinova-predpoved/"><svg viewBox="0 0 640 640" fill="currentColor" aria-hidden="true"><!--!Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M320 64C334.7 64 348.2 72.1 355.2 85L571.2 485C577.9 497.4 577.6 512.4 570.4 524.5C563.2 536.6 550.1 544 536 544L104 544C89.9 544 76.8 536.6 69.6 524.5C62.4 512.4 62.1 497.4 68.8 485L284.8 85C291.8 72.1 305.3 64 320 64zM320 416C302.3 416 288 430.3 288 448C288 465.7 302.3 480 320 480C337.7 480 352 465.7 352 448C352 430.3 337.7 416 320 416zM320 224C301.8 224 287.3 239.5 288.6 257.7L296 361.7C296.9 374.2 307.4 384 319.9 384C332.5 384 342.9 374.3 343.8 361.7L351.2 257.7C352.5 239.5 338.1 224 319.8 224z"/></svg><span>Lavinová předpověď</span></a></nav>
     <div class="runsel">
       <div class="rl" id="ddlab">Běh modelu</div>
       <div class="dd" id="dd">
@@ -751,16 +751,29 @@ h1, h2 { text-wrap: balance; }
   </section>
 
   <section class="snow-page" id="avalanche" hidden>
-    <header class="snow-hero"><div>
+    <header class="snow-hero ava-hero"><div>
       <p class="eyebrow">Před cestou na hory</p><h1>Lavinová předpověď</h1>
       <p class="lead">Krkonoše a Jeseníky. Přehled lavinových bulletinů Horské služby ČR — stupeň nebezpečí, rizikové situace a čas vydání na jednom místě.</p>
-    </div></header>
+    </div><a class="cont ava-contact" href="tel:+4201210" aria-label="Zavolat Horskou službu: +420 1210"><span>Horská služba · SOS</span><b>+420 1210</b></a></header>
     <p class="snow-fetch-status" id="avalanche-status" role="status" hidden></p>
     <div id="avalanche-body"></div>
-    <section class="snow-group ava-scale" aria-labelledby="avalanche-scale-title">
+    <section class="snow-group ava-scale" data-scale="1" aria-labelledby="avalanche-scale-title">
       <div class="snow-group-head"><h2 id="avalanche-scale-title">Pět stupňů lavinového nebezpečí</h2><span>Evropská stupnice</span></div>
-      <ol class="ava-scale-list"><li><b>1</b><span>Nízké</span></li><li><b>2</b><span>Mírné</span></li><li><b>3</b><span>Značné</span></li><li><b>4</b><span>Vysoké</span></li><li><b>5</b><span>Velmi vysoké</span></li></ol>
-      <p class="ava-scale-note">Samotný stupeň nepopisuje všechny podmínky v terénu. Podrobnosti a doporučení najdete v <a href="https://www.horskasluzba.cz/cz/horska-sluzba/laviny/informace-o-lavinach/stupne-lavinoveho-nebezpeci-eaws-matice" target="_blank" rel="noopener">oficiální stupnici Horské služby</a>.</p>
+      <p class="ava-scale-intro">Vyberte stupeň a prohlédněte si jeho význam.</p>
+      <div class="ava-scale-tabs" role="tablist" aria-label="Stupně lavinového nebezpečí">
+        <button type="button" class="ava-scale-tab" id="ava-scale-tab-1" role="tab" aria-selected="true" aria-controls="ava-scale-panel-1" tabindex="0" data-scale="1"><b aria-hidden="true">1</b><span>Nízké</span><span class="sr-only"> — 1. stupeň</span></button>
+        <button type="button" class="ava-scale-tab" id="ava-scale-tab-2" role="tab" aria-selected="false" aria-controls="ava-scale-panel-2" tabindex="-1" data-scale="2"><b aria-hidden="true">2</b><span>Mírné</span><span class="sr-only"> — 2. stupeň</span></button>
+        <button type="button" class="ava-scale-tab" id="ava-scale-tab-3" role="tab" aria-selected="false" aria-controls="ava-scale-panel-3" tabindex="-1" data-scale="3"><b aria-hidden="true">3</b><span>Značné</span><span class="sr-only"> — 3. stupeň</span></button>
+        <button type="button" class="ava-scale-tab" id="ava-scale-tab-4" role="tab" aria-selected="false" aria-controls="ava-scale-panel-4" tabindex="-1" data-scale="4"><b aria-hidden="true">4</b><span>Vysoké</span><span class="sr-only"> — 4. stupeň</span></button>
+        <button type="button" class="ava-scale-tab" id="ava-scale-tab-5" role="tab" aria-selected="false" aria-controls="ava-scale-panel-5" tabindex="-1" data-scale="5"><b aria-hidden="true">5</b><span>Velmi vysoké</span><span class="sr-only"> — 5. stupeň</span></button>
+      </div>
+      <div class="ava-scale-panel" id="ava-scale-panel-1" role="tabpanel" aria-labelledby="ava-scale-tab-1" tabindex="0"><span class="ava-scale-number" aria-hidden="true">1</span><div><p class="ava-scale-kicker">Význam 1. stupně</p><h3>Nízké nebezpečí</h3><p>Sníh je většinou dobře zpevněný. Lavinu lze přesto uvolnit při velkém zatížení na ojedinělých velmi strmých svazích.</p></div></div>
+      <div class="ava-scale-panel" id="ava-scale-panel-2" role="tabpanel" aria-labelledby="ava-scale-tab-2" tabindex="0" hidden><span class="ava-scale-number" aria-hidden="true">2</span><div><p class="ava-scale-kicker">Význam 2. stupně</p><h3>Mírné nebezpečí</h3><p>Na některých strmých svazích je sníh méně stabilní. Lavinu lze uvolnit zejména při velkém zatížení, výjimečně i při malém.</p></div></div>
+      <div class="ava-scale-panel" id="ava-scale-panel-3" role="tabpanel" aria-labelledby="ava-scale-tab-3" tabindex="0" hidden><span class="ava-scale-number" aria-hidden="true">3</span><div><p class="ava-scale-kicker">Význam 3. stupně</p><h3>Značné nebezpečí</h3><p>Na mnoha strmých svazích je sníh méně stabilní. K uvolnění laviny může stačit malé zatížení; možné jsou také velké samovolné laviny.</p></div></div>
+      <div class="ava-scale-panel" id="ava-scale-panel-4" role="tabpanel" aria-labelledby="ava-scale-tab-4" tabindex="0" hidden><span class="ava-scale-number" aria-hidden="true">4</span><div><p class="ava-scale-kicker">Význam 4. stupně</p><h3>Vysoké nebezpečí</h3><p>Sníh je na většině strmých svahů málo stabilní. Laviny lze uvolnit i malým zatížením a očekávají se velké samovolné laviny.</p></div></div>
+      <div class="ava-scale-panel" id="ava-scale-panel-5" role="tabpanel" aria-labelledby="ava-scale-tab-5" tabindex="0" hidden><span class="ava-scale-number" aria-hidden="true">5</span><div><p class="ava-scale-kicker">Význam 5. stupně</p><h3>Velmi vysoké nebezpečí</h3><p>Sněhová pokrývka je rozsáhle nestabilní. Očekávají se četné samovolné laviny, které mohou dosáhnout údolí. Túry jsou prakticky nemožné.</p></div></div>
+
+      <p class="ava-scale-note">Toto je vysvětlení stupnice, nikoli aktuální předpověď. Samotný stupeň nepopisuje všechny podmínky v terénu. Podrobnosti a doporučení najdete v <a href="https://www.horskasluzba.cz/cz/horska-sluzba/laviny/informace-o-lavinach/stupne-lavinoveho-nebezpeci-eaws-matice" target="_blank" rel="noopener">oficiální stupnici Horské služby</a>.</p>
     </section>
     <section class="snow-explainer" aria-labelledby="avalanche-about-title"><h2 id="avalanche-about-title">Jak číst lavinovou předpověď</h2>
       <p>Přehled přebírá údaje Horské služby ČR pro dvě lavinové oblasti. Důležitý je celý bulletin včetně popisu sněhové pokrývky, rizikových svahů a komentáře lavinového specialisty. Z každé karty vede přímý odkaz na originál.</p>
