@@ -146,6 +146,7 @@ def main():
     import snow
     import avalanche
     import alerts
+    import rescue
 
     keys = ('SFTP_HOST', 'SFTP_PORT', 'SFTP_USER', 'SFTP_PASSWORD', 'SFTP_REMOTE_DIR')
     config = {key: os.environ.get(key, '') for key in keys}
@@ -177,6 +178,14 @@ def main():
         with client.open_sftp() as sftp:
             sftp.chdir(remote)
             upload(sftp, {'data/alerts.json': alerts.OUT})
+        # Zprávy Horské služby: při výpadku zdroje necháme na webu poslední zveřejněné.
+        try:
+            rescue.main()
+            with client.open_sftp() as sftp:
+                sftp.chdir(remote)
+                upload(sftp, {'data/rescue.json': rescue.OUT})
+        except Exception as error:
+            print(f'Obnovení zpráv Horské služby selhalo: {error}', flush=True)
         # Sněhová měření se obnovují nezávisle na tom, zda vyšel nový ALADIN.
         snow_ready = False
         try:
