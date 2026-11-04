@@ -1,0 +1,30 @@
+{
+  "fill": {
+    "automatic-gradient": "extended-srgb:0.12157,0.37255,0.74902,1.00000"
+  },
+  "groups": [
+    {
+      "name": "Průsvitná ledová vločka",
+      "layers": [
+        {
+          "image-name": "snowflake.svg",
+          "name": "Vločka — čistý střed"
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.14
+      },
+      "translucency": {
+        "enabled": true,
+        "value": 0.68
+      }
+    }
+  ],
+  "supported-platforms": {
+    "circles": [
+      "watchOS"
+    ],
+    "squares": "shared"
+  }
+}

@@ -271,8 +271,8 @@ def not_found():
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Stránka nenalezena – Meteogramy.cz</title>
-<link rel="icon" href="/favicon.ico" sizes="48x48">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico?v=3" sizes="48x48">
+<link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
 <style>
 body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f8f8fa; color: #15191f;
   font: 17px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -285,7 +285,7 @@ a.btn { display: inline-block; padding: 11px 20px; border-radius: 12px; backgrou
 </head>
 <body>
 <main>
-  <img src="/assets/logo.svg?v=2" alt="">
+  <img src="/assets/logo.png?v=3" alt="">
   <h1>Tahle stránka tu není</h1>
   <p>Odkaz je možná starý nebo v něm je překlep. Meteogramy všech horských stanic najdete na úvodní stránce.</p>
   <a class="btn" href="/">Na úvodní stránku</a>
