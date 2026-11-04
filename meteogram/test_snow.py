@@ -61,11 +61,13 @@ class Measurements(unittest.TestCase):
         self.assertEqual(row['depth'], 5)
         self.assertEqual(len(row['history']), 1)
 
-    def test_stale_extremes_and_unknown_change_are_not_current_or_zero(self):
+    def test_maximum_includes_older_latest_station_reading_with_date(self):
         old = record([observation(100, day=2)])
-        current = record([observation(5)])
+        current = record([observation(0)])
         html = snow.render(snapshot([old, current]), NOW)
-        self.assertIn('<strong>5<small> cm', html)
+        card = html.split('snow-highlight-main', 1)[1].split('</a>', 1)[0]
+        self.assertIn('<strong>100<small> cm', card)
+        self.assertIn('Měřeno <time datetime="2026-11-02T06:00:00Z"', card)
         self.assertIn('Změna není k dispozici', html)
         self.assertIn('Starší měření', html)
 

@@ -201,9 +201,10 @@ def render(snapshot, now=None):
     if not measured:
         return '<div class="snow-empty" role="status"><h2>Měření nejsou dostupná</h2><p>Chybějící údaj neznamená nulovou sněhovou pokrývku.</p></div>'
     latest = parse_time(snapshot['latest_at'])
-    # Extrémy porovnáváme jen ve stejném posledním dostupném denním termínu.
+    # Maximum bere poslední dostupné měření každé stanice, stejně jako přehled níže.
+    deepest = max(measured, key=lambda row: (row['depth'], row['observed_at']))
+    # Denní přírůstky nadále porovnáváme ve stejném posledním denním termínu.
     comparable = [row for row in measured if row['observed_at'] == snapshot['latest_at']]
-    deepest = max(comparable, key=lambda row: row['depth'])
     rising = [row for row in comparable if row['change'] is not None and row['change'] > 0]
     gain = max(rising, key=lambda row: row['change']) if rising else None
     known_changes = any(row['change'] is not None for row in comparable)
@@ -216,7 +217,7 @@ def render(snapshot, now=None):
            f'<span class="snow-collected">Data ověřena {stamp(snapshot["retrieved_at"])}</span></div>'
            '<div class="snow-highlights">'
            f'<a class="snow-highlight snow-highlight-main" href="/{deepest["id"]}/"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M3.34 7l17.32 10M3.34 17L20.66 7M9 4l3 3 3-3M9 20l3-3 3 3M3.6 10.5l4.1-1.1-1.1-4.1M17.4 18.7l-1.1-4.1 4.1-1.1M3.6 13.5l4.1 1.1-1.1 4.1M17.4 5.3l-1.1 4.1 4.1 1.1"/></svg>Nejvyšší pokrývka</span><strong>{fmt(deepest["depth"])}<small> cm</small></strong>'
-           f'<b>{escape(deepest["name"])}</b><small>{escape(deepest["range"])} · {deepest["alt"]} m</small><span class="snow-card-foot">Otevřít meteogram →</span></a>'
+           f'<b>{escape(deepest["name"])}</b><small>{escape(deepest["range"])} · {deepest["alt"]} m</small><small>Měřeno <time datetime="{escape(deepest["observed_at"], quote=True)}">{stamp(deepest["observed_at"])}</time></small><span class="snow-card-foot">Otevřít meteogram →</span></a>'
            f'<div class="snow-highlight"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Největší denní přírůstek</span><strong>{gain_value}<small>{" cm" if gain or known_changes else ""}</small></strong>'
            f'<b>{gain_label}</b><small>Ve stejném termínu měření</small><span class="snow-card-foot">Změna pokrývky za 24 hodin</span></div>'
            f'<div class="snow-highlight"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>Stanice s měřením</span><strong>{len(measured)}<small> / {len(records)}</small></strong>'
