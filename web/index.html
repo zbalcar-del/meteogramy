@@ -507,10 +507,8 @@ h1, h2 { text-wrap: balance; }
   .foot-sep { display: none; }
   .mbar { position: sticky; top: 0; z-index: 35; display: flex; align-items: center; justify-content: space-between; gap: 16px;
     min-height: calc(76px + env(safe-area-inset-top)); margin: 0; padding: calc(12px + env(safe-area-inset-top)) var(--page-inset-right) 12px var(--page-inset-left);
-    isolation: isolate; background: linear-gradient(var(--bg), var(--bg)) top / 100% 2px no-repeat;
+    background: var(--bg);
     border-bottom: 1px solid rgba(30,50,80,.07); }
-  /* Blur je na vnitřní vrstvě; vnější okraj zůstává bez filtru pro tónování Safari. */
-  .mbar::before { content: ""; position: absolute; inset: 2px 0 0; z-index: -1; pointer-events: none; background: rgba(248,248,250,.94); }
   .mbar .logo { padding: 0; gap: 10px; }
   .mbar .bn { font-size: 16px; letter-spacing: -.025em; }
   .mbar .tag { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--ink-2); }
@@ -578,16 +576,15 @@ h1, h2 { text-wrap: balance; }
   .menu-dialog.keyboard-open .side > .picker { overflow: visible; -webkit-mask-image: none; mask-image: none; }
   .tgl { min-height: 44px; }
   .ck { z-index: 60; left: var(--page-inset-left); right: var(--page-inset-right); width: auto; max-width: none;
-    /* Kompaktní stín zůstává uvnitř okna i nad spodním toolbarem Safari. */
-    bottom: calc(24px + env(safe-area-inset-bottom));
-    max-height: calc(100dvh - 48px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); overflow-y: auto;
+    /* Bezpečnou oblast nepřičítáme k mezeře, kterou už rezervuje Safari. */
+    --cookie-bottom: max(var(--page-gutter), env(safe-area-inset-bottom));
+    --cookie-top: max(12px, env(safe-area-inset-top));
+    bottom: var(--cookie-bottom);
+    max-height: calc(100dvh - var(--cookie-top) - var(--cookie-bottom)); overflow-y: auto;
     box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 4px 12px -4px rgba(0,0,0,.16); }
   .ck-b button { min-height: 44px; }
   .ck-f button, .ck-f a { display: inline-flex; align-items: center; min-height: 44px; }
   .ck-x { min-width: 44px; min-height: 44px; }
-  @supports (backdrop-filter: blur(20px)) or (-webkit-backdrop-filter: blur(20px)) {
-    .mbar::before { background: rgba(248,248,250,.82); -webkit-backdrop-filter: saturate(160%) blur(22px); backdrop-filter: saturate(160%) blur(22px); }
-  }
 }
 @media (max-width: 600px) {
   :root { --page-gutter: 12px; }
@@ -2166,8 +2163,15 @@ $("corr").onchange = e => {
   render();
   if (state.m) $("sinfo").innerHTML = stationInfo(state.m);
 };
-let rt;
-window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => viewOf() === "mg" && state.m && render(), 120); });
+let rt, chartViewportWidth = document.documentElement.clientWidth;
+window.addEventListener("resize", () => {
+  const width = document.documentElement.clientWidth;
+  // Sbalení toolbaru Safari mění výšku, nikoli rozložení grafu.
+  if (width === chartViewportWidth) return;
+  chartViewportWidth = width;
+  clearTimeout(rt);
+  rt = setTimeout(() => viewOf() === "mg" && state.m && render(), 120);
+});
 // e-mail je ve zdroji zakódovaný (pozpátku + base64), skládá se až v prohlížeči kvůli robotům sbírajícím adresy
 document.querySelectorAll("a.mail").forEach(a => {
   const m = atob(a.dataset.m).split("").reverse().join("");
