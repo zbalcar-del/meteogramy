@@ -190,11 +190,69 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .daylight svg { width: 22px; height: 22px; color: #8e8e93; }
 .daylight time { font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; }
 @media (max-width: 860px) { .daylight { width: 100%; margin-left: 0; padding-bottom: 0; gap: 16px; } }
+/* bluebird: celý den jasno – štítek vpravo nahoře s vysvětlivkou */
+.hero { position: relative; }
+.bb { position: absolute; top: 24px; right: 28px; z-index: 15; max-width: calc(100% - 56px); }
+.bb-row { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.hero h1 { padding-right: var(--bbw, 0px); }
+.bb-btn { position: relative; display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px 0 8px; overflow: hidden;
+  border: .5px solid rgba(10,132,255,.22); border-radius: 14px; background: linear-gradient(135deg, #eef7ff, #d9ecff);
+  color: #0a5cc2; font: inherit; font-size: 12.5px; font-weight: 600; letter-spacing: -.005em; cursor: pointer;
+  box-shadow: 0 1px 2px rgba(10,92,194,.08); transition: box-shadow .2s, transform .2s var(--ease); }
+.bb-btn:hover, .bb-btn[aria-expanded="true"] { box-shadow: 0 0 0 3px rgba(10,132,255,.12), 0 1px 2px rgba(10,92,194,.08); }
+.bb-btn:active { transform: scale(.97); }
+.bb-btn span { color: #3d8be0; font-weight: 500; }
+.bb-btn.snow { border-color: rgba(68,84,106,.2); background: linear-gradient(135deg, #f6f8fb, #e5eaf1); color: #3b4a60; box-shadow: 0 1px 2px rgba(59,74,96,.08); }
+.bb-btn.snow span { color: #75849a; }
+.bb-btn.snow:hover, .bb-btn.snow[aria-expanded="true"] { box-shadow: 0 0 0 3px rgba(68,84,106,.12), 0 1px 2px rgba(59,74,96,.08); }
+.bb-btn.powder { border-color: rgba(191,135,0,.3); background: linear-gradient(135deg, #fff9ea, #fbe3a6); color: #8a5a00; box-shadow: 0 1px 2px rgba(138,90,0,.1); }
+.bb-btn.powder span { color: #b8862a; }
+.bb-btn.powder:hover, .bb-btn.powder[aria-expanded="true"] { box-shadow: 0 0 0 3px rgba(191,135,0,.14), 0 1px 2px rgba(138,90,0,.1); }
+.bb-btn svg { width: 16px; height: 16px; flex: 0 0 auto; overflow: visible; }
+.bb-btn .spin { transform-origin: 12px 12px; animation: bb-spin 14s linear infinite; }
+.bb-btn.powder .spin { transform-origin: 10px 11px; animation-duration: 20s; }
+.bb-btn.snow .spin { animation: none; }
+.bb-btn::after { content: ""; position: absolute; inset: 0; transform: translateX(-120%);
+  background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.75) 50%, transparent 70%); animation: bb-shine 1.4s .6s var(--ease) 1 forwards; }
+@keyframes bb-spin { to { transform: rotate(360deg); } }
+@keyframes bb-shine { to { transform: translateX(120%); } }
+@media (prefers-reduced-motion: reduce) { .bb-btn .spin, .bb-btn::after { animation: none; } }
+.bb-pop { position: absolute; top: calc(100% + 8px); right: 0; width: 340px; max-width: calc(100vw - 32px); padding: 16px 16px 12px;
+  font-size: 13px; line-height: 1.5; color: #3a3a3c; background: rgba(255,255,255,.94); -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px); border: .5px solid rgba(0,0,0,.1); border-radius: 18px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.12), 0 1px 3px rgba(0,0,0,.08); }
+.bb-pop[hidden] { display: none; }
+.bb-pop .eyebrow { display: flex; align-items: center; gap: 5px; margin: 0; font-size: 10.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: #8e8e93; }
+.bb-pop h3 { margin: 4px 0 0; font-size: 17px; font-weight: 600; letter-spacing: -.02em; color: #1d1d1f; }
+.bb-pop p:not(.eyebrow) { margin: 4px 0 12px; color: #6e6e73; text-wrap: pretty; }
+.bb-days { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.bb-days li { background: #f5f5f7; border-radius: 14px; padding: 9px 12px 10px; min-width: 0; }
+.bb-days li:only-child { grid-column: 1 / -1; }
+.bb-days .d { font-size: 10.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: #8e8e93; }
+.bb-days b { display: block; margin-top: 2px; font-size: 20px; font-weight: 600; letter-spacing: -.015em; color: #1d1d1f; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.bb-days b span { font-size: 12px; font-weight: 500; color: #6e6e73; letter-spacing: 0; }
+.bb-days .v { display: block; margin-top: 2px; font-size: 12px; color: #6e6e73; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bb-days .pw { display: flex; align-items: center; gap: 5px; margin-top: 3px; font-size: 12px; color: #0a5cc2; font-weight: 500; }
+.bb-days .pw i { width: 7px; height: 7px; border-radius: 50%; background: #0a84ff; flex: 0 0 auto; }
+
+.bb-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; padding-top: 10px;
+  border-top: 1px solid #eeeef1; font-size: 11px; line-height: 1.45; color: #86868b; }
+.bb-foot button { flex: 0 0 auto; min-height: 30px; padding: 0; border: 0; background: none; color: var(--accent); font: inherit; font-size: 12px; font-weight: 500; cursor: pointer; }
+.bb-foot button:hover { text-decoration: underline; }
+@media (max-width: 860px) {
+  .bb { position: relative; top: auto; right: auto; order: -1; width: 100%; max-width: none; margin-bottom: -4px; }
+  .bb-row { justify-content: flex-start; }
+  .hero h1 { padding-right: 0; }
+  .bb-pop { left: 0; right: auto; }
+}
 .stats { width: 100%; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--card-gap); }
 @media (max-width: 1020px) { .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .st { background: #f5f5f7; border-radius: 16px; padding: 11px 16px 12px; min-width: 0; display: flex; flex-direction: column; }
 .st .lb { display: flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
   color: #8e8e93; white-space: nowrap; }
+/* popisek s ikonou: řádek oříznutý na výšku verzálek, aby střed písmen seděl přesně na střed ikony */
+.st .lb svg, .bb-pop .eyebrow svg { display: block; flex: 0 0 auto; }
+.st .lb span, .bb-pop .eyebrow span { text-box: trim-both cap alphabetic; }
 .st b { display: flex; align-items: center; gap: 5px; margin-top: 4px; font-size: 22px; font-weight: 600; letter-spacing: -.015em;
   font-variant-numeric: tabular-nums; white-space: nowrap; line-height: 1.15; }
 .st b span { font-size: 13px; font-weight: 500; color: #6e6e73; letter-spacing: 0; }
@@ -745,6 +803,7 @@ h1, h2 { text-wrap: balance; }
         <h1 id="title">Meteogram</h1>
         <div class="sub" id="sub"></div>
       </div>
+      <div class="bb" id="bb" hidden></div>
       <div class="daylight" id="daylight" role="group" aria-label="Dnešní východ a západ slunce"></div>
       <div class="stats" id="stats"></div>
     </div>
@@ -1177,6 +1236,7 @@ const ICONS = {
   range: '<path d="M12 3v18M8 7l4-4 4 4M8 17l4 4 4-4"/>',
   gust: '<path d="M3 7h9a3 3 0 1 0-3-3M3 12h13M3 17h9a3 3 0 1 1-3 3"/>',
   drop: '<path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/>',
+  flake: '<path d="M12 2v20M3.3 7l17.4 10M3.3 17l17.4-10M9 3l3 3 3-3M9 21l3-3 3 3"/>',
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
 };
 const ICON = k => `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[k]}</svg>`;
@@ -1197,6 +1257,169 @@ const gust = g => g < 8 ? ["slabé", "#30d158"] : g < 14 ? ["mírné", "#ffd60a"
 // index hodiny, která odpovídá „teď“
 const nowIndex = times => Math.max(0, Math.min(times.length - 1, Math.round((Date.now() - times[0]) / 36e5)));
 const WIND_NAMES = { S: "severní", SV: "severovýchodní", V: "východní", JV: "jihovýchodní", J: "jižní", JZ: "jihozápadní", Z: "západní", SZ: "severozápadní" };
+
+// Bluebird: den s modrou oblohou od rána do večera. Posuzujeme jen hodiny mezi východem a západem slunce:
+// průměrná celková oblačnost do 20 %, nízká oblačnost (mlha) přes 20 % nejvýš jednu hodinu, slunce aspoň 60 % možného času a bez srážek.
+const BB_PREP = ["v neděli", "v pondělí", "v úterý", "ve středu", "ve čtvrtek", "v pátek", "v sobotu"];
+function bluebirdDays(m, T, times) {
+  const now = nowIndex(times), groups = new Map();
+  times.forEach((t, i) => {
+    if (i < now || isNight(t, m.lat, m.lon)) return;
+    const l = local(t), key = `${l.day}.${l.month}`;
+    if (!groups.has(key)) groups.set(key, { l, idx: [] });
+    groups.get(key).idx.push(i);
+  });
+  const todayKey = (l => `${l.day}.${l.month}`)(local(new Date()));
+
+  const out = [];
+  for (const [key, { l, idx }] of groups) {
+    if (idx.length < (key === todayKey ? 3 : 4)) continue;
+    // den useknutý koncem předpovědi (chybí odpoledne) nehodnotíme
+    const last = idx[idx.length - 1];
+    if (last === times.length - 1 && !isNight(new Date(+times[last] + 36e5), m.lat, m.lon)) continue;
+    const pick = a => idx.map(i => a[i]);
+    const clt = pick(m.clt), meanClt = sum(clt) / clt.length;
+    const sunMin = sum(pick(m.sun));
+    // jedna zamračená hodina (typicky mlha těsně před západem) den nezkazí
+    const over = (a, lim) => a.filter(v => v > lim).length;
+    if (meanClt > 20 || over(clt, 50) > 1 || over(pick(m.cll), 20) > 1) continue;
+    if (sum(pick(m.prec)) >= 0.2 || sunMin < idx.length * 60 * 0.6) continue;
+    const first = idx[0], snowBefore = sum(m.snow.slice(Math.max(0, first - 36), first));
+    const t = pick(T);
+    out.push({ key, i0: first, i1: idx[idx.length - 1], name: `${l.wd} ${l.day}. ${l.month}.`,
+      when: whenLabel(times[first]),
+      sun: sunMin / 60, cloud: meanClt, tMin: Math.min(...t), tMax: Math.max(...t), powder: snowBefore >= 3 ? snowBefore : 0 });
+  }
+  return out;
+}
+// den v ČR → „dnes / zítra / pozítří / v pátek“
+const ymdFmt = new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" });
+function whenLabel(t) {
+  const dayUTC = Date.parse(ymdFmt.format(t)), diff = Math.round((dayUTC - Date.parse(ymdFmt.format(new Date()))) / 864e5);
+  return diff <= 0 ? "dnes" : diff === 1 ? "zítra" : diff === 2 ? "pozítří" : BB_PREP[new Date(dayUTC).getUTCDay()];
+}
+// Sněžení po dnech (od teď): součet nového sněhu (1 mm vody ≈ 1 cm), hodiny, kdy sněží.
+function snowDays(m, times) {
+  const now = nowIndex(times), days = new Map();
+  for (let i = now; i < times.length; i++) {
+    const l = local(times[i]), key = `${l.day}.${l.month}`;
+    if (!days.has(key)) days.set(key, { key, name: `${l.wd} ${l.day}. ${l.month}.`, when: whenLabel(times[i]), cm: 0, idx: [] });
+    const d = days.get(key);
+    d.cm += m.snow[i];
+    if (m.snow[i] >= 0.1) d.idx.push(i);
+  }
+  return [...days.values()].filter(d => d.idx.length).map(d => ({ ...d, i0: d.idx[0], i1: d.idx[d.idx.length - 1],
+    from: local(times[d.idx[0]]).hour, to: (local(times[d.idx[d.idx.length - 1]]).hour + 1) % 24 }));
+}
+// Poslední ruční měření výšky sněhu ČHMÚ na stanici (nejvýš 4 dny staré).
+function snowBase(id) {
+  const st = state.snowObs && state.snowObs.stations && state.snowObs.stations.find(x => x.id === id);
+  if (!st || st.depth == null || !st.observed_at || Date.now() - Date.parse(st.observed_at) > 4 * 864e5) return null;
+  return { depth: st.depth, change: st.change || 0, at: new Date(st.observed_at) };
+}
+function loadSnowObs() {
+  if (state.snowObsP) return state.snowObsP;
+  return state.snowObsP = readJSON("/data/snow.json").then(d => { state.snowObs = d; if (state.m && viewOf() === "mg") render(); }).catch(() => {});
+}
+// Ukázkový režim jen pro lokální vývoj: /praded/?demo=snih, ?demo=powder nebo ?demo=vse přidá do předpovědi sněžení.
+const DEMO = ["localhost", "127.0.0.1"].includes(location.hostname) ? new URLSearchParams(location.search).get("demo") : null;
+function demoSnow(m) {
+  if (!["snih", "powder", "vse"].includes(DEMO)) return m;
+  const times = m.times.map(t => new Date(t)), now = nowIndex(times), d = { ...m };
+  for (const k of ["snow", "prec", "clt", "cll", "sun"]) d[k] = m[k].slice();
+  // nasype `cm` sněhu v daný den mezi hodinami od–do, nejvíc uprostřed
+  const fall = (when, cm, from, to) => {
+    const hrs = times.map((t, i) => i).filter(i => i > now && whenLabel(times[i]) === when && local(times[i]).hour >= from && local(times[i]).hour < to);
+    const w = hrs.map((_, k) => Math.sin(Math.PI * (k + .5) / hrs.length)), ws = sum(w);
+    hrs.forEach((i, k) => { const v = cm * w[k] / ws; d.snow[i] = v; d.prec[i] = v * 1.05; d.clt[i] = 100; d.cll[i] = 90; d.sun[i] = 0; });
+  };
+  if (DEMO === "snih") fall("pozítří", 6, 5, 17);
+  if (DEMO === "powder" || DEMO === "vse") { fall("pozítří", 22, 5, 17); d.demoBase = { depth: 75, change: 0, at: new Date(Date.now() - 864e5) }; }
+  // vše: k tomu slabší sněžení poslední den předpovědi
+  if (DEMO === "vse") fall(whenLabel(times[times.length - 1]), 5, 0, 12);
+  return d;
+}
+const BADGE_ICON = {
+  sun: `<circle cx="12" cy="12" r="4.2" fill="#ffcc00" stroke="#f5a400" stroke-width="1.4"/>` +
+    `<g class="spin" stroke="#f5a400" stroke-width="1.8"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g>`,
+  flake: `<g class="spin" stroke="currentColor" stroke-width="1.8"><path d="M12 2.5v19M3.8 7.25l16.4 9.5M3.8 16.75l16.4-9.5M9.5 3.8 12 6.3l2.5-2.5M9.5 20.2 12 17.7l2.5 2.5"/></g>`,
+  powder: `<g class="spin" stroke="currentColor" stroke-width="1.8"><path d="M10 3.5v15M3.5 7.25l13 7.5M3.5 14.75l13-7.5M7.8 4.6 10 6.6l2.2-2"/></g>` +
+    `<path d="M19 15.5v5M16.5 18h5" stroke="currentColor" stroke-width="1.6"/><path d="M19.5 3.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" fill="currentColor" stroke="none"/>`,
+};
+const badgeSvg = k => `<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${BADGE_ICON[k]}</svg>`;
+
+// Štítky vpravo nahoře: powder alert, bude sypat, bluebird. Každý má vlastní vysvětlivku, otevřená je vždy jen jedna.
+function conditions(m, T, times) {
+  const bb = bluebirdDays(m, T, times), sd = snowDays(m, times);
+  const base = m.demoBase || snowBase(m.id);
+  const out = [];
+  // Powder alert jen tam, kde podle měření ČHMÚ leží aspoň 75 cm, a k tomu aspoň 10 cm nového sněhu za den.
+  const POWDER_BASE = 75;
+  const powder = base && base.depth >= POWDER_BASE ? sd.filter(d => d.cm >= 10) : [];
+  const fresh = base && base.depth >= POWDER_BASE && base.change >= 10 && Date.now() - base.at < 30 * 36e5;
+  if (powder.length || fresh) {
+    const tiles = powder.map(d => ({ d: d.name, v: `≈ ${Math.round(d.cm)}`, u: "cm nového", x: `sněží ${d.from}–${d.to} h` }));
+    if (fresh) tiles.unshift({ d: "Napadlo", v: `+${Math.round(base.change)}`, u: "cm za den", x: "podle měření ČHMÚ" });
+    out.push({ id: "powder", cls: "powder", icon: "powder", name: "Powder alert", when: fresh ? "dnes" : powder[0].when, at: fresh ? -1 : powder[0].i0, tiles,
+      eyebrow: "Powder alert", title: "Čerstvý prašan na dobrém základu",
+      text: `Na stanici už leží dost sněhu na lyžování${base ? ` – ${Math.round(base.depth)} cm podle měření ČHMÚ` : ""} a ${fresh ? "přes noc výrazně připadlo" : "má výrazně připadnout"}.`,
+      foot: base ? `Základ: měření ČHMÚ ${base.at.getDate()}. ${base.at.getMonth() + 1}. · nový sníh: model ALADIN` : "Nový sníh podle modelu ALADIN",
+      bands: powder, band: "❄ powder", target: "snow", link: "V grafu srážek ↓" });
+  }
+  const snow = sd.filter(d => d.cm >= 2 && !powder.includes(d));
+  if (snow.length) out.push({ id: "snow", cls: "snow", icon: "flake", name: "Bude sypat", when: snow[0].when, at: snow[0].i0,
+    tiles: snow.map(d => ({ d: d.name, v: `≈ ${Math.round(d.cm)}`, u: "cm sněhu", x: `sněží ${d.from}–${d.to} h` })),
+    eyebrow: "Bude sypat", title: "Na horách přibude sníh",
+    text: "Model počítá se sněžením, které stojí za zmínku – aspoň 2 cm nového sněhu za den. 1 mm srážek ve formě sněhu odpovídá zhruba 1 cm prašanu.",
+    foot: "Model ALADIN pro tuto stanici", bands: snow, band: "❄ sněží", target: "snow", link: "V grafu srážek ↓" });
+  if (bb.length) out.push({ id: "bluebird", cls: "", icon: "sun", name: "Bluebird", when: bb[0].when, at: bb[0].i0,
+    tiles: bb.map(d => ({ d: d.name, v: fmtNum(d.sun), u: "h slunce", x: `oblačnost ${Math.round(d.cloud)} % · ${deg(d.tMin)} / ${deg(d.tMax)}`,
+      pw: d.powder ? `po sněžení ≈ ${Math.round(d.powder)} cm` : "" })),
+    eyebrow: "Bluebird den", title: "Modrá obloha od rána do večera",
+    text: "Lyžařský výraz pro den, kdy je od východu do západu slunce jasno a hory září do dálky. Nejcennější je hned po sněžení – čerstvý prašan a slunce.",
+    foot: "Model ALADIN, hodiny mezi východem a západem slunce", bands: bb, band: null, target: "cloud", link: "V grafu oblačnosti ↓" });
+  // chronologicky: co přijde dřív, je vlevo
+  return out.sort((a, b) => a.at - b.at);
+}
+
+function badges(list) {
+  const el = $("bb");
+  if (!list.length) { el.hidden = true; el.innerHTML = ""; el.parentElement.style.removeProperty("--bbw"); return; }
+  el.hidden = false;
+  el.innerHTML = `<div class="bb-row">${list.map(b => {
+    const more = b.tiles.length > 1 ? ` <span>+${b.tiles.length - 1}</span>` : "";
+    return `<button type="button" class="bb-btn ${b.cls}" data-k="${b.id}" aria-expanded="false" aria-controls="bb-pop-${b.id}">` +
+      `${badgeSvg(b.icon)}${b.name} <span>${b.when}</span>${more}</button>`;
+  }).join("")}</div>` + list.map(b =>
+    `<div class="bb-pop ${b.cls}" id="bb-pop-${b.id}" role="dialog" aria-label="${b.name}" hidden>` +
+    `<p class="eyebrow">${ICON(b.icon === "sun" ? "sun" : "flake")}<span>${b.eyebrow}</span></p><h3>${b.title}</h3><p>${b.text}</p>` +
+    `<ul class="bb-days">${b.tiles.map(t => `<li><span class="d">${t.d}</span><b>${t.v} <span>${t.u}</span></b><span class="v">${t.x}</span>` +
+      (t.pw ? `<span class="pw"><i></i>${t.pw}</span>` : "") + `</li>`).join("")}</ul>` +
+    `<div class="bb-foot"><span>${b.foot}</span><button type="button" class="bb-show" data-target="${b.target}">${b.link}</button></div></div>`).join("");
+  const close = () => el.querySelectorAll(".bb-btn").forEach(btn => {
+    btn.setAttribute("aria-expanded", "false"); $(btn.getAttribute("aria-controls")).hidden = true; });
+  el.querySelectorAll(".bb-btn").forEach(btn => btn.addEventListener("click", e => {
+    e.stopPropagation();
+    const open = btn.getAttribute("aria-expanded") !== "true";
+    close();
+    if (open) { btn.setAttribute("aria-expanded", "true"); $(btn.getAttribute("aria-controls")).hidden = false; }
+  }));
+  el.querySelectorAll(".bb-pop").forEach(p => p.addEventListener("click", e => e.stopPropagation()));
+  el.querySelectorAll(".bb-show").forEach(b => b.addEventListener("click", () => {
+    close();
+    const band = document.querySelector(`#chart .band-${b.dataset.target}`);
+    if (band) band.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center", inline: "center" });
+  }));
+  el.closeAll = close;
+  // nadpis stanice nesmí podjet pod štítky
+  requestAnimationFrame(() => el.parentElement.style.setProperty("--bbw", `${el.offsetWidth + 16}px`));
+}
+document.addEventListener("click", () => { const el = $("bb"); if (el && el.closeAll) el.closeAll(); });
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  const open = document.querySelector('#bb .bb-btn[aria-expanded="true"]');
+  if (open) { $("bb").closeAll(); open.focus(); }
+});
 
 function header(m, T, times) {
   const d = state.data;
@@ -1239,7 +1462,7 @@ function header(m, T, times) {
   // stejná šipka jako v grafu větru: míří ve směru proudění
   const arrow = `<svg width="18" height="18" viewBox="-8 -8 16 16" aria-hidden="true"><g transform="rotate(${Math.round(wd + 90)})">${ARROW("#0a84ff")}</g></svg>`;
   const [gTxt, gCol] = gust(gmax);
-  const tile = (cls, icon, label, val, sub) => `<div class="st ${cls}"><div class="lb">${ICON(icon)}${label}</div><b>${val}</b>${sub}</div>`;
+  const tile = (cls, icon, label, val, sub) => `<div class="st ${cls}"><div class="lb">${ICON(icon)}<span>${label}</span></div><b>${val}</b>${sub}</div>`;
   const sx = t => `<div class="sx">${t}</div>`;
   $("stats").style.setProperty("--temp", temperatureColor(nowT));
   $("stats").innerHTML =
@@ -1274,6 +1497,8 @@ function render() {
   const T = state.corr ? m.t.map(v => v - 0.0065 * dz) : m.t;
 
   header(m, T, times);
+  const conds = conditions(m, T, times);
+  badges(conds);
 
   // rozměry
   const box = $("chart");
@@ -1395,6 +1620,11 @@ function render() {
   legend(pP, "Srážky", [["bar", C.prec, "celkem [mm/h]"], ["bar", C.snow, "z toho sníh"], ["line", C.rh, "rel. vlhkost [%]"]]);
   Y = frame(pP, 0, pTop, pstep, "[mm/h]", { lo: 0, hi: 100, step: 20, c: C.rh, title: "[%]" });
   const Yrh = v => pP.top + pP.h - v / 100 * pP.h;
+  for (const c of conds) if (c.target === "snow") for (const d of c.bands) {
+    const x0 = x(d.i0) - bw / 2, x1 = x(d.i1) + bw / 2, col = c.id === "powder" ? "#a06c00" : "#5a6b85";
+    s += `<rect class="band-snow" x="${x0.toFixed(1)}" y="${pP.top}" width="${(x1 - x0).toFixed(1)}" height="${pP.h}" fill="${col}" opacity=".07"/>`;
+    s += text((x0 + x1) / 2, pP.top + 13, c.band, { c: col });
+  }
   s += line(m.rh, Yrh, C.rh);
   for (let i = 0; i < n; i++) {
     if (m.prec[i] < 0.05) continue;
@@ -1415,6 +1645,11 @@ function render() {
   // 5 oblačnost
   legend(pC, "Oblačnost", [["area", C.clt, "celková"], ["area", C.cll, "nízká"], ["line", C.clm, "střední"], ["line", C.clh, "vysoká [%]"]]);
   Y = frame(pC, 0, 100, 20, "[%]");
+  for (const c of conds) if (c.target === "cloud") for (const d of c.bands) {
+    const x0 = x(d.i0) - bw / 2, x1 = x(d.i1) + bw / 2;
+    s += `<rect class="band-cloud" x="${x0.toFixed(1)}" y="${pC.top}" width="${(x1 - x0).toFixed(1)}" height="${pC.h}" fill="#0a84ff" opacity=".07"/>`;
+    s += text((x0 + x1) / 2, pC.top + 13, d.powder ? "❄ bluebird" : "☀ bluebird", { c: "#0a5cc2" });
+  }
   const area = (arr, col) => `<path d="M${x(0)} ${Y(0)}${arr.map((v, i) => `L${x(i).toFixed(1)} ${Y(v).toFixed(1)}`).join("")}L${x(n - 1)} ${Y(0)}Z" fill="${col}"/>`;
   s += area(m.clt, C.clt);
   s += area(m.cll, C.cll);
@@ -1684,7 +1919,7 @@ async function home() {
   } else $("hcard").innerHTML = "";
 
   // „nej“ dlaždice
-  const tile = (r, icon, label, val, note) => `<a class="st" href="/${r.p.id}/"><div class="lb">${ICON(icon)}${label}</div><b>${val}</b>` +
+  const tile = (r, icon, label, val, note) => `<a class="st" href="/${r.p.id}/"><div class="lb">${ICON(icon)}<span>${label}</span></div><b>${val}</b>` +
     `<div class="sx">${note ? note + " · " : ""}<em>${r.p.name}</em></div></a>`;
   const cold = best(r => -r.now), windy = best(r => r.gmax), snowy = best(r => r.sn), wet = best(r => r.pr), sunny = best(r => r.sun);
   $("hl").innerHTML =
@@ -1963,7 +2198,8 @@ async function show(id) {
   if (state.counted !== meta.id) { countVisit(meta.id); state.counted = meta.id; }
   state.id = meta.id;
   try { localStorage.setItem("last", meta.id); } catch (e) {}
-  state.m = { ...meta, ...state.cache[key] };
+  state.m = demoSnow({ ...meta, ...state.cache[key] });
+  loadSnowObs();
   state.open.add(meta.range);
   render();
   $("sinfo").innerHTML = stationInfo(state.m);
