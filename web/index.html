@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Meteogramy.cz – meteogramy ALADIN pro české hory</title>
 <meta name="description" content="Meteogramy ALADIN pro 109 horských stanic ČHMÚ: teplota, vítr a nárazy, srážky, sníh, tlak a oblačnost po hodinách na 3 dny. Klasický meteogram v podobě, na kterou jste zvyklí.">
 <link rel="icon" href="/favicon.ico?v=4" sizes="48x48">
@@ -66,13 +66,15 @@
   color-scheme: light;
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; background: var(--bg); color: var(--ink);
+html, body { margin: 0; background: var(--browser-chrome, var(--bg)); color: var(--ink);
   font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 button, select { font: inherit; }
 button, a, input, select { -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+/* Cíl fokusu po změně stránky není interaktivní ovládací prvek. */
+.main h1[tabindex="-1"]:focus { outline: none; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-.app { display: grid; grid-template-columns: 264px minmax(0, 1fr); min-height: 100vh; }
+.app { display: grid; grid-template-columns: 264px minmax(0, 1fr); min-height: 100vh; background: var(--bg); }
 .side { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; background: #f3f4f7; border-right: 1px solid #e2e4e9;
   padding: 18px 0 12px; display: flex; flex-direction: column; }
 /* hlavička (logo, hledání) a patička (běh modelu) stojí, posouvá se jen seznam */
@@ -219,6 +221,7 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .tgl input:checked + i { background: #34c759; }
 .tgl input:checked + i::after { left: 17px; }
 
+.chart-frame { position: relative; }
 #chart { position: relative; padding: 18px 16px 10px; }
 #chart svg { display: block; width: 100%; height: auto; font-variant-numeric: tabular-nums; }
 /* vysvětlivky ⓘ u grafů */
@@ -494,13 +497,20 @@ h1, h2 { text-wrap: balance; }
 .menu-dialog:not([open]) { display: none; }
 @media (max-width: 1100px) {
   :root { --page-gutter: 20px; --page-inset-left: max(var(--page-gutter), env(safe-area-inset-left)); --page-inset-right: max(var(--page-gutter), env(safe-area-inset-right)); }
-  html { scroll-padding-top: calc(86px + env(safe-area-inset-top)); }
+  /* #f8f8fa ztmavená stejným 30% překryvem jako pozadí dialogu. */
+  :root.menu-open { --browser-chrome: #b4b7bf; overflow: hidden; overscroll-behavior: none; }
+  .main [id] { scroll-margin-top: calc(var(--mobile-header-height, 76px + env(safe-area-inset-top)) + 12px); }
   .app { display: block; }
   .app > .side { display: none; }
-  .main { padding: 0 var(--page-inset-right) calc(28px + env(safe-area-inset-bottom)) var(--page-inset-left); }
+  .main { padding: 12px var(--page-inset-right) calc(28px + env(safe-area-inset-bottom)) var(--page-inset-left); }
+  .foot { display: flex; flex-direction: column; align-items: center; gap: 4px; text-wrap: balance; }
+  .foot-sep { display: none; }
   .mbar { position: sticky; top: 0; z-index: 35; display: flex; align-items: center; justify-content: space-between; gap: 16px;
-    min-height: calc(76px + env(safe-area-inset-top)); margin: 0 calc(-1 * var(--page-inset-right)) 12px calc(-1 * var(--page-inset-left)); padding: calc(12px + env(safe-area-inset-top)) var(--page-inset-right) 12px var(--page-inset-left);
-    background: rgba(248,248,250,.94); border-bottom: 1px solid rgba(30,50,80,.07); }
+    min-height: calc(76px + env(safe-area-inset-top)); margin: 0; padding: calc(12px + env(safe-area-inset-top)) var(--page-inset-right) 12px var(--page-inset-left);
+    isolation: isolate; background: linear-gradient(var(--bg), var(--bg)) top / 100% 2px no-repeat;
+    border-bottom: 1px solid rgba(30,50,80,.07); }
+  /* Blur je na vnitřní vrstvě; vnější okraj zůstává bez filtru pro tónování Safari. */
+  .mbar::before { content: ""; position: absolute; inset: 2px 0 0; z-index: -1; pointer-events: none; background: rgba(248,248,250,.94); }
   .mbar .logo { padding: 0; gap: 10px; }
   .mbar .bn { font-size: 16px; letter-spacing: -.025em; }
   .mbar .tag { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--ink-2); }
@@ -513,12 +523,13 @@ h1, h2 { text-wrap: balance; }
   .menu-dialog[open] { display: flex; flex-direction: column; position: fixed; inset: auto 20px auto auto;
     top: calc(var(--menu-top, 0px) + 20px + env(safe-area-inset-top)); width: 430px; max-width: calc(100% - 40px);
     height: calc(var(--menu-height, 100dvh) - 40px - env(safe-area-inset-top)); max-height: 900px; margin: 0; padding: 0;
-    color: var(--ink); border: 1px solid rgba(255,255,255,.94); border-radius: 28px; background: #f7f8fb;
+    color: var(--ink); border: 0; border-radius: 28px; background: #f7f8fb;
     box-shadow: 0 24px 80px rgba(15,30,55,.22); overflow: hidden; animation: menu-enter .22s var(--ease); }
   .menu-dialog::backdrop { background: rgba(20,32,53,.30); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
   @keyframes menu-enter { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
   .menu-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px 12px; flex: 0 0 auto; }
   .menu-head h2 { margin: 0; font-size: 24px; letter-spacing: -.035em; line-height: 1.2; }
+  .menu-head h2:focus { outline: none; }
   .menu-close { padding: 0; color: #677384; border-radius: 50%; background: #e9edf3; box-shadow: none; border: 0; }
   .menu-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 4px; margin: 0 20px 6px; flex: 0 0 auto;
     border-radius: 14px; background: #e9edf3; }
@@ -534,7 +545,11 @@ h1, h2 { text-wrap: balance; }
   .menu-dialog .search > svg { top: 17px; left: 15px; }
   .menu-dialog .search kbd { display: none; }
   .menu-dialog .search-clear { right: 2px; top: 2px; width: 44px; height: 44px; }
-  .menu-dialog .side > .picker { padding: 0 16px 12px; }
+  .menu-dialog .side > .picker { padding: 0 16px 12px; box-shadow: none; --picker-fade-top: 0px; --picker-fade-bottom: 0px;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--picker-fade-top), #000 calc(100% - var(--picker-fade-bottom)), transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 var(--picker-fade-top), #000 calc(100% - var(--picker-fade-bottom)), transparent); }
+  .menu-dialog .picker.sh-top { --picker-fade-top: 24px; }
+  .menu-dialog .picker.sh-bot { --picker-fade-bottom: 24px; }
   .menu-dialog .gh { min-height: 48px; padding: 8px 12px; font-size: 15px; border-radius: 13px; }
   .menu-dialog .pk { min-height: 52px; gap: 10px; padding: 10px 12px 10px 30px; border-radius: 13px; font-size: 15px; }
   .menu-dialog .pk .nm { white-space: normal; overflow: visible; mask-image: none; -webkit-mask-image: none; }
@@ -560,7 +575,7 @@ h1, h2 { text-wrap: balance; }
   .menu-dialog[data-mode="model"] .dd-list li[aria-selected="true"] { background: var(--accent-bg); }
   .menu-dialog[data-mode="model"] .rl::after { content: " · čas spuštění výpočtu"; text-transform: none; letter-spacing: normal; font-weight: 400; }
   .menu-dialog.keyboard-open .side { display: block; overflow-y: auto; overscroll-behavior: contain; }
-  .menu-dialog.keyboard-open .side > .picker { overflow: visible; }
+  .menu-dialog.keyboard-open .side > .picker { overflow: visible; -webkit-mask-image: none; mask-image: none; }
   .tgl { min-height: 44px; }
   .ck { z-index: 60; left: var(--page-inset-left); right: var(--page-inset-right); width: auto; max-width: none;
     /* Kompaktní stín zůstává uvnitř okna i nad spodním toolbarem Safari. */
@@ -571,7 +586,7 @@ h1, h2 { text-wrap: balance; }
   .ck-f button, .ck-f a { display: inline-flex; align-items: center; min-height: 44px; }
   .ck-x { min-width: 44px; min-height: 44px; }
   @supports (backdrop-filter: blur(20px)) or (-webkit-backdrop-filter: blur(20px)) {
-    .mbar { background: rgba(248,248,250,.82); -webkit-backdrop-filter: saturate(160%) blur(22px); backdrop-filter: saturate(160%) blur(22px); }
+    .mbar::before { background: rgba(248,248,250,.82); -webkit-backdrop-filter: saturate(160%) blur(22px); backdrop-filter: saturate(160%) blur(22px); }
   }
 }
 @media (max-width: 600px) {
@@ -594,6 +609,12 @@ h1, h2 { text-wrap: balance; }
   .chart-help { display: flex; gap: 7px; align-items: center; margin: 0; padding: 12px 16px 0; color: #748091; font-size: 11px; }
   #chart { overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
   #chart > svg { width: 720px; min-width: 720px; max-width: none; }
+  .chart-frame::before, .chart-frame::after { content: ""; position: absolute; z-index: 2; top: 0; bottom: 0; width: 20px;
+    pointer-events: none; opacity: 0; background: rgba(255,255,255,.9);
+    -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
+  .chart-frame::before { left: 0; -webkit-mask-image: linear-gradient(to right, #000, transparent); mask-image: linear-gradient(to right, #000, transparent); }
+  .chart-frame::after { right: 0; -webkit-mask-image: linear-gradient(to left, #000, transparent); mask-image: linear-gradient(to left, #000, transparent); }
+  .chart-frame.can-scroll-left::before, .chart-frame.can-scroll-right::after { opacity: 1; }
   #tip { min-width: 0; width: 226px; max-width: calc(100vw - 24px); }
   .days { font-size: 11.5px; }
   .days th, .days td { padding-left: 4px; padding-right: 4px; }
@@ -605,7 +626,7 @@ h1, h2 { text-wrap: balance; }
 @media (prefers-reduced-motion: reduce) { .menu-dialog[open] { animation: none; } }
 @media (max-width: 1100px) and (max-height: 560px) {
   .menu-dialog .side { display: block; overflow-y: auto; overscroll-behavior: contain; }
-  .menu-dialog .side > .picker { overflow: visible; }
+  .menu-dialog .side > .picker { overflow: visible; -webkit-mask-image: none; mask-image: none; }
 }
 @media (max-width: 1100px) and (pointer: coarse) {
   .gh, .pk, .dd-btn, .dd-list li { min-height: 48px; }
@@ -631,6 +652,15 @@ h1, h2 { text-wrap: balance; }
 <link rel="stylesheet" href="/assets/snow.css">
 </head>
 <body>
+  <header class="mbar">
+    <a class="logo" href="/" aria-label="Meteogramy.cz – úvodní stránka">
+      <span class="gl appicon"><img src="/assets/logo.png?v=4" width="30" height="30" alt="" aria-hidden="true"></span>
+      <div><div class="bn">Meteogramy.cz</div><div class="tag" id="mobile-context">horské meteogramy</div></div>
+    </a>
+    <button class="mobile-search" type="button" data-menu="stations" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>Hledat
+    </button>
+  </header>
 <div class="app">
   <aside class="side" id="site-nav" aria-label="Stanice a nastavení předpovědi">
     <a class="logo" href="/" aria-label="Meteogramy.cz – úvodní stránka">
@@ -667,15 +697,6 @@ h1, h2 { text-wrap: balance; }
   </aside>
 
   <main class="main">
-  <header class="mbar">
-    <a class="logo" href="/" aria-label="Meteogramy.cz – úvodní stránka">
-      <span class="gl appicon"><img src="/assets/logo.png?v=4" width="30" height="30" alt="" aria-hidden="true"></span>
-      <div><div class="bn">Meteogramy.cz</div><div class="tag" id="mobile-context">horské meteogramy</div></div>
-    </a>
-    <button class="mobile-search" type="button" data-menu="search" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>Hledat
-    </button>
-  </header>
 
   <section class="home" id="home">
     <div class="hhero">
@@ -723,7 +744,7 @@ h1, h2 { text-wrap: balance; }
       <label class="tgl"><input type="checkbox" id="corr"><i></i>Teplota přepočtená na výšku stanice</label>
     </div>
     <p class="chart-help" id="chart-help"><span aria-hidden="true">↔</span> Posuňte graf do stran. Klepnutím zobrazíte hodinové údaje.</p>
-    <div id="chart" aria-describedby="chart-help"><div class="msg">Načítám data…</div><div id="tip"></div><div id="info" role="tooltip"></div></div>
+    <div class="chart-frame" id="chart-frame"><div id="chart" aria-describedby="chart-help"><div class="msg">Načítám data…</div><div id="tip"></div><div id="info" role="tooltip"></div></div></div>
   </div>
   <section class="sinfo" id="sinfo" hidden></section>
   <section class="snow-page" id="snow" hidden>
@@ -855,12 +876,12 @@ h1, h2 { text-wrap: balance; }
     </section>
     <p class="note">Platné od 3. listopadu 2026.</p>
   </article>
-  <div class="foot">Data: ČHMÚ – otevřená data, model ALADIN CZ · <a href="https://opendata.chmi.cz/meteorology/weather/nwp_aladin/" target="_blank" rel="noopener">opendata.chmi.cz</a> · Meteogramy.cz nejsou oficiální službou ČHMÚ</div>
+  <div class="foot"><span>Data: ČHMÚ – otevřená data, model ALADIN CZ</span><span class="foot-sep"> · </span><a href="https://opendata.chmi.cz/meteorology/weather/nwp_aladin/" target="_blank" rel="noopener">opendata.chmi.cz</a><span class="foot-sep"> · </span><span>Meteogramy.cz nejsou oficiální službou ČHMÚ</span></div>
   </main>
 </div>
 
 <dialog class="menu-dialog" id="mobile-menu" aria-labelledby="menu-title" data-mode="stations">
-  <div class="menu-head"><h2 id="menu-title">Vybrat stanici</h2><button class="menu-close" id="menu-close" type="button" aria-label="Zavřít menu" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>
+  <div class="menu-head"><h2 id="menu-title" tabindex="-1" autofocus>Vybrat stanici</h2><button class="menu-close" id="menu-close" type="button" aria-label="Zavřít menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>
   <div class="menu-tabs" role="group" aria-label="Obsah menu"><button type="button" data-menu="stations" aria-pressed="true">Stanice</button><button type="button" data-menu="model" aria-pressed="false">Běh modelu</button><button type="button" data-menu="other" aria-pressed="false">Ostatní</button></div>
   <div class="menu-content" id="menu-content"></div>
 </dialog>
@@ -883,14 +904,41 @@ h1, h2 { text-wrap: balance; }
 const TZ = "Europe/Prague";
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const $ = id => document.getElementById(id);
+// Diagnostika se načítá výhradně na vyžádaném odkazu, běžné návštěvy neovlivňuje.
+if (new URLSearchParams(location.search).get("layout-debug") === "1") {
+  const debugScript = document.createElement("script");
+  debugScript.src = "/assets/layout-debug.js";
+  document.head.appendChild(debugScript);
+}
+// Odsazení kotev odpovídá skutečné výšce hlavičky i při zvětšení textu.
+new ResizeObserver(([entry]) => {
+  const height = entry.target.getBoundingClientRect().height;
+  if (height > 0) document.documentElement.style.setProperty("--mobile-header-height", `${height}px`);
+}).observe(document.querySelector(".mbar"));
+// Okraje naznačují pouze skutečně skrytou část posuvného grafu.
+function chartEdges() {
+  const chart = $("chart"), frame = $("chart-frame");
+  const overflow = chart.scrollWidth - chart.clientWidth;
+  frame.classList.toggle("can-scroll-left", overflow > 2 && chart.scrollLeft > 2);
+  frame.classList.toggle("can-scroll-right", overflow > 2 && chart.scrollLeft < overflow - 2);
+}
+$("chart").addEventListener("scroll", chartEdges, { passive: true });
+new ResizeObserver(chartEdges).observe($("chart"));
 const state = { run: null, data: null, id: null, m: null, corr: false, cache: {}, sum: {}, open: new Set(), q: "" };
 
 // Nativní dialog drží fokus uvnitř menu. Seznam stanic se přesouvá, nikdy nekopíruje.
 const compactNavigation = matchMedia("(max-width: 1100px)");
+function scrollPageTo(top) { window.scrollTo(0, top); }
 const navigation = $("site-nav"), navigationDialog = $("mobile-menu");
+const browserTheme = document.querySelector('meta[name="theme-color"]');
+const defaultBrowserTheme = browserTheme.content;
+function setMenuChrome(open) {
+  document.documentElement.classList.toggle("menu-open", open);
+  browserTheme.content = open ? css("--browser-chrome") : defaultBrowserTheme;
+}
 const navigationHome = document.createComment("Umístění desktopové navigace");
 navigation.before(navigationHome);
-let menuScroll = 0, menuBodyStyle = null, menuTrigger = null, backdropPointer = false;
+let menuScroll = 0, menuMounted = false, menuTrigger = null, backdropPointer = false;
 function menuViewport() {
   if (!navigationDialog.open) return;
   const viewport = window.visualViewport;
@@ -898,14 +946,26 @@ function menuViewport() {
   navigationDialog.style.setProperty("--menu-top", `${viewport ? viewport.offsetTop : 0}px`);
   navigationDialog.classList.toggle("keyboard-open", !!viewport && viewport.height < document.documentElement.clientHeight * .75);
 }
-window.visualViewport?.addEventListener("resize", menuViewport);
-window.visualViewport?.addEventListener("scroll", menuViewport);
+// Změny visual viewportu řeší pouze otevřený dialog a klávesnici.
+let viewportFrame = 0;
+function syncViewport() {
+  viewportFrame = 0;
+  menuViewport();
+}
+function scheduleViewport() {
+  if (!viewportFrame) viewportFrame = requestAnimationFrame(syncViewport);
+}
+window.visualViewport?.addEventListener("resize", scheduleViewport, { passive: true });
+window.visualViewport?.addEventListener("scroll", scheduleViewport, { passive: true });
+window.addEventListener("resize", scheduleViewport, { passive: true });
+window.addEventListener("pageshow", scheduleViewport);
+syncViewport();
 function restoreNavigation(focus = true) {
-  if (menuBodyStyle === null) return;
+  if (!menuMounted) return;
   navigationHome.after(navigation);
-  document.body.style.cssText = menuBodyStyle;
-  menuBodyStyle = null;
-  window.scrollTo(0, menuScroll);
+  setMenuChrome(false);
+  menuMounted = false;
+  scrollPageTo(menuScroll);
   $("ddlist").hidden = true;
   $("ddbtn").setAttribute("aria-expanded", "false");
   document.querySelectorAll("[data-menu][aria-expanded]").forEach(b => b.setAttribute("aria-expanded", "false"));
@@ -926,12 +986,9 @@ function openNavigation(mode = "stations", trigger = document.activeElement) {
   if (!navigationDialog.open) {
     menuTrigger = trigger;
     menuScroll = window.scrollY;
-    menuBodyStyle = document.body.style.cssText;
+    menuMounted = true;
     $("menu-content").appendChild(navigation);
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${menuScroll}px`;
-    document.body.style.width = "100%";
-    document.body.style.overflow = "hidden";
+    setMenuChrome(true);
     navigationDialog.showModal();
   }
   menuViewport();
@@ -943,7 +1000,7 @@ function openNavigation(mode = "stations", trigger = document.activeElement) {
     $("ddbtn").setAttribute("aria-expanded", "false");
     pickerEdge();
     if (search) $("q").focus({ preventScroll: true });
-    else if (!trigger?.closest(".menu-tabs")) $("menu-close").focus({ preventScroll: true });
+    else if (!trigger?.closest(".menu-tabs")) $("menu-title").focus({ preventScroll: true });
   }
 }
 document.addEventListener("click", e => {
@@ -1368,6 +1425,7 @@ function render() {
   box.appendChild(tip);
   box.appendChild(info);
   info.style.display = "none";
+  chartEdges();
 
   // vysvětlivka ⓘ: na najetí myší, na mobilu klepnutím
   box.querySelectorAll(".ib").forEach(g => {
@@ -1740,7 +1798,7 @@ function route() {
     if (state.m) render();
     return;
   }
-  window.scrollTo(0, 0);
+  scrollPageTo(0);
   if (v === "home" || v === "range") {
     // úvod: postranní seznam sbalený a nahoře; stránka pohoří rozbalí své pohoří
     if (v === "home") { document.title = HOME_TITLE; state.open.clear(); }
@@ -1771,7 +1829,7 @@ async function go(href) {
   closeNavigation(false);
   if (location.pathname === href) return route();
   history.pushState(null, "", href);
-  window.scrollTo(0, 0);
+  scrollPageTo(0);
   await route();
   reveal();
   if (compactNavigation.matches) {
