@@ -1,30 +1,30 @@
 {
-  "fill": {
-    "automatic-gradient": "extended-srgb:0.12157,0.37255,0.74902,1.00000"
+  "fill" : {
+    "automatic-gradient" : "extended-srgb:0.12157,0.37255,0.74902,1.00000"
   },
-  "groups": [
+  "groups" : [
     {
-      "name": "Průsvitná ledová vločka",
-      "layers": [
+      "layers" : [
         {
-          "image-name": "snowflake.svg",
-          "name": "Vločka — čistý střed"
+          "image-name" : "snowflake.svg",
+          "name" : "Vločka — čistý střed"
         }
       ],
-      "shadow": {
-        "kind": "neutral",
-        "opacity": 0.14
+      "name" : "Světlejší ledová vločka",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.14
       },
-      "translucency": {
-        "enabled": true,
-        "value": 0.68
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.4
       }
     }
   ],
-  "supported-platforms": {
-    "circles": [
+  "supported-platforms" : {
+    "circles" : [
       "watchOS"
     ],
-    "squares": "shared"
+    "squares" : "shared"
   }
 }

@@ -1,10 +1,15 @@
 """Ruční nasazení statických souborů z web/ přes SFTP: python3 deploy.py [--dry-run].
 
 Běžně se web nasazuje pushem do main (GitHub akce update-data.yml), která nahraje i vygenerované
-stránky s aktuální předpovědí. Tento skript proto index.html ani stránky stanic nenahrává.
+stránky s aktuální předpovědí. Volba --pages obnoví metadata z produkce a nasadí také
+HTML stránky, aniž by nahrazovala publikované běhy modelu místními daty.
 """
 
 import argparse
+import json
+import re
+import sys
+import urllib.request
 import os
 from pathlib import Path
 import shutil
@@ -16,12 +21,46 @@ def quote(value):
     return '"' + value.replace('\\', '\\\\').replace('"', '\\"').replace('$', '\\$').replace('`', '\\`') + '"'
 
 
+def prepare_pages(root, reader=None):
+    """Pro ruční build použije aktuální veřejná produkční data, nikoli lokální běh."""
+    if reader is None:
+        def reader(path):
+            request = urllib.request.Request('https://meteogramy.cz/data/' + path,
+                                             headers={'Cache-Control': 'no-cache'})
+            with urllib.request.urlopen(request, timeout=30) as response:
+                raw = response.read(8 * 1024 * 1024 + 1)
+            if len(raw) > 8 * 1024 * 1024:
+                raise ValueError('Příliš velká odpověď produkčního webu.')
+            return raw
+    data = root / 'build/manual-deploy/data'
+    index = reader('index.json')
+    runs = json.loads(index)['runs']
+    if not isinstance(runs, list) or not runs or any(not isinstance(run, str) or not re.fullmatch(r'20\d{8}', run) for run in runs):
+        raise ValueError('Neplatný produkční seznam běhů.')
+    # Vše nejdříve načteme a ověříme. Neúplný podklad se na hosting neposílá.
+    payloads = {'index.json': index}
+    for path in [f'{runs[0]}/index.json', f'{runs[0]}/summary.json', 'snow.json', 'avalanche.json']:
+        raw = reader(path)
+        json.loads(raw)
+        payloads[path] = raw
+    for path, raw in payloads.items():
+        destination = data / path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(raw)
+    sys.path.insert(0, str(root / 'meteogram'))
+    import build_pages
+    return build_pages.main(root / 'build/manual-deploy/site', data)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--dry-run', action='store_true', help='Pouze vypíše plánované přenosy.')
+    parser.add_argument('--pages', action='store_true', help='Nasadí také HTML stránky sestavené z aktuálních produkčních dat.')
     parser.add_argument('--list', action='store_true', help='Zobrazí cílovou složku bez zápisu.')
     parser.add_argument('--remove-wordpress', action='store_true', help='Po přenosu odstraní soubory původního WordPressu bez zálohy.')
     args = parser.parse_args()
+    if args.pages and args.list:
+        parser.error('--pages nelze kombinovat s --list.')
     if args.remove_wordpress and (args.dry_run or args.list):
         parser.error('--remove-wordpress nelze kombinovat s kontrolními režimy.')
     root = Path(__file__).resolve().parent
@@ -38,10 +77,13 @@ def main():
     for key in ('SFTP_HOST', 'SFTP_PORT', 'SFTP_USER', 'SFTP_PASSWORD', 'SFTP_REMOTE_DIR'):
         if not config.get(key):
             parser.error(f'Doplň {key} v .env.')
+    if args.pages and config['SFTP_REMOTE_DIR'].rstrip('/') != '/public_html':
+        parser.error('Nasazení stránek očekává cílovou složku /public_html.')
     if not config['SFTP_PORT'].isdigit():
         parser.error('SFTP_PORT musí být číslo.')
     if not shutil.which('lftp'):
         parser.error('Chybí lftp (instalace: brew install lftp).')
+    pages = prepare_pages(root) if args.pages else None
     # Heslo předáváme přes standardní vstup, nikdy jako argument procesu.
     # Záměrně bez --delete: soubory na hostingu nemažeme.
     known_hosts = root / '.env.known_hosts'
@@ -57,6 +99,7 @@ def main():
         *([f'cd {quote(config["SFTP_REMOTE_DIR"])}', 'cls -la'] if args.list else [
             f'cd {quote(config["SFTP_REMOTE_DIR"])}',
             f'mirror --reverse --verbose {"--dry-run " if args.dry_run else ""}--no-perms --exclude-glob .DS_Store --exclude-glob data/ --exclude-glob api/stats/ --exclude-glob index.html {quote(str(root / "web"))} .',
+            *([f'mirror --reverse --verbose {"--dry-run " if args.dry_run else ""}--no-perms {quote(str(pages))} .'] if pages else []),
             *([] if args.dry_run else ['rm -f .DS_Store data/.DS_Store']),
             *([
                 'rm -r wp-admin wp-content wp-includes',

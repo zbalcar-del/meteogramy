@@ -1,5 +1,5 @@
 /* Samostatný přehled naměřeného sněhu ve vizuálním systému Meteogramy.cz. */
-.side-tools { padding: 10px 0; }
+.side-tools { padding: 10px 0 2px; }
 .snow-nav { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 8px 10px; border-radius: 12px;
   color: var(--ink-2); font-size: 13px; font-weight: 600; text-decoration: none; transition: background .15s, color .15s; }
 .snow-nav svg { width: 21px; height: 21px; flex: 0 0 auto; color: var(--accent); }
