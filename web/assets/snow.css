@@ -131,7 +131,8 @@
 .snow-highlight > span:first-child { font-size: 10.5px; letter-spacing: .055em; text-transform: uppercase; color: #7c8798; }
 .snow-highlight > strong { font-size: 52px; margin: 18px 0 12px; letter-spacing: -.035em; }
 .snow-highlight > b { font-size: 17px; letter-spacing: -.02em; }
-.snow-highlight > .snow-card-foot { display: block; margin-top: 18px; padding-top: 12px; border-top: 1px solid rgba(130,155,190,.16); font-size: 11px; font-weight: 500; color: #748091; }
+.snow-highlight > small:last-of-type { margin-bottom: 18px; }
+.snow-highlight > .snow-card-foot { display: block; margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(130,155,190,.16); font-size: 11px; font-weight: 500; color: #748091; }
 .snow-highlight-main > .snow-card-foot { color: var(--accent); }
 @media (max-width: 700px) {
   .snow-highlight { padding: 20px 16px; border-radius: 20px; }
