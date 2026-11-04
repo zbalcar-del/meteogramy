@@ -15,9 +15,9 @@
 <meta property="og:title" content="Meteogramy.cz – meteogramy ALADIN pro české hory">
 <meta property="og:description" content="Meteogramy ALADIN pro 109 horských stanic ČHMÚ: teplota, vítr a nárazy, srážky, sníh, tlak a oblačnost po hodinách na 3 dny. Klasický meteogram v podobě, na kterou jste zvyklí.">
 <meta property="og:url" content="https://meteogramy.cz/">
-<meta property="og:image" content="https://meteogramy.cz/assets/og.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
+<meta property="og:image" content="https://meteogramy.cz/assets/og-card-hd.jpg">
+<meta property="og:image:width" content="2400">
+<meta property="og:image:height" content="1260">
 <meta name="twitter:card" content="summary_large_image">
 <!-- /seo -->
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png?v=4">
@@ -650,6 +650,7 @@ h1, h2 { text-wrap: balance; }
 }
 </style>
 <link rel="stylesheet" href="/assets/snow.css">
+<link rel="stylesheet" href="/assets/alerts.css">
 </head>
 <body>
   <header class="mbar">
@@ -714,6 +715,14 @@ h1, h2 { text-wrap: balance; }
     <div class="hl" id="favs"></div>
     <div class="sech"><h2>Pohoří</h2><div class="arws"><button type="button" class="arw" data-shelf="hranges" data-dir="-1" aria-label="Pohoří – zpět"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button><button type="button" class="arw" data-shelf="hranges" data-dir="1" aria-label="Pohoří – dál"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div></div>
     <nav class="shelf" id="hranges" aria-label="Pohoří"></nav>
+    <section class="alerts-card" id="alerts-card" data-state="unavailable" aria-labelledby="alerts-title">
+      <header class="alerts-head"><div class="alerts-heading">
+        <span class="alerts-symbol"><svg viewBox="0 0 640 640" fill="currentColor" aria-hidden="true"><!--!Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M320 64C334.7 64 348.2 72.1 355.2 85L571.2 485C577.9 497.4 577.6 512.4 570.4 524.5C563.2 536.6 550.1 544 536 544L104 544C89.9 544 76.8 536.6 69.6 524.5C62.4 512.4 62.1 497.4 68.8 485L284.8 85C291.8 72.1 305.3 64 320 64zM320 416C302.3 416 288 430.3 288 448C288 465.7 302.3 480 320 480C337.7 480 352 465.7 352 448C352 430.3 337.7 416 320 416zM320 224C301.8 224 287.3 239.5 288.6 257.7L296 361.7C296.9 374.2 307.4 384 319.9 384C332.5 384 342.9 374.3 343.8 361.7L351.2 257.7C352.5 239.5 338.1 224 319.8 224z"/></svg></span>
+        <div><h2 id="alerts-title">Výstrahy ČHMÚ</h2><span class="alerts-scope">Česká republika</span></div>
+      </div><span class="alerts-badge" id="alerts-badge">Přehled výstrah</span></header>
+      <div id="alerts-content" aria-live="polite"><p class="alerts-summary">Před cestou zkontrolujte výstrahy.</p><p class="alerts-note">Aktuální přehled a podrobnosti najdete na webu ČHMÚ.</p></div>
+      <footer class="alerts-footer"><span class="alerts-source">Zdroj: ČHMÚ · <a href="https://creativecommons.org/licenses/by/4.0/deed.cs" target="_blank" rel="noopener">CC BY 4.0</a><br><span id="alerts-checked">Oficiální výstražná služba</span></span><a class="alerts-link" href="https://vystrahy-cr.chmi.cz/" target="_blank" rel="noopener">Detail na ČHMÚ <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8"/></svg></a></footer>
+    </section>
   </section>
 
   <section class="home" id="range" hidden>
@@ -905,6 +914,7 @@ h1, h2 { text-wrap: balance; }
 
 <script src="/assets/snow.js"></script>
 <script src="/assets/avalanche.js"></script>
+<script src="/assets/alerts.js"></script>
 <script>
 const TZ = "Europe/Prague";
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();

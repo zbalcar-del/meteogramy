@@ -11,6 +11,7 @@ import snow
 import build_pages
 import update_hosting
 import avalanche
+import alerts
 
 NOW = datetime(2026, 11, 4, 12, tzinfo=timezone.utc)
 PLACE = {'id': 'test', 'name': 'Test', 'range': 'Hory', 'alt': 1000, 'station': 'GH'}
@@ -133,14 +134,16 @@ class Measurements(unittest.TestCase):
              patch.dict('os.environ', environment), \
              patch.object(snow, 'main'), \
              patch.object(avalanche, 'main'), \
+             patch.object(alerts, 'main'), \
              patch.object(update_hosting, 'remote_runs', return_value=(b'{}', ['2026110300'])), \
              patch.object(update_hosting, 'upload') as upload:
             update_hosting.main()
         pages.main.assert_not_called()
         pages.write_snow_page.assert_called_once()
         pages.write_avalanche_page.assert_called_once()
-        files = upload.call_args_list[0].args[1]
-        self.assertEqual(set(files), {'snehove-zpravodajstvi/index.html', 'data/snow-fragment.html', 'data/snow.json'})
+        files = {name for call in upload.call_args_list for name in call.args[1]}
+        self.assertTrue({'snehove-zpravodajstvi/index.html', 'data/snow-fragment.html',
+                         'data/snow.json', 'data/alerts.json'} <= files)
 
     def test_static_page_and_fragment_share_content(self):
         with tempfile.TemporaryDirectory() as directory:

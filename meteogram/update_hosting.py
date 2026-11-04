@@ -145,6 +145,7 @@ def main():
     import fetch
     import snow
     import avalanche
+    import alerts
 
     keys = ('SFTP_HOST', 'SFTP_PORT', 'SFTP_USER', 'SFTP_PASSWORD', 'SFTP_REMOTE_DIR')
     config = {key: os.environ.get(key, '') for key in keys}
@@ -167,6 +168,15 @@ def main():
         with client.open_sftp() as sftp:
             sftp.chdir(posixpath.join(remote, 'data'))
             raw, previous = remote_runs(sftp)
+        # Celostátní výstrahy se obnovují i bez nového běhu ALADINu.
+        try:
+            alerts.main()
+        except Exception as error:
+            print(f'Obnovení výstrah selhalo: {error}', flush=True)
+            alerts.save(alerts.unavailable())
+        with client.open_sftp() as sftp:
+            sftp.chdir(remote)
+            upload(sftp, {'data/alerts.json': alerts.OUT})
         # Sněhová měření se obnovují nezávisle na tom, zda vyšel nový ALADIN.
         snow_ready = False
         try:

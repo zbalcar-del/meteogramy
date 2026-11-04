@@ -15,6 +15,7 @@ import build_pages
 import fetch
 import snow
 import avalanche
+import alerts
 
 PORT = int(os.environ.get("PORT", 8765))
 CHECK_EVERY_S = 20 * 60
@@ -57,6 +58,11 @@ def updater():
             snow.main()
         except Exception as e:
             fetch.log(f"aktualizace sněhu selhala: {e}")
+        try:
+            alerts.main()
+        except Exception as e:
+            fetch.log(f"aktualizace výstrah selhala: {e}")
+            alerts.save(alerts.unavailable())
         try:
             avalanche.main()
         except Exception as e:

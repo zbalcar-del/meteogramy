@@ -11,6 +11,7 @@ on:
       - 'meteogram/build_pages.py'
       - 'meteogram/snow.py'
       - 'meteogram/avalanche.py'
+      - 'meteogram/alerts.py'
       - 'web/**'
   schedule:
     - cron: '17 * * * *'
