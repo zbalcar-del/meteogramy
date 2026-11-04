@@ -337,6 +337,22 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
   font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
 .ckbtn:hover { background: #dbe7fa; }
 .sfoot a.on { color: var(--ink); font-weight: 600; }
+/* poznámky pod čarou jako na stránkách Apple: číslo u textu, vysvětlení dole */
+.fn { margin-left: 1px; font-size: .58em; line-height: 0; vertical-align: super; color: inherit; text-decoration: none; font-weight: 500; }
+.fn:hover { color: var(--accent); }
+.fnotes { margin: 30px 0 0; padding: 16px 0 0 16px; border-top: 1px solid #e3e3e8; font-size: 12px; line-height: 1.55; color: #86868b; }
+.fnotes li { padding-left: 2px; text-wrap: pretty; }
+.fnotes li::marker { font-variant-numeric: tabular-nums; }
+.fnotes li:target { color: var(--ink); }
+/* na úvodu tvoří poznámka a řádek se zdroji dat jeden blok zarovnaný vlevo */
+#stnotes { max-width: 1180px; margin: 30px auto 0; }
+.main:has(> #home:not([hidden]), > #stnotes:not([hidden])) > .foot { max-width: 1180px; margin: 10px auto 0; text-align: left; font-size: 12px; line-height: 1.55; color: #86868b; }
+.main:has(> #home:not([hidden]), > #stnotes:not([hidden])) > .foot a { color: #86868b; }
+@media (max-width: 860px) {
+  .main:has(> #home:not([hidden]), > #stnotes:not([hidden])) > .foot { display: block; text-wrap: pretty; }
+  .main:has(> #home:not([hidden]), > #stnotes:not([hidden])) > .foot .foot-sep { display: inline; }
+  .main:has(> #home:not([hidden]), > #stnotes:not([hidden])) > .foot a { display: inline; min-height: 0; }
+}
 /* úvodní stránka */
 .home { max-width: 1180px; margin: 0 auto; }
 .hhero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: center; padding: 28px 0 30px 8px; }
@@ -765,7 +781,7 @@ h1, h2 { text-wrap: balance; }
       <div>
       <p class="eyebrow">Předpověď pro české hory</p>
       <h1>Meteogramy, jak je znáte i neznáte.</h1>
-      <p class="lead">Předpověď modelu ALADIN pro <span id="hcount">109</span> horských stanic ČHMÚ. Teplota, vítr, srážky a další údaje po hodinách na tři dny dopředu.</p>
+      <p class="lead">Předpověď modelu ALADIN pro <span id="hcount">109</span> horských stanic ČHMÚ<a class="fn" href="#pozn-vysky" aria-label="Poznámka 1">1</a>. Teplota, vítr, srážky a další údaje po hodinách na tři dny dopředu.</p>
       <p class="origin">Projekt jsme vytvořili pro všechny, kterým chybí původní meteogramy a chtějí mít počasí na horách zase přehledně a na jednom místě v grafech.</p>
       <div id="hlast"></div>
       </div>
@@ -784,6 +800,7 @@ h1, h2 { text-wrap: balance; }
       <div id="alerts-content" aria-live="polite"><p class="alerts-summary">Před cestou zkontrolujte výstrahy.</p><p class="alerts-note">Aktuální přehled a podrobnosti najdete na webu ČHMÚ.</p></div>
       <footer class="alerts-footer"><span class="alerts-source">Zdroj: ČHMÚ · <a href="https://creativecommons.org/licenses/by/4.0/deed.cs" target="_blank" rel="noopener">CC BY 4.0</a><br><span id="alerts-checked">Oficiální výstražná služba</span></span><a class="alerts-link" href="https://vystrahy-cr.chmi.cz/" target="_blank" rel="noopener">Detail na ČHMÚ <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8"/></svg></a></footer>
     </section>
+    <ol class="fnotes"><li id="pozn-vysky">Výšky u stanic jsou nadmořské výšky meteorologických stanic ČHMÚ, ne vrcholů hor. Stanice často stojí pod vrcholem, v sedle nebo u horské chaty.</li></ol>
   </section>
 
   <section class="home" id="range" hidden>
@@ -818,6 +835,7 @@ h1, h2 { text-wrap: balance; }
     <div class="chart-frame" id="chart-frame"><div id="chart" aria-describedby="chart-help"><div class="msg">Načítám data…</div><div id="tip"></div><div id="info" role="tooltip"></div></div></div>
   </div>
   <section class="sinfo" id="sinfo" hidden></section>
+  <ol class="fnotes" id="stnotes" hidden><li id="pozn-vysky-st">Uvedená výška je nadmořská výška meteorologické stanice ČHMÚ, ne vrcholu hory. Stanice často stojí pod vrcholem, v sedle nebo u horské chaty.</li></ol>
   <section class="snow-page" id="snow" hidden>
     <header class="snow-hero">
       <div><p class="eyebrow">Sníh na českých horách</p><h1>Sněhové zpravodajství</h1>
@@ -1439,7 +1457,7 @@ function header(m, T, times) {
   const run = local(new Date(d.run));
   const dz = m.alt - m.node.alt;
   $("title").textContent = m.name;
-  $("sub").innerHTML = `${m.range} · <b>${m.alt} m n. m.</b> · stanice ČHMÚ${m.since ? ` (od ${m.since})` : ""}`;
+  $("sub").innerHTML = `${m.range} · <b>${m.alt} m n. m.</b><a class="fn" href="#pozn-vysky-st" aria-label="Poznámka 1">1</a> · stanice ČHMÚ${m.since ? ` (od ${m.since})` : ""}`;
   $("meta").innerHTML = `${d.model} · běh <b>${run.day}. ${run.month}. ${pad(run.hour)}:00 ${run.tz}</b> · uzel modelu ` +
     `<b>${m.node.alt} m</b>, ${fmtNum(m.node.dist, 1)} km od stanice` +
     (state.corr ? ` · teplota ${dz >= 0 ? "snížena" : "zvýšena"} o ${fmtNum(Math.abs(0.0065 * dz), 1)} °C` : "");
@@ -2042,7 +2060,7 @@ const viewOf = () => PAGES[pagePath()] ? pagePath() : pagePath() === "/" ? "home
 function route() {
   const v = viewOf();
   mobileContext();
-  $("mg").hidden = $("sinfo").hidden = v !== "mg";
+  $("mg").hidden = $("sinfo").hidden = $("stnotes").hidden = v !== "mg";
   $("home").hidden = v !== "home";
   $("range").hidden = v !== "range";
   $("about").hidden = v !== "/o-projektu/";

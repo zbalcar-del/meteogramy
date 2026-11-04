@@ -173,7 +173,7 @@ def fill(html, el_id, inner, attrs=''):
 
 
 def visible(html, show):
-    for el_id in ('home', 'range', 'mg', 'sinfo', 'about', 'privacy', 'snow', 'avalanche'):
+    for el_id in ('home', 'range', 'mg', 'sinfo', 'stnotes', 'about', 'privacy', 'snow', 'avalanche'):
         html, n = re.subn(rf'id="{el_id}"( hidden)?', f'id="{el_id}"' + ('' if el_id in show else ' hidden'), html, count=1)
         assert n == 1, el_id
     return html
@@ -347,9 +347,9 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
         desc = (f'Meteogram ALADIN pro {p["name"]} ({p["range"]}, {p["alt"]} m n. m.): hodinová předpověď počasí na 3 dny – '
                 f'teplota, vítr a nárazy, srážky, sníh, tlak a oblačnost. Data ČHMÚ.')
         since = f' (od {p["since"]})' if p.get('since') else ''
-        html = visible(template, {'mg', 'sinfo'})
+        html = visible(template, {'mg', 'sinfo', 'stnotes'})
         html = fill(html, 'title', escape(p['name']))
-        html = fill(html, 'sub', f'{escape(p["range"])} · <b>{p["alt"]} m n. m.</b> · stanice ČHMÚ{since}')
+        html = fill(html, 'sub', f'{escape(p["range"])} · <b>{p["alt"]} m n. m.</b><a class="fn" href="#pozn-vysky-st" aria-label="Poznámka 1">1</a> · stanice ČHMÚ{since}')
         html = fill(html, 'sinfo', station_info(p, places, summary['places'].get(p['id']), times, run))
         place = {'@type': 'Place', '@id': f'{SITE}{path}#misto', 'name': p['name'],
                  'description': f'Meteorologická stanice ČHMÚ, {p["range"]}, {p["alt"]} m n. m.',
