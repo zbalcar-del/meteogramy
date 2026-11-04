@@ -6,6 +6,7 @@
   const body = document.getElementById('snow-body');
   const status = document.getElementById('snow-fetch-status');
   const search = document.getElementById('snow-search');
+  const clearSearch = document.getElementById('snow-search-clear');
   const range = document.getElementById('snow-range');
   const sort = document.getElementById('snow-sort');
   const snowOnly = document.getElementById('snow-only');
@@ -98,6 +99,7 @@
 
 
   function filter() {
+    clearSearch.hidden = search.value.length === 0;
     const query = fold(search.value.trim());
     const only = snowOnly.getAttribute('aria-pressed') === 'true';
     let total = 0;
@@ -179,6 +181,11 @@
   }
 
   search.addEventListener('input', filter);
+  clearSearch.addEventListener('click', () => {
+    search.value = '';
+    filter();
+    search.focus({preventScroll: true});
+  });
   range.addEventListener('change', filter);
   sort.addEventListener('change', filter);
   snowOnly.addEventListener('click', () => {

@@ -13,12 +13,10 @@
 .snow-hero .lead { max-width: 620px; margin: 16px 0 0; font-size: 17px; line-height: 1.5; color: #667180; }
 .snow-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 18px; padding: 12px;
   border: 1px solid #e7eaf0; border-radius: 20px; background: rgba(255,255,255,.85); }
-.snow-search { position: relative; flex: 1 1 210px; min-width: 0; }
-.snow-search svg { position: absolute; left: 14px; top: 15px; width: 18px; height: 18px; color: #748197; pointer-events: none; }
-.snow-search input { width: 100%; min-width: 0; height: 48px; padding: 0 14px 0 42px; border: 1px solid transparent; border-radius: 13px;
-  background: #f0f3f8; color: var(--ink); font: inherit; font-size: 16px; }
-.snow-search input::placeholder { color: #6c7889; }
-.snow-search input:focus { outline: 2px solid var(--accent); outline-offset: 1px; background: #fff; }
+.snow-search { position: relative; flex: 1 1 210px; min-width: 0; margin: 0; }
+.snow-search input { background: #f3f5f8; height: 48px; padding-left: 38px; padding-right: 48px; border-radius: 13px; font-size: 16px; }
+.snow-search > svg { left: 14px; top: 17px; width: 14px; height: 14px; }
+.snow-search .search-clear { right: 2px; top: 2px; width: 44px; height: 44px; border-radius: 11px; }
 .snow-toolbar select { min-height: 48px; max-width: 100%; padding: 9px 32px 9px 12px; border-color: #e5e9ef; border-radius: 13px; font-size: 14px; }
 .snow-only { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 48px; padding: 9px 14px; border: 1px solid #e5e9ef;
   border-radius: 13px; color: #5c6b80; background: #fff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
