@@ -306,8 +306,9 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .hc:hover .hc-f svg { transform: translateX(2px); }
 .home .eyebrow { font-size: 14px; font-weight: 600; color: #86868b; margin: 0 0 10px; }
 .home h1 { font-size: 44px; line-height: 1.08; letter-spacing: -.03em; font-weight: 700; margin: 0 0 14px; }
-.home .lead { font-size: 19px; line-height: 1.45; color: #6e6e73; margin: 0; }
-.home .origin { font-size: 15px; line-height: 1.5; color: #6e6e73; margin: 14px 0 0; }
+.home .lead, .home .origin { font-size: 19px; color: #6e6e73; }
+.home .lead { line-height: 1.45; margin: 0; }
+.home .origin { line-height: 1.5; margin: 14px 0 0; }
 .cont { display: inline-flex; align-items: center; gap: 9px; margin-top: 20px; padding: 9px 14px 9px 12px; border-radius: 12px;
   background: var(--paper); color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 600;
   box-shadow: 0 0 0 1px rgba(0,0,0,.05), 0 1px 3px rgba(0,0,0,.05); transition: box-shadow .15s; }
@@ -432,7 +433,6 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 @media (max-width: 860px) {
   .hhero { grid-template-columns: 1fr; gap: 20px; padding: 14px 0 22px; }
   .home h1 { font-size: 32px; }
-  .home .lead { font-size: 17px; }
   .hl { gap: var(--card-gap); margin-bottom: 22px; }
   .hl .st { padding: 10px 12px 11px; }
   .hl .st b { font-size: 20px; }
@@ -814,7 +814,12 @@ h1, h2 { text-wrap: balance; }
     <section>
       <h2>Data přímo od ČHMÚ.</h2>
       <p>Předpověď počítá Český hydrometeorologický ústav numerickým modelem ALADIN CZ a zveřejňuje ji jako otevřená data na <a href="https://opendata.chmi.cz/meteorology/weather/nwp_aladin/" target="_blank" rel="noopener">opendata.chmi.cz</a>. Model počítá v síti 2,3 km, my používáme jeho výstup v jemnějším rastru zhruba 1 km. Každý nový běh stáhneme a zpracujeme automaticky.</p>
-      <p class="note">Vrstevnice na kartách pohoří vycházejí z výškového modelu Copernicus DEM, © DLR e.V. 2010–2014 a © Airbus Defence and Space GmbH 2014–2018, poskytnuto programem Copernicus Evropské unie a ESA.</p>
+    </section>
+    <section id="zdroje-dat" aria-labelledby="zdroje-dat-title">
+      <h2 id="zdroje-dat-title">Zdroje dat</h2>
+      <p>Vrstevnice na kartách pohoří jsou naším grafickým zpracováním výškových dat <a href="https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM" target="_blank" rel="noopener">Copernicus DEM GLO-90</a>. Zobrazují okolí nejvyšší stanice jednotlivých pohoří.</p>
+      <p class="note" lang="en">Produced using Copernicus WorldDEM-90 © DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH 2014–2018 provided under COPERNICUS by the European Union and ESA; all rights reserved.</p>
+      <p class="note"><a href="https://dataspace.copernicus.eu/sites/default/files/media/files/2025-06/copernicus_contributing_mission_data_access_v2_cop_dem_licenses.pdf" target="_blank" rel="noopener">Licenční podmínky Copernicus DEM (PDF)</a></p>
     </section>
     <section>
       <h2>Bod modelu na míru každé stanici.</h2>
@@ -876,7 +881,7 @@ h1, h2 { text-wrap: balance; }
     </section>
     <p class="note">Platné od 3. listopadu 2026.</p>
   </article>
-  <div class="foot"><span>Data: ČHMÚ – otevřená data, model ALADIN CZ</span><span class="foot-sep"> · </span><a href="https://opendata.chmi.cz/meteorology/weather/nwp_aladin/" target="_blank" rel="noopener">opendata.chmi.cz</a><span class="foot-sep"> · </span><span>Meteogramy.cz nejsou oficiální službou ČHMÚ</span></div>
+  <div class="foot"><span>Data: ČHMÚ – otevřená data, model ALADIN CZ</span><span class="foot-sep"> · </span><a href="https://opendata.chmi.cz/meteorology/weather/nwp_aladin/" target="_blank" rel="noopener">opendata.chmi.cz</a><span class="foot-sep"> · </span><a href="/o-projektu/#zdroje-dat">Vrstevnice: Copernicus DEM</a><span class="foot-sep"> · </span><span>Meteogramy.cz nejsou oficiální službou ČHMÚ</span></div>
   </main>
 </div>
 
