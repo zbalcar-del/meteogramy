@@ -15,6 +15,7 @@ from pathlib import Path
 import re
 import shutil
 import snow
+import avalanche
 import sys
 import unicodedata
 from zoneinfo import ZoneInfo
@@ -33,7 +34,10 @@ PAGES = {
 SNOW_PATH = '/snehove-zpravodajstvi/'
 SNOW_TITLE = 'Sněhové zpravodajství – výška sněhu na horách | Meteogramy.cz'
 SNOW_DESC = 'Naměřená výška sněhu na českých horách podle ČHMÚ. Denní změna pokrývky, vývoj a čas posledního měření pro horské stanice podle pohoří.'
-RESERVED = {'data', 'api', 'assets', SNOW_PATH.strip('/'), *PAGES}
+AVALANCHE_PATH = '/lavinova-predpoved/'
+AVALANCHE_TITLE = 'Lavinová předpověď – Krkonoše a Jeseníky | Meteogramy.cz'
+AVALANCHE_DESC = 'Lavinová předpověď Horské služby ČR pro Krkonoše a Jeseníky. Stupeň nebezpečí, rizikové situace, čas vydání a odkazy na oficiální bulletiny.'
+RESERVED = {'data', 'api', 'assets', SNOW_PATH.strip('/'), AVALANCHE_PATH.strip('/'), *PAGES}
 # AI asistenti a jejich vyhledávače, kterým robots.txt výslovně povoluje přístup
 AI_BOTS = ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'Claude-User',
            'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'Applebot-Extended', 'CCBot']
@@ -169,7 +173,7 @@ def fill(html, el_id, inner, attrs=''):
 
 
 def visible(html, show):
-    for el_id in ('home', 'range', 'mg', 'sinfo', 'about', 'privacy', 'snow'):
+    for el_id in ('home', 'range', 'mg', 'sinfo', 'about', 'privacy', 'snow', 'avalanche'):
         html, n = re.subn(rf'id="{el_id}"( hidden)?', f'id="{el_id}"' + ('' if el_id in show else ' hidden'), html, count=1)
         assert n == 1, el_id
     return html
@@ -240,6 +244,22 @@ def write_snow_page(out, data):
     write(out, SNOW_PATH, page(html, SNOW_PATH, SNOW_TITLE, SNOW_DESC, modified=modified,
                               extra=[crumbs(('Meteogramy.cz', '/'), ('Sněhové zpravodajství', SNOW_PATH))]))
     write(out, 'data/snow-fragment.html', fragment)
+    return modified
+
+
+def write_avalanche_page(out, data):
+    try:
+        snapshot = json.loads((data / 'avalanche.json').read_text())
+    except (OSError, ValueError):
+        snapshot = None
+    fragment = avalanche.render(snapshot)
+    html = visible((WEB / 'index.html').read_text(), {'avalanche'})
+    html = fill(html, 'avalanche-body', fragment)
+    html = html.replace('class="snow-nav avalanche-nav"', 'class="snow-nav avalanche-nav" aria-current="page"', 1)
+    modified = snapshot.get('retrieved_at') if snapshot else None
+    write(out, AVALANCHE_PATH, page(html, AVALANCHE_PATH, AVALANCHE_TITLE, AVALANCHE_DESC, modified=modified,
+                                  extra=[crumbs(('Meteogramy.cz', '/'), ('Lavinová předpověď', AVALANCHE_PATH))]))
+    write(out, 'data/avalanche-fragment.html', fragment)
     return modified
 
 
@@ -348,8 +368,11 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
 
     snow_modified = write_snow_page(out, data)
     urls.append(SNOW_PATH)
+    avalanche_modified = write_avalanche_page(out, data)
+    urls.append(AVALANCHE_PATH)
     write(out, '404.html', not_found())
     lastmods = {u: snow_modified or modified if u == SNOW_PATH else modified for u in urls}
+    lastmods[AVALANCHE_PATH] = avalanche_modified or modified
     write(out, 'sitemap.xml', '<?xml version="1.0" encoding="UTF-8"?>\n'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
           + ''.join(f'  <url><loc>{SITE}{u}</loc>{"" if u[1:-1] in PAGES else f"<lastmod>{lastmods[u]}</lastmod>"}</url>\n' for u in urls)
@@ -386,6 +409,7 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
         '',
         '## Další',
         '',
+        f'- [Lavinová předpověď]({SITE}{AVALANCHE_PATH}): bulletiny Horské služby pro Krkonoše a Jeseníky',
         f'- [Sněhové zpravodajství]({SITE}{SNOW_PATH}): naměřená výška sněhu a denní změna pokrývky, ČHMÚ',
         f'- [O projektu]({SITE}/o-projektu/): odkud jsou data a jak meteogramy vznikají',
         f'- [Ochrana soukromí]({SITE}/ochrana-soukromi/)',

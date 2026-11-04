@@ -648,7 +648,7 @@ h1, h2 { text-wrap: balance; }
     </div>
     <nav class="picker" id="picker" aria-label="Horské stanice"></nav>
     <span class="sr-only" id="search-status" role="status" aria-live="polite"></span>
-    <nav class="side-tools" aria-label="Další přehledy"><a class="snow-nav" href="/snehove-zpravodajstvi/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M3.34 7l17.32 10M3.34 17L20.66 7M8 4l4 3 4-3M8 20l4-3 4 3M3.6 11.5l4.6-2-.6-5M16.4 19.5l-.6-5 4.6-2M3.6 12.5l4.6 2-.6 5M16.4 4.5l-.6 5 4.6 2"/></svg><span>Sněhové zpravodajství</span></a></nav>
+    <nav class="side-tools" aria-label="Další přehledy"><a class="snow-nav" href="/snehove-zpravodajstvi/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M3.34 7l17.32 10M3.34 17L20.66 7M8 4l4 3 4-3M8 20l4-3 4 3M3.6 11.5l4.6-2-.6-5M16.4 19.5l-.6-5 4.6-2M3.6 12.5l4.6 2-.6 5M16.4 4.5l-.6 5 4.6 2"/></svg><span>Sněhové zpravodajství</span></a><a class="snow-nav avalanche-nav" href="/lavinova-predpoved/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 20 9-16 9 16H3Z"/><path d="M12 10v4m0 3h.01"/></svg><span>Lavinová předpověď</span></a></nav>
     <div class="runsel">
       <div class="rl" id="ddlab">Běh modelu</div>
       <div class="dd" id="dd">
@@ -748,6 +748,25 @@ h1, h2 { text-wrap: balance; }
       <p>Nejvyšší pokrývka vychází z posledního dostupného měření každé stanice; datum uvádíme přímo na kartě. Největší denní přírůstek porovnává stanice ve stejném posledním dostupném termínu. Přehled zahrnuje horské stanice našeho webu, nejde o úplný přehled všech stanic ČHMÚ ani o zpravodajství lyžařských areálů.</p>
     </section>
     <p class="snow-source">Zdroj: <a href="https://www.chmi.cz/namerena-data/data-z-mericich-stanic/vyska-snehu" target="_blank" rel="noopener">Český hydrometeorologický ústav</a> · <a href="https://opendata.chmi.cz/meteorology/climate/recent/" target="_blank" rel="noopener">Otevřená data ČHMÚ</a>. Meteogramy.cz nejsou oficiální službou ČHMÚ.</p>
+  </section>
+
+  <section class="snow-page" id="avalanche" hidden>
+    <header class="snow-hero"><div>
+      <p class="eyebrow">Před cestou na hory</p><h1>Lavinová předpověď</h1>
+      <p class="lead">Krkonoše a Jeseníky. Přehled lavinových bulletinů Horské služby ČR — stupeň nebezpečí, rizikové situace a čas vydání na jednom místě.</p>
+    </div></header>
+    <p class="snow-fetch-status" id="avalanche-status" role="status" hidden></p>
+    <div id="avalanche-body"></div>
+    <section class="snow-group ava-scale" aria-labelledby="avalanche-scale-title">
+      <div class="snow-group-head"><h2 id="avalanche-scale-title">Pět stupňů lavinového nebezpečí</h2><span>Evropská stupnice</span></div>
+      <ol class="ava-scale-list"><li><b>1</b><span>Nízké</span></li><li><b>2</b><span>Mírné</span></li><li><b>3</b><span>Značné</span></li><li><b>4</b><span>Vysoké</span></li><li><b>5</b><span>Velmi vysoké</span></li></ol>
+      <p class="ava-scale-note">Samotný stupeň nepopisuje všechny podmínky v terénu. Podrobnosti a doporučení najdete v <a href="https://www.horskasluzba.cz/cz/horska-sluzba/laviny/informace-o-lavinach/stupne-lavinoveho-nebezpeci-eaws-matice" target="_blank" rel="noopener">oficiální stupnici Horské služby</a>.</p>
+    </section>
+    <section class="snow-explainer" aria-labelledby="avalanche-about-title"><h2 id="avalanche-about-title">Jak číst lavinovou předpověď</h2>
+      <p>Přehled přebírá údaje Horské služby ČR pro dvě lavinové oblasti. Důležitý je celý bulletin včetně popisu sněhové pokrývky, rizikových svahů a komentáře lavinového specialisty. Z každé karty vede přímý odkaz na originál.</p>
+      <p>U bulletinů uvádíme čas vydání. Starší bulletin ani výpadek zdroje nezobrazujeme jako dnešní stupeň nebezpečí. Nedostupná předpověď neznamená bezpečné podmínky nebo nulové riziko. Před cestou si ověřte aktuální předpověď přímo u Horské služby.</p>
+    </section>
+    <p class="snow-source">Zdroj: <a href="https://www.horskasluzba.cz/" target="_blank" rel="noopener">Horská služba ČR</a>. Meteogramy.cz nejsou oficiální lavinovou službou.</p>
   </section>
 
   <article class="about" id="about" hidden>
@@ -852,6 +871,7 @@ h1, h2 { text-wrap: balance; }
 </section>
 
 <script src="/assets/snow.js"></script>
+<script src="/assets/avalanche.js"></script>
 <script>
 const TZ = "Europe/Prague";
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -949,7 +969,7 @@ function mobileContext() {
   if (view === "home") $("mobile-home").setAttribute("aria-current", "page");
   $("mobile-stations").classList.toggle("active", view === "mg" || view === "range");
   $("mobile-context").textContent = view === "mg" ? state.data?.places.find(p => p.id === pathId())?.name || "Horská předpověď"
-    : view === "/snehove-zpravodajstvi/" ? "Sněhové zpravodajství" : view === "range" ? RANGE_OF[pathId()] : view === "/o-projektu/" ? "O projektu" : view === "/ochrana-soukromi/" ? "Ochrana soukromí" : "horské meteogramy";
+    : view === "/lavinova-predpoved/" ? "Lavinová předpověď" : view === "/snehove-zpravodajstvi/" ? "Sněhové zpravodajství" : view === "range" ? RANGE_OF[pathId()] : view === "/o-projektu/" ? "O projektu" : view === "/ochrana-soukromi/" ? "Ochrana soukromí" : "horské meteogramy";
 }
 
 // pořadí pohoří ve výběru
@@ -1674,7 +1694,7 @@ function stationInfo(m) {
     `<a class="more" href="/${slug(m.range)}/">Všechny stanice: ${m.range} →</a></div>`;
 }
 
-const PAGES = { "/snehove-zpravodajstvi/": "Sněhové zpravodajství – výška sněhu na horách | Meteogramy.cz", "/o-projektu/": "O projektu – Meteogramy.cz", "/ochrana-soukromi/": "Ochrana soukromí – Meteogramy.cz" };
+const PAGES = { "/lavinova-predpoved/": "Lavinová předpověď – Krkonoše a Jeseníky | Meteogramy.cz", "/snehove-zpravodajstvi/": "Sněhové zpravodajství – výška sněhu na horách | Meteogramy.cz", "/o-projektu/": "O projektu – Meteogramy.cz", "/ochrana-soukromi/": "Ochrana soukromí – Meteogramy.cz" };
 const HOME_TITLE = "Meteogramy.cz – meteogramy ALADIN pro české hory";
 const pagePath = () => location.pathname.replace(/\/?$/, "/");
 const pathId = () => decodeURIComponent(pagePath().slice(1, -1));
@@ -1694,18 +1714,19 @@ function route() {
   $("about").hidden = v !== "/o-projektu/";
   $("privacy").hidden = v !== "/ochrana-soukromi/";
   $("snow").hidden = v !== "/snehove-zpravodajstvi/";
+  $("avalanche").hidden = v !== "/lavinova-predpoved/";
   document.querySelectorAll(".snow-nav").forEach(a => {
-    if (v === "/snehove-zpravodajstvi/") a.setAttribute("aria-current", "page");
+    if (a.getAttribute("href") === v) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
   });
   document.querySelectorAll(".sfoot a").forEach(a => a.classList.toggle("on", a.getAttribute("href") === v));
-  if (v === "/snehove-zpravodajstvi/") {
+  if (v === "/snehove-zpravodajstvi/" || v === "/lavinova-predpoved/") {
     state.id = state.counted = null;
     state.open.clear();
     if (state.data) picker();
     $("picker").scrollTop = 0;
     document.title = PAGES[v];
-    return window.MeteogramSnow.open();
+    return v === "/lavinova-predpoved/" ? window.MeteogramAvalanche.open() : window.MeteogramSnow.open();
   }
   // Dokud se načítá seznam stanic nového běhu, nepoužíváme data předchozího.
   if (state.loadingRun && (v === "home" || v === "range" || v === "mg")) { skeletonView(); return; }
@@ -1754,7 +1775,7 @@ async function go(href) {
     if (visibleHeading) { visibleHeading.setAttribute("tabindex", "-1"); visibleHeading.focus({ preventScroll: true }); }
   }
 }
-const VIEW_EL = { "/snehove-zpravodajstvi/": ["snow"], home: ["home"], range: ["range"], mg: ["mg", "sinfo"], "/o-projektu/": ["about"], "/ochrana-soukromi/": ["privacy"] };
+const VIEW_EL = { "/lavinova-predpoved/": ["avalanche"], "/snehove-zpravodajstvi/": ["snow"], home: ["home"], range: ["range"], mg: ["mg", "sinfo"], "/o-projektu/": ["about"], "/ochrana-soukromi/": ["privacy"] };
 function reveal() {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   (VIEW_EL[viewOf()] || []).forEach((id, k) => $(id).animate(

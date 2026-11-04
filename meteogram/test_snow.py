@@ -10,6 +10,7 @@ from unittest.mock import patch, MagicMock
 import snow
 import build_pages
 import update_hosting
+import avalanche
 
 NOW = datetime(2026, 11, 4, 12, tzinfo=timezone.utc)
 PLACE = {'id': 'test', 'name': 'Test', 'range': 'Hory', 'alt': 1000, 'station': 'GH'}
@@ -131,12 +132,14 @@ class Measurements(unittest.TestCase):
         with patch.dict('sys.modules', {'paramiko': paramiko, 'fetch': forecast, 'build_pages': pages}), \
              patch.dict('os.environ', environment), \
              patch.object(snow, 'main'), \
+             patch.object(avalanche, 'main'), \
              patch.object(update_hosting, 'remote_runs', return_value=(b'{}', ['2026110300'])), \
              patch.object(update_hosting, 'upload') as upload:
             update_hosting.main()
         pages.main.assert_not_called()
         pages.write_snow_page.assert_called_once()
-        files = upload.call_args.args[1]
+        pages.write_avalanche_page.assert_called_once()
+        files = upload.call_args_list[0].args[1]
         self.assertEqual(set(files), {'snehove-zpravodajstvi/index.html', 'data/snow-fragment.html', 'data/snow.json'})
 
     def test_static_page_and_fragment_share_content(self):

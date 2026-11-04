@@ -14,6 +14,7 @@ from pathlib import Path
 import build_pages
 import fetch
 import snow
+import avalanche
 
 PORT = int(os.environ.get("PORT", 8765))
 CHECK_EVERY_S = 20 * 60
@@ -56,6 +57,11 @@ def updater():
             snow.main()
         except Exception as e:
             fetch.log(f"aktualizace sněhu selhala: {e}")
+        try:
+            avalanche.main()
+        except Exception as e:
+            fetch.log(f"aktualizace lavin selhala: {e}")
+            avalanche.save(avalanche.unavailable())
         build()
         time.sleep(CHECK_EVERY_S)
 

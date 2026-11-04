@@ -144,6 +144,7 @@ def main():
     import build_pages
     import fetch
     import snow
+    import avalanche
 
     keys = ('SFTP_HOST', 'SFTP_PORT', 'SFTP_USER', 'SFTP_PASSWORD', 'SFTP_REMOTE_DIR')
     config = {key: os.environ.get(key, '') for key in keys}
@@ -195,6 +196,20 @@ def main():
                     'data/snow-fragment.html': SITE / 'data/snow-fragment.html',
                     'data/snow.json': snow.OUT,
                 })
+        # Bez dostupného zdroje nevystavujeme dřívější stupeň jako dnešní bulletin.
+        try:
+            avalanche.main()
+        except Exception as error:
+            print(f'Obnovení lavinového bulletinu selhalo: {error}', flush=True)
+            avalanche.save(avalanche.unavailable())
+        build_pages.write_avalanche_page(SITE, DATA)
+        with client.open_sftp() as sftp:
+            sftp.chdir(remote)
+            upload(sftp, {
+                'lavinova-predpoved/index.html': SITE / 'lavinova-predpoved/index.html',
+                'data/avalanche-fragment.html': SITE / 'data/avalanche-fragment.html',
+                'data/avalanche.json': avalanche.OUT,
+            })
         runs = fetch.list_runs()
         needed = set(fetch.FIELDS) | {fetch.OROGRAPHY}
         complete = sorted((run for run, fields in runs.items() if needed <= fields.keys()), reverse=True)

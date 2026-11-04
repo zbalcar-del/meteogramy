@@ -24,3 +24,8 @@ RewriteRule ^\.deploy-manifest - [F,L]
   Header set Cache-Control "no-cache"
   Header set X-Robots-Tag "noindex"
 </Files>
+
+<Files "avalanche-fragment.html">
+  Header set Cache-Control "no-cache"
+  Header set X-Robots-Tag "noindex"
+</Files>
