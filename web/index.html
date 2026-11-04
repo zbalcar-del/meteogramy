@@ -427,7 +427,7 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .days td small { font-weight: 500; color: var(--muted); font-size: 12px; }
 .days .tx { color: var(--temp); font-weight: 600; }
 @media (max-width: 860px) {
-  .hhero { grid-template-columns: 1fr; gap: 20px; padding: 14px 0 22px 4px; }
+  .hhero { grid-template-columns: 1fr; gap: 20px; padding: 14px 0 22px; }
   .home h1 { font-size: 32px; }
   .home .lead { font-size: 17px; }
   .hl { gap: var(--card-gap); margin-bottom: 22px; }
@@ -441,7 +441,7 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
   .about .dedic b { font-size: 24px; }
   .about .dedic small { right: 16px; bottom: 18px; }
   .about section { padding: 20px; }
-  .rhead { grid-template-columns: minmax(0, 1fr); gap: 18px; padding: 14px 0 20px 4px; }
+  .rhead { grid-template-columns: minmax(0, 1fr); gap: 18px; padding: 14px 0 20px; }
   .shelf { --fr: 40px; }
   .shelf.sl { --fl: 40px; }
   .shelf.se { --fr: 0px; }
@@ -490,15 +490,16 @@ h1, h2 { text-wrap: balance; }
   #chart { padding: 10px 2px 4px; }
 }
 /* Telefony a tablety sdílejí jediný seznam stanic s desktopem. */
-.mobile-dock, .menu-dialog, .chart-help { display: none; }
+.menu-dialog, .chart-help { display: none; }
 .menu-dialog:not([open]) { display: none; }
 @media (max-width: 1100px) {
+  :root { --page-gutter: 20px; --page-inset-left: max(var(--page-gutter), env(safe-area-inset-left)); --page-inset-right: max(var(--page-gutter), env(safe-area-inset-right)); }
   html { scroll-padding-top: calc(86px + env(safe-area-inset-top)); }
   .app { display: block; }
   .app > .side { display: none; }
-  .main { padding: 0 max(20px, env(safe-area-inset-right)) calc(108px + env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left)); }
+  .main { padding: 0 var(--page-inset-right) calc(28px + env(safe-area-inset-bottom)) var(--page-inset-left); }
   .mbar { position: sticky; top: 0; z-index: 35; display: flex; align-items: center; justify-content: space-between; gap: 16px;
-    min-height: calc(76px + env(safe-area-inset-top)); margin: 0 -20px 12px; padding: calc(12px + env(safe-area-inset-top)) 20px 12px;
+    min-height: calc(76px + env(safe-area-inset-top)); margin: 0 calc(-1 * var(--page-inset-right)) 12px calc(-1 * var(--page-inset-left)); padding: calc(12px + env(safe-area-inset-top)) var(--page-inset-right) 12px var(--page-inset-left);
     background: rgba(248,248,250,.94); border-bottom: 1px solid rgba(30,50,80,.07); }
   .mbar .logo { padding: 0; gap: 10px; }
   .mbar .bn { font-size: 16px; letter-spacing: -.025em; }
@@ -509,16 +510,6 @@ h1, h2 { text-wrap: balance; }
     box-shadow: 0 2px 5px rgba(30,50,80,.025); color: var(--accent); padding: 0 13px; font: inherit; font-weight: 600; cursor: pointer; }
   .mobile-search svg, .menu-close svg { width: 20px; height: 20px; }
   .mobile-search:active, .menu-close:active { background: var(--accent-bg); }
-  .mobile-dock { position: fixed; z-index: 40; left: 50%; bottom: calc(12px + env(safe-area-inset-bottom)); transform: translateX(-50%);
-    display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 5px; width: min(410px, calc(100% - 32px - env(safe-area-inset-left) - env(safe-area-inset-right)));
-    padding: 6px; border: 1px solid rgba(255,255,255,.94); border-radius: 26px; background: rgba(250,251,253,.96);
-    box-shadow: 0 0 0 1px rgba(30,50,80,.06), 0 8px 32px rgba(30,50,80,.13), inset 0 1px 0 #fff; }
-  .mobile-dock > a, .mobile-dock > button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-    min-height: 54px; min-width: 0; padding: 6px 8px; border: 0; border-radius: 20px; background: transparent; color: #626d7c;
-    text-decoration: none; font: inherit; font-size: 11px; font-weight: 600; cursor: pointer; transition: background .18s, color .18s; }
-  .mobile-dock svg { width: 23px; height: 23px; stroke-width: 1.8; }
-  .mobile-dock [aria-current="page"], .mobile-dock [aria-expanded="true"], .mobile-dock .active { color: var(--accent); background: var(--accent-bg); }
-  .mobile-dock > :active { background: #e6edf8; }
   .menu-dialog[open] { display: flex; flex-direction: column; position: fixed; inset: auto 20px auto auto;
     top: calc(var(--menu-top, 0px) + 20px + env(safe-area-inset-top)); width: 430px; max-width: calc(100% - 40px);
     height: calc(var(--menu-height, 100dvh) - 40px - env(safe-area-inset-top)); max-height: 900px; margin: 0; padding: 0;
@@ -529,10 +520,10 @@ h1, h2 { text-wrap: balance; }
   .menu-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px 12px; flex: 0 0 auto; }
   .menu-head h2 { margin: 0; font-size: 24px; letter-spacing: -.035em; line-height: 1.2; }
   .menu-close { padding: 0; color: #677384; border-radius: 50%; background: #e9edf3; box-shadow: none; border: 0; }
-  .menu-tabs { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; margin: 0 20px 6px; flex: 0 0 auto;
+  .menu-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 4px; margin: 0 20px 6px; flex: 0 0 auto;
     border-radius: 14px; background: #e9edf3; }
-  .menu-tabs button { min-height: 40px; padding: 6px 12px; border: 0; border-radius: 11px; background: transparent; color: #6b7583;
-    font: inherit; font-weight: 600; cursor: pointer; }
+  .menu-tabs button { min-height: 44px; min-width: 0; padding: 6px; border: 0; border-radius: 11px; background: transparent; color: #6b7583;
+    font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
   .menu-tabs button[aria-pressed="true"] { background: #fff; color: var(--ink); box-shadow: 0 1px 4px rgba(20,40,70,.09); }
   .menu-content { display: flex; flex: 1; min-height: 0; }
   .menu-dialog .side { position: static; display: flex; width: 100%; height: auto; flex: 1; min-height: 0; padding: 0 0 max(16px, env(safe-area-inset-bottom)); border: 0; background: transparent; }
@@ -556,13 +547,14 @@ h1, h2 { text-wrap: balance; }
   .menu-dialog .dd-btn { min-height: 48px; height: auto; padding: 10px 12px; font-size: 14px; border-radius: 14px; }
   .menu-dialog .dd-list { max-height: min(320px, 45dvh); border-radius: 16px; padding: 6px; }
   .menu-dialog .dd-list li { min-height: 48px; padding: 10px; border-radius: 10px; font-size: 14px; }
-  .menu-dialog .sfoot { margin: 0 20px; padding: 8px 0 0; gap: 0 14px; }
-  .menu-dialog .sfoot a { display: flex; align-items: center; min-height: 44px; font-size: 12px; }
-  .menu-dialog .sfoot small { display: block; color: #687486; }
-  .menu-dialog[data-mode="model"] .search, .menu-dialog[data-mode="model"] .picker { display: none; }
-  .menu-dialog[data-mode="model"] #search-status { display: none; }
-  .menu-dialog[data-mode="model"][open] { height: auto; }
-  .menu-dialog[data-mode="model"] .menu-content { max-height: calc(var(--menu-height, 100dvh) - 210px - env(safe-area-inset-top)); }
+  .menu-dialog .sfoot, .menu-dialog .side-tools, .menu-dialog .runsel { display: none; }
+  .menu-dialog:not([data-mode="stations"]) .search, .menu-dialog:not([data-mode="stations"]) .picker,
+  .menu-dialog:not([data-mode="stations"]) #search-status { display: none; }
+  .menu-dialog[data-mode="other"] .side-tools { display: block; flex: 1; min-height: 0; overflow-y: auto; }
+  .menu-dialog[data-mode="other"] .sfoot { display: flex; margin: 0 20px; padding: 8px 0 0; gap: 0 14px; }
+  .menu-dialog[data-mode="other"] .sfoot a { display: flex; align-items: center; min-height: 44px; font-size: 12px; }
+  .menu-dialog[data-mode="other"] .sfoot small { display: block; color: #687486; }
+  .menu-dialog[data-mode="model"] .runsel { display: block; }
   .menu-dialog[data-mode="model"] .runsel { flex: 1; min-height: 0; overflow-y: auto; border: 0; padding: 18px 0; }
   .menu-dialog[data-mode="model"] .dd-list { position: static; margin-top: 10px; max-height: none; box-shadow: none; border: 0; background: transparent; }
   .menu-dialog[data-mode="model"] .dd-list li[aria-selected="true"] { background: var(--accent-bg); }
@@ -570,20 +562,20 @@ h1, h2 { text-wrap: balance; }
   .menu-dialog.keyboard-open .side { display: block; overflow-y: auto; overscroll-behavior: contain; }
   .menu-dialog.keyboard-open .side > .picker { overflow: visible; }
   .tgl { min-height: 44px; }
-  .ck { z-index: 60; left: max(20px, env(safe-area-inset-left)); right: max(20px, env(safe-area-inset-right)); width: auto; max-width: none;
-    bottom: calc(94px + env(safe-area-inset-bottom)); max-height: calc(100dvh - 130px - env(safe-area-inset-top)); overflow-y: auto; }
+  .ck { z-index: 60; left: var(--page-inset-left); right: var(--page-inset-right); width: auto; max-width: none;
+    /* Kompaktní stín zůstává uvnitř okna i nad spodním toolbarem Safari. */
+    bottom: calc(24px + env(safe-area-inset-bottom));
+    max-height: calc(100dvh - 48px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); overflow-y: auto;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 4px 12px -4px rgba(0,0,0,.16); }
   .ck-b button { min-height: 44px; }
   .ck-f button, .ck-f a { display: inline-flex; align-items: center; min-height: 44px; }
   .ck-x { min-width: 44px; min-height: 44px; }
   @supports (backdrop-filter: blur(20px)) or (-webkit-backdrop-filter: blur(20px)) {
     .mbar { background: rgba(248,248,250,.82); -webkit-backdrop-filter: saturate(160%) blur(22px); backdrop-filter: saturate(160%) blur(22px); }
-    .mobile-dock { background: rgba(250,251,253,.84); -webkit-backdrop-filter: saturate(180%) blur(24px); backdrop-filter: saturate(180%) blur(24px); }
   }
 }
 @media (max-width: 600px) {
-  .main { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
-  .ck { left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); }
-  .mbar { margin-left: -12px; margin-right: -12px; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+  :root { --page-gutter: 12px; }
   .mbar .tag { max-width: 175px; }
   .mobile-search { padding: 0 12px; font-size: 13px; }
   .menu-dialog[open] { inset: auto 0 auto 0; top: calc(var(--menu-top, 0px) + 8px + env(safe-area-inset-top)); width: 100%; max-width: 100%;
@@ -591,8 +583,7 @@ h1, h2 { text-wrap: balance; }
   .menu-head { padding-top: 20px; }
   .menu-head::before { content: ""; position: absolute; top: 7px; left: calc(50% - 16px); width: 32px; height: 4px; border-radius: 4px; background: #d4dae3; }
   .menu-head h2 { font-size: 23px; }
-  .menu-dialog[data-mode="model"][open] { top: auto; bottom: 0; }
-  .hhero { gap: 22px; padding-left: 4px; }
+  .hhero { gap: 22px; }
   .home h1 { font-size: clamp(30px, 8.4vw, 38px); }
   .stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
   .st .lb, .st .sx { white-space: normal; }
@@ -615,7 +606,6 @@ h1, h2 { text-wrap: balance; }
 @media (max-width: 1100px) and (max-height: 560px) {
   .menu-dialog .side { display: block; overflow-y: auto; overscroll-behavior: contain; }
   .menu-dialog .side > .picker { overflow: visible; }
-  .menu-dialog[data-mode="model"] .runsel { overflow: visible; }
 }
 @media (max-width: 1100px) and (pointer: coarse) {
   .gh, .pk, .dd-btn, .dd-list li { min-height: 48px; }
@@ -629,6 +619,14 @@ h1, h2 { text-wrap: balance; }
   .pk .nm .in { display: inline; animation: none; }
 }
 @media (hover: none) { .hl a.st:hover, .hc:hover, .rc:hover { transform: none; } }
+@media (max-width: 1100px) {
+  .hhero, .rhead { padding-left: 0; padding-right: 0; }
+  .shelf {
+    margin-left: calc(-1 * var(--page-inset-left)); margin-right: calc(-1 * var(--page-inset-right));
+    padding-left: var(--page-inset-left); padding-right: var(--page-inset-right);
+    scroll-padding-left: var(--page-inset-left); scroll-padding-right: var(--page-inset-right);
+  }
+}
 </style>
 <link rel="stylesheet" href="/assets/snow.css">
 </head>
@@ -685,7 +683,7 @@ h1, h2 { text-wrap: balance; }
       <p class="eyebrow">Předpověď pro české hory</p>
       <h1>Meteogramy, jak je znáte i neznáte.</h1>
       <p class="lead">Předpověď modelu ALADIN pro <span id="hcount">109</span> horských stanic ČHMÚ. Teplota, vítr, srážky a další údaje po hodinách na tři dny dopředu.</p>
-      <p class="origin">Projekt vznikl pro všechny, kteří hledají původní vzhled meteogramů a chtějí mít počasí na horách přehledně v grafech.</p>
+      <p class="origin">Projekt jsme vytvořili pro všechny, kterým chybí původní meteogramy a chtějí mít počasí na horách zase přehledně a na jednom místě v grafech.</p>
       <div id="hlast"></div>
       </div>
       <div id="hcard"></div>
@@ -861,14 +859,9 @@ h1, h2 { text-wrap: balance; }
   </main>
 </div>
 
-<nav class="mobile-dock" aria-label="Hlavní navigace">
-  <a href="/" id="mobile-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10H15v-6H9v6H3Z"/></svg><span>Úvod</span></a>
-  <button type="button" data-menu="stations" id="mobile-stations" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 20 7-12 4 7 3-5 6 10H2Z"/><path d="m7 12 2 2 2-2"/></svg><span>Stanice</span></button>
-  <button type="button" data-menu="model" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="9"/></svg><span>Model</span></button>
-</nav>
 <dialog class="menu-dialog" id="mobile-menu" aria-labelledby="menu-title" data-mode="stations">
   <div class="menu-head"><h2 id="menu-title">Vybrat stanici</h2><button class="menu-close" id="menu-close" type="button" aria-label="Zavřít menu" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>
-  <div class="menu-tabs" role="group" aria-label="Obsah menu"><button type="button" data-menu="stations" aria-pressed="true">Stanice</button><button type="button" data-menu="model" aria-pressed="false">Běh modelu</button></div>
+  <div class="menu-tabs" role="group" aria-label="Obsah menu"><button type="button" data-menu="stations" aria-pressed="true">Stanice</button><button type="button" data-menu="model" aria-pressed="false">Běh modelu</button><button type="button" data-menu="other" aria-pressed="false">Ostatní</button></div>
   <div class="menu-content" id="menu-content"></div>
 </dialog>
 
@@ -928,7 +921,7 @@ function openNavigation(mode = "stations", trigger = document.activeElement) {
   const search = mode === "search";
   mode = search ? "stations" : mode;
   navigationDialog.dataset.mode = mode;
-  $("menu-title").textContent = mode === "model" ? "Běh modelu" : "Vybrat stanici";
+  $("menu-title").textContent = mode === "model" ? "Běh modelu" : mode === "other" ? "Ostatní přehledy" : "Vybrat stanici";
   document.querySelectorAll(".menu-tabs [data-menu]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.menu === mode)));
   if (!navigationDialog.open) {
     menuTrigger = trigger;
@@ -950,7 +943,7 @@ function openNavigation(mode = "stations", trigger = document.activeElement) {
     $("ddbtn").setAttribute("aria-expanded", "false");
     pickerEdge();
     if (search) $("q").focus({ preventScroll: true });
-    else $("menu-close").focus({ preventScroll: true });
+    else if (!trigger?.closest(".menu-tabs")) $("menu-close").focus({ preventScroll: true });
   }
 }
 document.addEventListener("click", e => {
@@ -979,9 +972,6 @@ navigationDialog.addEventListener("click", e => {
 compactNavigation.addEventListener("change", () => { closeNavigation(false); pickerEdge(); });
 function mobileContext() {
   const view = viewOf();
-  $("mobile-home").toggleAttribute("aria-current", view === "home");
-  if (view === "home") $("mobile-home").setAttribute("aria-current", "page");
-  $("mobile-stations").classList.toggle("active", view === "mg" || view === "range");
   $("mobile-context").textContent = view === "mg" ? state.data?.places.find(p => p.id === pathId())?.name || "Horská předpověď"
     : view === "/lavinova-predpoved/" ? "Lavinová předpověď" : view === "/snehove-zpravodajstvi/" ? "Sněhové zpravodajství" : view === "range" ? RANGE_OF[pathId()] : view === "/o-projektu/" ? "O projektu" : view === "/ochrana-soukromi/" ? "Ochrana soukromí" : "horské meteogramy";
 }
