@@ -1491,7 +1491,11 @@ function render() {
     tip.style.bottom = "auto";
     const px = r.left - br.left + xi / W * r.width + box.scrollLeft;
     const tw = tip.offsetWidth;
-    tip.style.left = Math.max(box.scrollLeft + 8, Math.min(px + 14, box.scrollLeft + br.width - tw - 8)) + "px";
+    const pointerX = pt.clientX - br.left + box.scrollLeft;
+    const right = Math.max(px, pointerX) + 14;
+    const left = Math.min(px, pointerX) - tw - 14;
+    const maxLeft = box.scrollLeft + box.clientWidth - tw - 8;
+    tip.style.left = Math.max(box.scrollLeft + 8, Math.min(right <= maxLeft ? right : left, maxLeft)) + "px";
     const py = pt.clientY - br.top;
     tip.style.top = Math.max(0, Math.min(br.height - tip.offsetHeight, py - tip.offsetHeight / 2)) + "px";
   }
