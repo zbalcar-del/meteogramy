@@ -281,6 +281,16 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
   box-shadow: 0 1px 3px rgba(0,0,0,.2), 0 0 0 .5px rgba(0,0,0,.04); transition: left .2s; }
 .tgl input:checked + i { background: #34c759; }
 .tgl input:checked + i::after { left: 17px; }
+/* ⓘ u přepínače přepočtu teploty: stejná ikona a bublina jako u grafů */
+.corr-wrap { position: relative; display: flex; align-items: center; gap: 6px; }
+.corr-i { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; }
+.corr-i svg { width: 15px; height: 15px; fill: #c7c7cc; transition: fill .15s; }
+.corr-i:hover svg, .corr-i[aria-expanded="true"] svg { fill: var(--accent); }
+.corr-info { position: absolute; z-index: 20; top: calc(100% + 6px); right: 0; width: 320px; max-width: calc(100vw - 32px); padding: 12px 14px 13px;
+  font-size: 13px; line-height: 1.5; color: #3a3a3c; background: rgba(255,255,255,.94); -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px); border: .5px solid rgba(0,0,0,.1); border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,.12), 0 1px 3px rgba(0,0,0,.08); }
+.corr-info b { display: block; margin-bottom: 4px; font-size: 14px; color: #1d1d1f; }
+@media (max-width: 860px) { .corr-info { right: auto; left: 0; } }
 
 .chart-frame { position: relative; }
 #chart { position: relative; padding: 18px 16px 10px; }
@@ -837,7 +847,7 @@ h1, h2 { text-wrap: balance; }
     </div>
     <div class="metabar">
       <div id="meta"></div>
-      <label class="tgl"><input type="checkbox" id="corr"><i></i>Teplota přepočtená na výšku stanice</label>
+      <div class="corr-wrap"><label class="tgl"><input type="checkbox" id="corr"><i></i>Teplota přepočtená na výšku stanice</label><button type="button" class="corr-i" id="corr-i" aria-expanded="false" aria-controls="corr-info" aria-label="Co znamená přepočet teploty"></button><div class="corr-info" id="corr-info" role="tooltip" hidden></div></div>
     </div>
     <p class="chart-help" id="chart-help"><span aria-hidden="true">↔</span> Posuňte graf do stran. Klepnutím zobrazíte hodinové údaje.</p>
     <div class="chart-frame" id="chart-frame"><div id="chart" aria-describedby="chart-help"><div class="msg">Načítám data…</div><div id="tip"></div><div id="info" role="tooltip"></div></div></div>
@@ -2455,6 +2465,30 @@ async function init() {
   }
 }
 
+// vysvětlivka k přepočtu teploty: na najetí myší, na mobilu klepnutím; čísla podle zobrazené stanice
+{
+  const btn = $("corr-i"), box = $("corr-info");
+  btn.innerHTML = `<svg viewBox="0 0 512 512" aria-hidden="true"><path d="${FA_CIRCLE_INFO}"/></svg>`;
+  const show = () => {
+    const m = state.m;
+    let detail = "";
+    if (m) {
+      const dz = m.alt - m.node.alt, dt = Math.abs(0.0065 * dz);
+      detail = Math.abs(dz) < 5
+        ? ` U této stanice leží bod modelu ve výšce ${m.node.alt} m, téměř stejně jako stanice (${m.alt} m), takže se teplota skoro nezmění.`
+        : ` U této stanice leží bod modelu ve výšce ${m.node.alt} m, stanice ve ${m.alt} m – teplota bude o ${fmtNum(dt)} °C ${dz > 0 ? "nižší" : "vyšší"}.`;
+    }
+    box.innerHTML = `<b>Teplota přepočtená na výšku stanice</b>Model ALADIN počítá teplotu pro nejbližší bod své mřížky, jehož výška se od stanice může lišit. ` +
+      `Po zapnutí teplotu přepočítáme na skutečnou výšku stanice: o 0,65 °C na každých 100 m rozdílu.${detail} Ostatní údaje zůstávají beze změny.`;
+    box.hidden = false; btn.setAttribute("aria-expanded", "true");
+  };
+  const hide = () => { box.hidden = true; btn.setAttribute("aria-expanded", "false"); };
+  btn.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") show(); });
+  btn.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") hide(); });
+  btn.addEventListener("click", e => { e.stopPropagation(); box.hidden ? show() : hide(); });
+  document.addEventListener("click", hide);
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !box.hidden) { hide(); btn.focus(); } });
+}
 $("corr").onchange = e => {
   state.corr = e.target.checked;
   try { localStorage.setItem("corr", state.corr ? "1" : "0"); } catch (err) {}
