@@ -73,7 +73,7 @@
 .snow-empty h2, .snow-empty h3 { font-size: 19px; letter-spacing: -.02em; margin: 0 0 8px; }
 .snow-empty p { color: #748091; margin: 0; font-size: 14px; }
 .snow-explainer { padding: 20px 8px 6px; color: #687486; font-size: 13px; line-height: 1.6; }
-.snow-explainer summary { font-weight: 600; color: #4e6076; cursor: pointer; min-height: 44px; }
+.snow-explainer h2 { margin: 0 0 16px; font-size: 13px; font-weight: 600; color: #4e6076; }
 .snow-explainer p { max-width: 850px; margin: 0 0 12px; }
 .snow-explainer a, .snow-source a { color: var(--accent); }
 .snow-source { margin: 12px 8px 0; color: #748091; font-size: 11px; line-height: 1.6; }
