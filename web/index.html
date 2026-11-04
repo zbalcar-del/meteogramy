@@ -208,6 +208,9 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .bb-btn.powder { border-color: rgba(191,135,0,.3); background: linear-gradient(135deg, #fff9ea, #fbe3a6); color: #8a5a00; box-shadow: 0 1px 2px rgba(138,90,0,.1); }
 .bb-btn.powder span { color: #b8862a; }
 .bb-btn.powder:hover, .bb-btn.powder[aria-expanded="true"] { box-shadow: 0 0 0 3px rgba(191,135,0,.14), 0 1px 2px rgba(138,90,0,.1); }
+.bb-btn.inv { border-color: rgba(13,128,120,.24); background: linear-gradient(135deg, #f0fbf9, #d5f0eb); color: #0b6b64; box-shadow: 0 1px 2px rgba(11,107,100,.08); }
+.bb-btn.inv span { color: #4f9d96; }
+.bb-btn.inv:hover, .bb-btn.inv[aria-expanded="true"] { box-shadow: 0 0 0 3px rgba(13,128,120,.13), 0 1px 2px rgba(11,107,100,.08); }
 .bb-btn svg { width: 16px; height: 16px; flex: 0 0 auto; overflow: visible; }
 .bb-btn .spin { transform-origin: 12px 12px; animation: bb-spin 14s linear infinite; }
 .bb-btn.powder .spin { transform-origin: 10px 11px; animation-duration: 20s; }
@@ -1237,6 +1240,7 @@ const ICONS = {
   gust: '<path d="M3 7h9a3 3 0 1 0-3-3M3 12h13M3 17h9a3 3 0 1 1-3 3"/>',
   drop: '<path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/>',
   flake: '<path d="M12 2v20M3.3 7l17.4 10M3.3 17l17.4-10M9 3l3 3 3-3M9 21l3-3 3 3"/>',
+  inv: '<circle cx="12" cy="8" r="3.5"/><path d="M3 15.5h18M5 19.5h14"/>',
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
 };
 const ICON = k => `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[k]}</svg>`;
@@ -1299,6 +1303,23 @@ function whenLabel(t) {
   return diff <= 0 ? "dnes" : diff === 1 ? "zítra" : diff === 2 ? "pozítří" : BB_PREP[new Date(dayUTC).getUTCDay()];
 }
 // Sněžení po dnech (od teď): součet nového sněhu (1 mm vody ≈ 1 cm), hodiny, kdy sněží.
+// Inverze s mořem mlhy: stanice je aspoň o 1 °C teplejší než údolí pod ní (nejnižší bod modelu do 8 km),
+// údolí je v mlze nebo nízké oblačnosti (aspoň 60 %) a nahoře je nízké oblačnosti nejvýš 30 %. Den se počítá od 3 takových hodin.
+function inversionDays(m, times) {
+  if (!m.valley || !m.vt || !m.vcll) return [];
+  const now = nowIndex(times), days = new Map();
+  for (let i = now; i < times.length; i++) {
+    const diff = m.t[i] - m.vt[i];
+    if (diff < 1 || m.vcll[i] < 60 || m.cll[i] > 30) continue;
+    const l = local(times[i]), key = `${l.day}.${l.month}`;
+    if (!days.has(key)) days.set(key, { key, name: `${l.wd} ${l.day}. ${l.month}.`, when: whenLabel(times[i]), idx: [], diff: 0, top: 0, low: 0 });
+    const d = days.get(key);
+    d.idx.push(i);
+    if (diff > d.diff) Object.assign(d, { diff, top: m.t[i], low: m.vt[i] });
+  }
+  return [...days.values()].filter(d => d.idx.length >= 3).map(d => ({ ...d, i0: d.idx[0], i1: d.idx[d.idx.length - 1],
+    from: local(times[d.idx[0]]).hour, to: (local(times[d.idx[d.idx.length - 1]]).hour + 1) % 24 }));
+}
 function snowDays(m, times) {
   const now = nowIndex(times), days = new Map();
   for (let i = now; i < times.length; i++) {
@@ -1326,6 +1347,8 @@ const BADGE_ICON = {
   sun: `<circle cx="12" cy="12" r="4.2" fill="#ffcc00" stroke="#f5a400" stroke-width="1.4"/>` +
     `<g class="spin" stroke="#f5a400" stroke-width="1.8"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g>`,
   flake: `<g class="spin" stroke="currentColor" stroke-width="1.8"><path d="M12 2.5v19M3.8 7.25l16.4 9.5M3.8 16.75l16.4-9.5M9.5 3.8 12 6.3l2.5-2.5M9.5 20.2 12 17.7l2.5 2.5"/></g>`,
+  inv: `<circle cx="12" cy="8" r="3.4" fill="currentColor" stroke="none" opacity=".9"/>` +
+    `<path d="M3 15.5h18M5 19h14" stroke="currentColor" stroke-width="1.9"/>`,
   powder: `<g class="spin" stroke="currentColor" stroke-width="1.8"><path d="M10 3.5v15M3.5 7.25l13 7.5M3.5 14.75l13-7.5M7.8 4.6 10 6.6l2.2-2"/></g>` +
     `<path d="M19 15.5v5M16.5 18h5" stroke="currentColor" stroke-width="1.6"/><path d="M19.5 3.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" fill="currentColor" stroke="none"/>`,
 };
@@ -1355,11 +1378,18 @@ function conditions(m, T, times) {
     eyebrow: "Bude sypat", title: "Na horách přibude sníh",
     text: "Model počítá se sněžením, které stojí za zmínku – aspoň 2 cm nového sněhu za den. 1 mm srážek ve formě sněhu odpovídá zhruba 1 cm prašanu.",
     foot: "Model ALADIN pro tuto stanici", bands: snow, band: "❄ sněží", target: "snow", link: "V grafu srážek ↓" });
+  const inv = inversionDays(m, times);
+  if (inv.length) out.push({ id: "inversion", cls: "inv", icon: "inv", name: "Inverze", when: inv[0].when, at: inv[0].i0,
+    tiles: inv.map(d => ({ d: d.name, v: `+${fmtNum(d.diff)}`, u: "°C nahoře tepleji", x: `${d.from}–${d.to} h · nahoře ${deg(d.top)}, v údolí ${deg(d.low)} a mlha` })),
+    eyebrow: "Inverze", title: "Nahoře tepleji, v údolí mlha",
+    text: "Studený vzduch zůstane ležet v údolích a vyplní je mlha nebo nízká oblačnost. Nad ní je tepleji a jasno – z hřebenů bývá vidět moře mlhy.",
+    foot: `Model ALADIN: stanice proti údolí ve výšce ${m.valley.alt} m, ${fmtNum(m.valley.dist)} km od stanice`,
+    bands: inv, band: "inverze", target: "temp", link: "V grafu teploty ↓" });
   if (bb.length) out.push({ id: "bluebird", cls: "", icon: "sun", name: "Bluebird", when: bb[0].when, at: bb[0].i0,
     tiles: bb.map(d => ({ d: d.name, v: fmtNum(d.sun), u: "h slunce", x: `oblačnost ${Math.round(d.cloud)} % · ${deg(d.tMin)} / ${deg(d.tMax)}`,
       pw: d.powder ? `po sněžení ≈ ${Math.round(d.powder)} cm` : "" })),
     eyebrow: "Bluebird den", title: "Modrá obloha od rána do večera",
-    text: "Lyžařský výraz pro den, kdy je od východu do západu slunce jasno a hory září do dálky. Nejcennější je hned po sněžení – čerstvý prašan a slunce.",
+    text: "Lyžařský výraz pro den s jasnou oblohou od východu do západu slunce. Nejvíc se cení hned po sněžení, kdy se sejde čerstvý sníh a slunce.",
     foot: "Model ALADIN, hodiny mezi východem a západem slunce", bands: bb, band: null, target: "cloud", link: "V grafu oblačnosti ↓" });
   // chronologicky: co přijde dřív, je vlevo
   return out.sort((a, b) => a.at - b.at);
@@ -1375,7 +1405,7 @@ function badges(list) {
       `${badgeSvg(b.icon)}${b.name} <span>${b.when}</span>${more}</button>`;
   }).join("")}</div>` + list.map(b =>
     `<div class="bb-pop ${b.cls}" id="bb-pop-${b.id}" role="dialog" aria-label="${b.name}" hidden>` +
-    `<p class="eyebrow">${ICON(b.icon === "sun" ? "sun" : "flake")}<span>${b.eyebrow}</span></p><h3>${b.title}</h3><p>${b.text}</p>` +
+    `<p class="eyebrow">${ICON(b.icon === "sun" ? "sun" : b.icon === "inv" ? "inv" : "flake")}<span>${b.eyebrow}</span></p><h3>${b.title}</h3><p>${b.text}</p>` +
     `<ul class="bb-days">${b.tiles.map(t => `<li><span class="d">${t.d}</span><b>${t.v} <span>${t.u}</span></b><span class="v">${t.x}</span>` +
       (t.pw ? `<span class="pw"><i></i>${t.pw}</span>` : "") + `</li>`).join("")}</ul>` +
     `<div class="bb-foot"><span>${b.foot}</span><button type="button" class="bb-show" data-target="${b.target}">${b.link}</button></div></div>`).join("");
@@ -1576,6 +1606,11 @@ function render() {
   legend(pT, "Teplota", [["line", C.temp, "2 m nad zemí [°C]"]]);
   let Y = frame(pT, lo, hi, hi - lo > 16 ? 4 : 2, "[°C]");
   if (lo < 0 && hi > 0) s += `<line x1="${L}" x2="${L + pw}" y1="${Y(0)}" y2="${Y(0)}" stroke="${C.frame}" stroke-width="1"/>`;
+  for (const c of conds) if (c.target === "temp") for (const d of c.bands) {
+    const x0 = x(d.i0) - bw / 2, x1 = x(d.i1) + bw / 2;
+    s += `<rect class="band-temp" x="${x0.toFixed(1)}" y="${pT.top}" width="${(x1 - x0).toFixed(1)}" height="${pT.h}" fill="#0d8078" opacity=".07"/>`;
+    s += text((x0 + x1) / 2, pT.top + 13, c.band, { c: "#0b6b64" });
+  }
   s += line(T, Y, C.temp);
   close(pT);
 

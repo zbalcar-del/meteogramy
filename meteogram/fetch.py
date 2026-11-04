@@ -44,6 +44,11 @@ OROGRAPHY = "SURFGEOPOTENTIEL"
 PLACES = json.loads((Path(__file__).resolve().parent / "places.json").read_text())
 # uzel modelu: v okolí stanice ten s výškou nejbližší skutečné výšce (1 km vzdálenosti "stojí" 60 m výšky)
 DIST_PENALTY_M_PER_KM = 60
+# údolí pro poznání inverze: nejnižší bod modelu do VALLEY_RADIUS_KM, aspoň VALLEY_MIN_DROP_M pod uzlem stanice
+VALLEY_RADIUS_KM = 8
+VALLEY_MIN_DROP_M = 300
+# z údolního bodu stačí teplota a nízká oblačnost (mlha)
+VALLEY_FIELDS = {"t": "vt", "cll": "vcll"}
 
 FILE_RE = re.compile(r"ALADCZ1K4opendata_(\d{10})_([A-Z0-9_]+)\.grb\.bz2")
 
@@ -114,6 +119,29 @@ def pick_nodes(oro, grid):
     return nodes
 
 
+def pick_valleys(oro, grid, nodes):
+    """Pro každé místo najde nejnižší bod modelu v okolí (údolí pod stanicí); None, když není výrazně níž."""
+    ni, nj = grid["Ni"], grid["Nj"]
+    lat0, lon0 = grid["latitudeOfFirstGridPointInDegrees"], grid["longitudeOfFirstGridPointInDegrees"]
+    dlat, dlon = grid["jDirectionIncrementInDegrees"], grid["iDirectionIncrementInDegrees"]
+    z = oro.reshape(nj, ni) / 9.80665
+    valleys = {}
+    for pl in PLACES:
+        lat, lon, node = pl["lat"], pl["lon"], nodes[pl["id"]]
+        j0, i0 = round((lat - lat0) / dlat), round((lon - lon0) / dlon)
+        rj = math.ceil(VALLEY_RADIUS_KM / (dlat * 111.2))
+        ri = math.ceil(VALLEY_RADIUS_KM / (dlon * 111.2 * math.cos(math.radians(lat))))
+        best = None
+        for j in range(max(0, j0 - rj), min(nj, j0 + rj + 1)):
+            for i in range(max(0, i0 - ri), min(ni, i0 + ri + 1)):
+                nlat, nlon = lat0 + j * dlat, lon0 + i * dlon
+                dist = math.hypot((nlat - lat) * 111.2, (nlon - lon) * 111.2 * math.cos(math.radians(lat)))
+                if dist <= VALLEY_RADIUS_KM and (best is None or z[j, i] < best["alt"]):
+                    best = {"idx": j * ni + i, "lat": nlat, "lon": nlon, "alt": float(z[j, i]), "dist": dist}
+        valleys[pl["id"]] = best if best and node["alt"] - best["alt"] >= VALLEY_MIN_DROP_M else None
+    return valleys
+
+
 def iso(d):
     return d.isoformat().replace("+00:00", "Z")
 
@@ -129,6 +157,7 @@ def process_run(run, urls, dest):
 
         oro_msgs = read_messages(work / f"{OROGRAPHY}.grb")
         nodes = pick_nodes(oro_msgs[0][1], oro_msgs[0][2])
+        valleys = pick_valleys(oro_msgs[0][1], oro_msgs[0][2], nodes)
 
         series = {pid: {} for pid in nodes}
         steps_all = None
@@ -144,6 +173,9 @@ def process_run(run, urls, dest):
                     # akumulace od startu -> přírůstek za hodinu
                     vals = {s: max(0.0, vals[s] - vals.get(s - 1, 0.0)) for s in steps}
                 series[pid][key] = vals
+                valley = valleys[pid]
+                if key in VALLEY_FIELDS and valley:
+                    series[pid][VALLEY_FIELDS[key]] = {s: float(conv(by_step[s][valley["idx"]])) for s in by_step}
 
         start = datetime.strptime(run, "%Y%m%d%H").replace(tzinfo=timezone.utc)
         times = [iso(start + timedelta(hours=s)) for s in steps_all]
@@ -153,6 +185,10 @@ def process_run(run, urls, dest):
             node = nodes[pl["id"]]
             meta = {**pl, "node": {"lat": round(node["lat"], 4), "lon": round(node["lon"], 4),
                                    "alt": round(node["alt"]), "dist": round(node["dist"], 2)}}
+            valley = valleys[pl["id"]]
+            if valley:
+                meta["valley"] = {"lat": round(valley["lat"], 4), "lon": round(valley["lon"], 4),
+                                  "alt": round(valley["alt"]), "dist": round(valley["dist"], 1)}
             index["places"].append(meta)
             entry = {"id": pl["id"], "times": times}
             for key, vals in series[pl["id"]].items():
