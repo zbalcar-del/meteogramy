@@ -1321,24 +1321,7 @@ function loadSnowObs() {
   if (state.snowObsP) return state.snowObsP;
   return state.snowObsP = readJSON("/data/snow.json").then(d => { state.snowObs = d; if (state.m && viewOf() === "mg") render(); }).catch(() => {});
 }
-// Ukázkový režim jen pro lokální vývoj: /praded/?demo=snih, ?demo=powder nebo ?demo=vse přidá do předpovědi sněžení.
-const DEMO = ["localhost", "127.0.0.1"].includes(location.hostname) ? new URLSearchParams(location.search).get("demo") : null;
-function demoSnow(m) {
-  if (!["snih", "powder", "vse"].includes(DEMO)) return m;
-  const times = m.times.map(t => new Date(t)), now = nowIndex(times), d = { ...m };
-  for (const k of ["snow", "prec", "clt", "cll", "sun"]) d[k] = m[k].slice();
-  // nasype `cm` sněhu v daný den mezi hodinami od–do, nejvíc uprostřed
-  const fall = (when, cm, from, to) => {
-    const hrs = times.map((t, i) => i).filter(i => i > now && whenLabel(times[i]) === when && local(times[i]).hour >= from && local(times[i]).hour < to);
-    const w = hrs.map((_, k) => Math.sin(Math.PI * (k + .5) / hrs.length)), ws = sum(w);
-    hrs.forEach((i, k) => { const v = cm * w[k] / ws; d.snow[i] = v; d.prec[i] = v * 1.05; d.clt[i] = 100; d.cll[i] = 90; d.sun[i] = 0; });
-  };
-  if (DEMO === "snih") fall("pozítří", 6, 5, 17);
-  if (DEMO === "powder" || DEMO === "vse") { fall("pozítří", 22, 5, 17); d.demoBase = { depth: 75, change: 0, at: new Date(Date.now() - 864e5) }; }
-  // vše: k tomu slabší sněžení poslední den předpovědi
-  if (DEMO === "vse") fall(whenLabel(times[times.length - 1]), 5, 0, 12);
-  return d;
-}
+
 const BADGE_ICON = {
   sun: `<circle cx="12" cy="12" r="4.2" fill="#ffcc00" stroke="#f5a400" stroke-width="1.4"/>` +
     `<g class="spin" stroke="#f5a400" stroke-width="1.8"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g>`,
@@ -1351,7 +1334,7 @@ const badgeSvg = k => `<svg viewBox="0 0 24 24" fill="none" stroke-linecap="roun
 // Štítky vpravo nahoře: powder alert, bude sypat, bluebird. Každý má vlastní vysvětlivku, otevřená je vždy jen jedna.
 function conditions(m, T, times) {
   const bb = bluebirdDays(m, T, times), sd = snowDays(m, times);
-  const base = m.demoBase || snowBase(m.id);
+  const base = snowBase(m.id);
   const out = [];
   // Powder alert jen tam, kde podle měření ČHMÚ leží aspoň 75 cm, a k tomu aspoň 10 cm nového sněhu za den.
   const POWDER_BASE = 75;
@@ -2198,7 +2181,7 @@ async function show(id) {
   if (state.counted !== meta.id) { countVisit(meta.id); state.counted = meta.id; }
   state.id = meta.id;
   try { localStorage.setItem("last", meta.id); } catch (e) {}
-  state.m = demoSnow({ ...meta, ...state.cache[key] });
+  state.m = { ...meta, ...state.cache[key] };
   loadSnowObs();
   state.open.add(meta.range);
   render();
