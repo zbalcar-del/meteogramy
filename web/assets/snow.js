@@ -169,7 +169,7 @@
         if (!hasMeasurements) {
           body.innerHTML = '<div class="snow-empty"><h2>Měření se nepodařilo načíst</h2><p>Zkuste načtení znovu. Chybějící údaje neznamenají nulovou výšku sněhu.</p></div>';
         }
-        status.innerHTML = (hasMeasurements ? 'Aktualizaci se nepodařilo ověřit. Zobrazená měření zůstávají dostupná. ' : '')
+        status.innerHTML = (hasMeasurements ? 'Aktualizaci se nepodařilo ověřit. Zobrazená měření zůstávají dostupná. ' : 'Měření se nepodařilo načíst. ')
           + '<button type="button" class="ckbtn" data-snow-retry>Načíst znovu</button>';
         status.hidden = false;
       } finally {

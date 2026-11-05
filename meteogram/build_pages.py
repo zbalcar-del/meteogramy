@@ -1,7 +1,7 @@
 """Statické stránky pro vyhledávače a AI asistenty: python3 meteogram/build_pages.py [výstup]
 
 Z web/index.html a posledního běhu modelu ve web/data vytvoří (výchozí výstup build/site):
-úvod, stránku každé stanice (/praded/), každého pohoří (/krkonose/), O projektu, Ochranu soukromí,
+úvod, stránku každé stanice a lyžařského střediska (/praded/), každého pohoří (/krkonose/), O projektu, Ochranu soukromí,
 404.html, sitemap.xml, robots.txt a llms.txt. Stránky obsahují titulek, popis, strukturovaná data
 a předpověď po dnech přímo v HTML, takže je přečte i robot, který nespouští JavaScript.
 Texty pod meteogramem musí odpovídat funkcím stationInfo() a rangeView() v index.html.
@@ -104,7 +104,29 @@ def daily(times, d):
     return [g for g in out if len(g['t']) >= 3]
 
 
-def station_info(m, places, series, times, run):
+def is_resort(p):
+    return p.get('kind') == 'resort'
+
+
+def word(m):
+    """Stejně jako word() v index.html: o čem mluví texty u místa."""
+    if is_resort(m):
+        return ('vrchol', 'vrcholu') if m.get('top') else ('středisko', 'střediska')
+    return ('stanice', 'stanice')
+
+
+def resorts_word(n):
+    return 'lyžařské středisko' if n == 1 else 'lyžařská střediska' if n < 5 else 'lyžařských středisek'
+
+
+STATION_NOTE = ('Uvedená výška je nadmořská výška meteorologické stanice ČHMÚ, ne vrcholu hory. '
+                'Stanice často stojí pod vrcholem, v sedle nebo u horské chaty.')
+TOP_NOTE = ('Uvedená výška a poloha patří vrcholu areálu: nejvýše položené horní stanici vleku nebo lanovky '
+            'podle OpenStreetMap. Pro tento bod počítáme předpověď.')
+RESORT_NOTE = 'Poloha a výška střediska podle mapy lyžařských středisek ČHMÚ.'
+
+
+def station_info(m, places, series, times, run, range_pages=()):
     rows = ''
     if series:
         for g in daily(times, series):
@@ -113,15 +135,19 @@ def station_info(m, places, series, times, run):
                      f'<td>{js_round(g["gust"])} m/s</td><td>{"–" if g["prec"] < 0.1 else num(g["prec"]) + " mm"}</td>'
                      f'<td>{"–" if g["snow"] < 0.5 else str(js_round(g["snow"])) + " cm"}</td><td class="hm">{num(g["sun"])} h</td></tr>')
     lt = local(run)
-    near = sorted((p for p in places if p['id'] != m['id']), key=lambda p: km(m, p))[:6]
+    resort, (_, gen) = is_resort(m), word(m)
+    near = sorted((p for p in places if p['id'] != m['id'] and is_resort(p) == resort), key=lambda p: km(m, p))[:6]
+    station = resort and min((p for p in places if not is_resort(p)), key=lambda p: km(m, p))
     name, rng = escape(m['name']), escape(m['range'])
     geo = lambda v: f'{v:.4f}'.replace('.', ',')
     spec = [
-        ('Stanice', f'ČHMÚ, měří od roku {m["since"]}' if m.get('since') else 'ČHMÚ'),
-        ('Pohoří', rng),
+        ('Středisko', 'vrchol areálu – nejvýš položená horní stanice vleku nebo lanovky' if m.get('top') else 'lyžařské středisko')
+        if resort else ('Stanice', f'ČHMÚ, měří od roku {m["since"]}' if m.get('since') else 'ČHMÚ'),
+        *([('Pohoří', rng)] if m['range'] != 'Ostatní' else []),
         ('Nadmořská výška', f'{m["alt"]} m n. m.'),
         ('Souřadnice', f'{geo(m["lat"])}° s. š., {geo(m["lon"])}° v. d.'),
-        ('Bod modelu', f'{m["node"]["alt"]} m n. m., {num(m["node"]["dist"])} km od stanice'),
+        ('Bod modelu', f'{m["node"]["alt"]} m n. m., {num(m["node"]["dist"])} km od {gen}'),
+        *([('Nejbližší stanice ČHMÚ', f'<a href="/{station["id"]}/">{escape(station["name"])}</a>, {num(km(m, station))} km')] if station else []),
         ('Model', 'ALADIN CZ, ČHMÚ'),
         ('Předpověď', '3 dny po hodinách, 4× denně'),
         ('Veličiny', 'teplota, vítr a nárazy, srážky, sníh, vlhkost, tlak, oblačnost'),
@@ -131,12 +157,15 @@ def station_info(m, places, series, times, run):
         f'<th>Srážky</th><th>Sníh</th><th class="hm">Slunce</th></tr></thead><tbody>{rows}</tbody></table>'
         f'<p class="src">Model ALADIN CZ, běh {lt.day}. {lt.month}. {lt.hour:02d}:00 {tz_name(lt)}. '
         f'Teplota ve výšce uzlu modelu {m["node"]["alt"]} m.</p></div>'
-        f'<div><h2>O stanici</h2><dl class="spec">'
+        f'<div><h2>{"O středisku" if resort else "O stanici"}</h2><dl class="spec">'
         + ''.join(f'<div><dt>{k}</dt><dd>{v}</dd></div>' for k, v in spec)
         + '</dl>'
-        f'<h2>Stanice v okolí</h2><nav class="near" aria-label="Stanice v okolí">'
+        f'<h2>{"Střediska" if resort else "Stanice"} v okolí</h2><nav class="near" aria-label="{"Střediska" if resort else "Stanice"} v okolí">'
         + ''.join(f'<a href="/{p["id"]}/">{escape(p["name"])} <small>{p["alt"]} m</small></a>' for p in near)
-        + f'</nav><a class="more" href="/{slug(m["range"])}/">Všechny stanice: {rng} →</a></div>'
+        + '</nav>'
+        + (f'<a class="more" href="/{slug(m["range"])}/">{"Střediska a stanice" if resort else "Všechny stanice"}: {rng} →</a>'
+           if m['range'] in range_pages else '')
+        + '</div>'
     )
 
 
@@ -210,7 +239,7 @@ def head(html, title, desc, path, graph):
 
 WEBSITE = {'@type': 'WebSite', '@id': f'{SITE}/#website', 'name': 'Meteogramy.cz', 'alternateName': 'Meteogramy',
            'url': f'{SITE}/', 'inLanguage': 'cs',
-           'description': 'Meteogramy ALADIN pro horské meteorologické stanice ČHMÚ v Česku.'}
+           'description': 'Meteogramy ALADIN pro horské meteorologické stanice ČHMÚ a lyžařská střediska v Česku.'}
 
 
 def crumbs(*items):
@@ -297,7 +326,7 @@ a.btn { display: inline-block; padding: 11px 20px; border-radius: 12px; backgrou
 <main>
   <img src="/assets/logo.png?v=4" alt="">
   <h1>Tahle stránka tu není</h1>
-  <p>Odkaz je možná starý nebo v něm je překlep. Meteogramy všech horských stanic najdete na úvodní stránce.</p>
+  <p>Odkaz je možná starý nebo v něm je překlep. Meteogramy horských stanic a lyžařských středisek najdete na úvodní stránce.</p>
   <a class="btn" href="/">Na úvodní stránku</a>
 </main>
 </body>
@@ -312,9 +341,13 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
     meta = json.loads((data / runs[0] / 'index.json').read_text())
     summary = json.loads((data / runs[0] / 'summary.json').read_text())
     places, run, times = meta['places'], meta['run'], summary['times']
-    by_range = groups(places)
+    stations_ = [p for p in places if not is_resort(p)]
+    resorts = [p for p in places if is_resort(p)]
+    by_range = groups(stations_)
+    range_pages = {r for r, _ in by_range}
     for r, _ in by_range:
         assert slug(r) not in RESERVED | {p['id'] for p in places}, r
+    assert not {p['id'] for p in places} & RESERVED
     if out.exists():
         shutil.rmtree(out)
     out.mkdir(parents=True)
@@ -322,8 +355,15 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
     urls = []
 
     # úvod
-    html = fill(template, 'hranges', range_links(places))
-    html = html.replace('<span id="hcount">109</span>', f'<span id="hcount">{len(places)}</span>')
+    # počty míst v popisech, úvodu a O projektu podle aktuálního seznamu
+    for old, new in (('109 horských stanic ČHMÚ a 123 lyžařských středisek', f'{len(stations_)} horských stanic ČHMÚ a {len(resorts)} lyžařských středisek'),
+                     ('<span id="hcount">109</span>', f'<span id="hcount">{len(stations_)}</span>'),
+                     ('<span id="rcount">123</span>', f'<span id="rcount">{len(resorts)}</span>'),
+                     ('<b id="fstations">109</b>', f'<b id="fstations">{len(stations_)}</b>'),
+                     ('<b id="fresorts">123</b>', f'<b id="fresorts">{len(resorts)}</b>')):
+        assert old in template, old
+        template = template.replace(old, new)
+    html = fill(template, 'hranges', range_links(stations_))
     write(out, '/', page(html, '/', re.search(r'<title>(.*?)</title>', template).group(1),
                          re.search(r'<meta name="description" content="([^"]*)">', template).group(1), modified=modified))
     urls.append('/')
@@ -331,10 +371,12 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
     # pohoří
     for r, ps in by_range:
         path = f'/{slug(r)}/'
+        rs = sorted((p for p in resorts if p['range'] == r), key=lambda p: -p['alt'])
+        also = f' a {len(rs)} {resorts_word(len(rs))}' if rs else ''
         title = f'{r} – meteogramy ALADIN, počasí na horách | Meteogramy.cz'
-        desc = (f'Meteogramy ALADIN pro {len(ps)} {stations(len(ps))} ČHMÚ v pohoří {r}: '
+        desc = (f'Meteogramy ALADIN pro {len(ps)} {stations(len(ps))} ČHMÚ{also} v pohoří {r}: '
                 f'hodinová předpověď teploty, větru a nárazů, srážek a sněhu na 3 dny.')
-        lead = (f'Hodinová předpověď modelu ALADIN pro {len(ps)} {stations(len(ps))} ČHMÚ '
+        lead = (f'Hodinová předpověď modelu ALADIN pro {len(ps)} {stations(len(ps))} ČHMÚ{also} '
                 f'v pohoří {r}. Teplota, vítr a nárazy, srážky a sníh na tři dny dopředu.')
         html = visible(template, {'range'})
         html = fill(html, 'rtitle', f'{escape(r)} – meteogramy a počasí na horách')
@@ -343,30 +385,50 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
                             f'alt="Vrstevnice v okolí nejvyšší stanice: {escape(ps[0]["name"])}"', 1)
         html = fill(html, 'rlist', ''.join(card(p, summary_row(p, summary['places'][p['id']], times))
                                            for p in ps if p['id'] in summary['places']), f' data-r="{escape(r)}" data-run="{runs[0]}"')
-        html = fill(html, 'rmore', range_links(places, r))
-        listing = {'@type': 'ItemList', 'name': f'Horské stanice – {r}', 'itemListElement': [
-            {'@type': 'ListItem', 'position': i + 1, 'name': p['name'], 'url': f'{SITE}/{p["id"]}/'} for i, p in enumerate(ps)]}
+        if rs:
+            html = html.replace('<div class="sech" id="rres-h" hidden>', '<div class="sech" id="rres-h">', 1)
+            html = fill(html, 'rres', ''.join(card(p, summary_row(p, summary['places'][p['id']], times))
+                                              for p in rs if p['id'] in summary['places']))
+            html = html.replace('<div class="hl" id="rres" hidden>', '<div class="hl" id="rres">', 1)
+        html = fill(html, 'rmore', range_links(stations_, r))
+        listing = {'@type': 'ItemList', 'name': f'Horské stanice a lyžařská střediska – {r}', 'itemListElement': [
+            {'@type': 'ListItem', 'position': i + 1, 'name': p['name'], 'url': f'{SITE}/{p["id"]}/'} for i, p in enumerate(ps + rs)]}
         write(out, path, page(html, path, title, desc, about={'@type': 'Place', 'name': r}, modified=modified,
                               extra=[crumbs(('Meteogramy.cz', '/'), (r, path)), listing]))
         urls.append(path)
 
-    # stanice
+    # stanice a lyžařská střediska
     for p in places:
         path = f'/{p["id"]}/'
-        title = f'{p["name"]} ({p["alt"]} m) – meteogram ALADIN, předpověď počasí | Meteogramy.cz'
-        desc = (f'Meteogram ALADIN pro {p["name"]} ({p["range"]}, {p["alt"]} m n. m.): hodinová předpověď počasí na 3 dny – '
-                f'teplota, vítr a nárazy, srážky, sníh, tlak a oblačnost. Data ČHMÚ.')
-        since = f' (od {p["since"]})' if p.get('since') else ''
+        resort = is_resort(p)
+        rng = p['range'] if p['range'] != 'Ostatní' else ''
+        where = f'{rng}, {p["alt"]} m n. m.' if rng else f'{p["alt"]} m n. m.'
+        if resort:
+            title = f'{p["name"]} ({p["alt"]} m) – lyžařské středisko, meteogram ALADIN | Meteogramy.cz'
+            desc = (f'Předpověď počasí pro {"vrchol střediska" if p.get("top") else "lyžařské středisko"} {p["name"]} ({where}): '
+                    f'meteogram ALADIN na 3 dny po hodinách – teplota, vítr a nárazy, srážky, nový sníh a oblačnost. Data ČHMÚ.')
+            kind = 'vrchol lyžařského střediska' if p.get('top') else 'lyžařské středisko'
+            note = TOP_NOTE if p.get('top') else RESORT_NOTE
+        else:
+            title = f'{p["name"]} ({p["alt"]} m) – meteogram ALADIN, předpověď počasí | Meteogramy.cz'
+            desc = (f'Meteogram ALADIN pro {p["name"]} ({p["range"]}, {p["alt"]} m n. m.): hodinová předpověď počasí na 3 dny – '
+                    f'teplota, vítr a nárazy, srážky, sníh, tlak a oblačnost. Data ČHMÚ.')
+            kind = 'stanice ČHMÚ' + (f' (od {p["since"]})' if p.get('since') else '')
+            note = STATION_NOTE
         html = visible(template, {'mg', 'sinfo', 'stnotes'})
         html = fill(html, 'title', escape(p['name']))
-        html = fill(html, 'sub', f'{escape(p["range"])} · <b>{p["alt"]} m n. m.</b><a class="fn" href="#pozn-vysky-st" aria-label="Poznámka 1">1</a> · stanice ČHMÚ{since}')
-        html = fill(html, 'sinfo', station_info(p, places, summary['places'].get(p['id']), times, run))
+        html = fill(html, 'sub', f'{escape(rng) + " · " if rng else ""}<b>{p["alt"]} m n. m.</b><a class="fn" href="#pozn-vysky-st" aria-label="Poznámka 1">1</a> · {kind}')
+        html = fill(html, 'pozn-vysky-st', escape(note))
+        html = fill(html, 'corr-lab', f'Teplota přepočtená na výšku {word(p)[1]}')
+        html = fill(html, 'sinfo', station_info(p, places, summary['places'].get(p['id']), times, run, range_pages))
         place = {'@type': 'Place', '@id': f'{SITE}{path}#misto', 'name': p['name'],
-                 'description': f'Meteorologická stanice ČHMÚ, {p["range"]}, {p["alt"]} m n. m.',
-                 'geo': {'@type': 'GeoCoordinates', 'latitude': p['lat'], 'longitude': p['lon'], 'elevation': p['alt']},
-                 'containedInPlace': {'@type': 'Place', 'name': p['range']}}
+                 'description': (f'Lyžařské středisko, {where}' if resort else f'Meteorologická stanice ČHMÚ, {p["range"]}, {p["alt"]} m n. m.'),
+                 'geo': {'@type': 'GeoCoordinates', 'latitude': p['lat'], 'longitude': p['lon'], 'elevation': p['alt']}}
+        if rng:
+            place['containedInPlace'] = {'@type': 'Place', 'name': rng}
+        trail = [('Meteogramy.cz', '/')] + ([(p['range'], f'/{slug(p["range"])}/')] if p['range'] in range_pages else []) + [(p['name'], path)]
         write(out, path, page(html, path, title, desc, about={'@id': place['@id']}, modified=modified,
-                              extra=[place, crumbs(('Meteogramy.cz', '/'), (p['range'], f'/{slug(p["range"])}/'), (p['name'], path))]))
+                              extra=[place, crumbs(*trail)]))
         urls.append(path)
 
     # informační stránky
@@ -401,11 +463,11 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
     write(out, 'llms.txt', '\n'.join([
         '# Meteogramy.cz',
         '',
-        f'> Meteogramy ALADIN pro {len(places)} horských meteorologických stanic ČHMÚ v Česku: hodinová předpověď teploty, '
+        f'> Meteogramy ALADIN pro {len(stations_)} horských meteorologických stanic ČHMÚ a {len(resorts)} lyžařských středisek v Česku: hodinová předpověď teploty, '
         'větru a nárazů, srážek, sněhu, vlhkosti, tlaku a oblačnosti na 3 dny z numerického modelu ALADIN CZ. '
         'Předpověď se obnovuje čtyřikrát denně. Meteogramy.cz nejsou oficiální službou ČHMÚ.',
         '',
-        f'Každá stanice má vlastní stránku s meteogramem a tabulkou předpovědi po dnech (minimální a maximální teplota, '
+        f'Každá stanice i lyžařské středisko má vlastní stránku s meteogramem a tabulkou předpovědi po dnech (minimální a maximální teplota, '
         f'nejsilnější nárazy větru, srážky, nový sníh, slunce). Aktuální běh modelu: {lt.day}. {lt.month}. {lt.year} '
         f'{lt.hour:02d}:00 {tz_name(lt)}. Zdroj dat: ČHMÚ – otevřená data (https://opendata.chmi.cz/). '
         'Jde o automatickou modelovou předpověď bez zásahu meteorologa; výstrahy vydává ČHMÚ (https://www.chmi.cz/).',
@@ -418,6 +480,13 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
         '## Stanice',
         '',
         *[f'- [{p["name"]}]({SITE}/{p["id"]}/): {r}, {p["alt"]} m n. m.' for r, ps in by_range for p in ps],
+        '',
+        '## Lyžařská střediska',
+        '',
+        'Předpověď pro vrchol areálu (nejvýše položenou horní stanici vleku nebo lanovky).',
+        '',
+        *[f'- [{p["name"]}]({SITE}/{p["id"]}/): {p["range"] + ", " if p["range"] != "Ostatní" else ""}{p["alt"]} m n. m.'
+          for r, ps in groups(resorts) for p in ps],
         '',
         '## Další',
         '',

@@ -754,8 +754,8 @@ button { font: inherit; border: 0; cursor: pointer; }
     <section class="card" data-slot="os"><?= head('screen', 'Systémy') ?><div class="body"></div></section>
   </div>
   <section class="card gap" data-slot="consent"><?= head('cookie', 'Cookies', '· jak lidé odpovídají na lištu se souhlasem') ?><div class="body"></div></section>
-  <section class="card gap" data-slot="fav"><?= head('star', 'Oblíbené stanice', '· otevření za 30 dní') ?><div class="body"></div></section>
-  <section class="card gap" data-slot="badges"><h2 class="lb"><?= icon('tag') ?><span>Štítky na stanicích</span><small id="badges-run"></small></h2><div class="body"></div></section>
+  <section class="card gap" data-slot="fav"><?= head('star', 'Oblíbená místa', '· otevření za 30 dní') ?><div class="body"></div></section>
+  <section class="card gap" data-slot="badges"><h2 class="lb"><?= icon('tag') ?><span>Štítky na stanicích a střediscích</span><small id="badges-run"></small></h2><div class="body"></div></section>
 
   <footer>
     <span>Anonymní součty bez cookies · návštěva = jeden návštěvník za den</span>
@@ -999,10 +999,10 @@ function render(d) {
       perDay.set(x.when, (perDay.get(x.when) || 0) + 1);
     }
     const n = st.size, chip = `<span class="chip ${k === "bluebird" ? "" : k}"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${BICON[k]}</svg>${BNAME[k]}</span>`;
-    if (!n) return `<div class="bcol">${chip}<div class="cnt">0 <span>stanic</span></div><p class="none">Teď nikde.</p></div>`;
+    if (!n) return `<div class="bcol">${chip}<div class="cnt">0 <span>míst</span></div><p class="none">Teď nikde.</p></div>`;
     const li = s => `<li title="${esc(s.details.join("\n"))}"><a href="/${esc(s.id)}/" target="_blank" rel="noopener">${esc(s.station)}</a><span class="w">${esc([...new Set(s.whens)].join(", "))}</span><small>${esc(s.range)}</small></li>`;
     const rowsAll = [...st.values()], head = rowsAll.slice(0, 6).map(li).join(""), rest = rowsAll.slice(6).map(li).join("");
-    return `<div class="bcol">${chip}<div class="cnt">${n} <span>${n === 1 ? "stanice" : n < 5 ? "stanice" : "stanic"}</span></div>` +
+    return `<div class="bcol">${chip}<div class="cnt">${n} <span>${n === 1 ? "místo" : n < 5 ? "místa" : "míst"}</span></div>` +
       `<div class="days">${[...perDay].map(([w, c]) => `${esc(w)} <em>${c}</em>`).join(" · ")}</div>` +
       `<ul class="blist">${head}</ul>` + (rest ? `<ul class="blist" hidden>${rest}</ul><button class="more" type="button">Zobrazit všech ${n}</button>` : "") + `</div>`;
   }).join("")}</div>`;

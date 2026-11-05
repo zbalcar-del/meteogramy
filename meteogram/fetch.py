@@ -40,8 +40,12 @@ FIELDS = {
 }
 OROGRAPHY = "SURFGEOPOTENTIEL"
 
-# místa = horské stanice ČHMÚ, seznam sestavuje build_places.py
-PLACES = json.loads((Path(__file__).resolve().parent / "places.json").read_text())
+# místa = horské stanice ČHMÚ (build_places.py) a vrcholy lyžařských středisek (build_resorts.py);
+# středisko s vrcholem u stanice nemá vlastní předpověď, v seznamu středisek jen odkazuje na stanici
+_HERE = Path(__file__).resolve().parent
+_RESORTS = json.loads((_HERE / "resorts.json").read_text()) if (_HERE / "resorts.json").exists() else []
+PLACES = json.loads((_HERE / "places.json").read_text()) + [r for r in _RESORTS if "same" not in r]
+LINKS = [{k: r[k] for k in ("name", "range", "alt", "same")} for r in _RESORTS if "same" in r]
 # uzel modelu: v okolí stanice ten s výškou nejbližší skutečné výšce (1 km vzdálenosti "stojí" 60 m výšky)
 DIST_PENALTY_M_PER_KM = 60
 # údolí pro poznání inverze: nejnižší bod modelu do VALLEY_RADIUS_KM, aspoň VALLEY_MIN_DROP_M pod uzlem stanice
@@ -180,7 +184,7 @@ def process_run(run, urls, dest):
         start = datetime.strptime(run, "%Y%m%d%H").replace(tzinfo=timezone.utc)
         times = [iso(start + timedelta(hours=s)) for s in steps_all]
         dest.mkdir(parents=True, exist_ok=True)
-        index = {"model": "ALADIN CZ", "source": "ČHMÚ – otevřená data", "run": iso(start), "places": []}
+        index = {"model": "ALADIN CZ", "source": "ČHMÚ – otevřená data", "run": iso(start), "places": [], "links": LINKS}
         for pl in PLACES:
             node = nodes[pl["id"]]
             meta = {**pl, "node": {"lat": round(node["lat"], 4), "lon": round(node["lon"], 4),

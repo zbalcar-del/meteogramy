@@ -7,6 +7,8 @@ on:
       - '.github/workflows/update-data.yml'
       - 'meteogram/update_hosting.py'
       - 'meteogram/fetch.py'
+      - 'meteogram/places.json'
+      - 'meteogram/resorts.json'
       - 'meteogram/hosting_known_hosts'
       - 'meteogram/build_pages.py'
       - 'meteogram/snow.py'

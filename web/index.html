@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Meteogramy.cz – meteogramy ALADIN pro české hory</title>
-<meta name="description" content="Meteogramy ALADIN pro 109 horských stanic ČHMÚ: teplota, vítr a nárazy, srážky, sníh, tlak a oblačnost po hodinách na 3 dny. Klasický meteogram v podobě, na kterou jste zvyklí.">
+<meta name="description" content="Meteogramy ALADIN pro 109 horských stanic ČHMÚ a 123 lyžařských středisek: teplota, vítr a nárazy, srážky, sníh, tlak a oblačnost po hodinách na 3 dny. Klasický meteogram v podobě, na kterou jste zvyklí.">
 <link rel="icon" href="/favicon.ico?v=4" sizes="48x48">
 <link rel="icon" href="/favicon.svg?v=4" type="image/svg+xml">
 <link rel="icon" href="/assets/icon-192.png?v=4" type="image/png" sizes="192x192">
@@ -14,7 +14,7 @@
 <meta property="og:site_name" content="Meteogramy.cz">
 <meta property="og:locale" content="cs_CZ">
 <meta property="og:title" content="Meteogramy.cz – meteogramy ALADIN pro české hory">
-<meta property="og:description" content="Meteogramy ALADIN pro 109 horských stanic ČHMÚ: teplota, vítr a nárazy, srážky, sníh, tlak a oblačnost po hodinách na 3 dny. Klasický meteogram v podobě, na kterou jste zvyklí.">
+<meta property="og:description" content="Meteogramy ALADIN pro 109 horských stanic ČHMÚ a 123 lyžařských středisek: teplota, vítr a nárazy, srážky, sníh, tlak a oblačnost po hodinách na 3 dny. Klasický meteogram v podobě, na kterou jste zvyklí.">
 <meta property="og:url" content="https://meteogramy.cz/">
 <meta property="og:image" content="https://meteogramy.cz/assets/og-card-hd.jpg">
 <meta property="og:image:width" content="2400">
@@ -109,6 +109,18 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .search-clear:hover { color: #636366; }
 .search-clear:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .search-clear svg { position: static; width: 16px; height: 16px; color: inherit; }
+/* přepínač Stanice | Střediska: posuvný jezdec jako segmentový ovladač v iOS */
+.kinds { position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 2px; margin-bottom: 10px; border-radius: 9px; background: #e7e9ee; }
+.kinds .thumb { position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc(50% - 2px); border-radius: 7px; background: var(--paper);
+  box-shadow: 0 3px 8px rgba(0,0,0,.12), 0 3px 1px rgba(0,0,0,.04), 0 0 0 .5px rgba(0,0,0,.04); transition: transform .3s cubic-bezier(.25, .8, .25, 1); }
+.kinds[data-k="ar"] .thumb { transform: translateX(100%); }
+.kinds[hidden] { display: none; }
+.kinds button { position: relative; z-index: 1; height: 28px; padding: 0 6px; border: 0; border-radius: 7px; background: transparent; color: var(--ink);
+  font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: opacity .15s; }
+.kinds button[aria-pressed="true"] { font-weight: 600; }
+.kinds button:active { opacity: .6; }
+.kinds button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+@media (prefers-reduced-motion: reduce) { .kinds .thumb { transition: none; } }
 .side > .picker { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 0; padding: 2px 12px 12px;
   scrollbar-width: thin; scrollbar-color: rgba(0,0,0,.18) transparent; transition: box-shadow .15s; }
 .picker::-webkit-scrollbar { width: 8px; }
@@ -337,7 +349,7 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .about .eyebrow { font-size: 14px; font-weight: 600; color: #86868b; margin: 0 0 10px; }
 .about h1 { font-size: 48px; line-height: 1.08; letter-spacing: -.03em; font-weight: 700; margin: 0 0 18px; }
 .about .lead { font-size: 21px; line-height: 1.45; color: #6e6e73; margin: 0 0 36px; }
-.about .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--card-gap); margin: 0 0 40px; }
+.about .facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--card-gap); margin: 0 0 40px; }
 .about .fact { background: #fff; border-radius: 18px; padding: 18px 20px; }
 .about .fact b { display: block; font-size: 30px; line-height: 1.1; letter-spacing: -.02em; }
 .about .fact span { font-size: 14px; color: #6e6e73; }
@@ -651,6 +663,9 @@ h1, h2 { text-wrap: balance; }
   .menu-dialog .side > .search { margin: 10px 20px 12px; }
   .menu-dialog .search input { height: 48px; font-size: 16px; padding-left: 40px; padding-right: 48px; border-radius: 14px; background: #e9edf3; }
   .menu-dialog .search input::placeholder { color: #687486; }
+  .menu-dialog .side > .kinds { margin: 0 20px 12px; padding: 3px; border-radius: 12px; background: #e9edf3; }
+  .menu-dialog .kinds .thumb { top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); border-radius: 10px; }
+  .menu-dialog .kinds button { height: 38px; font-size: 14px; border-radius: 10px; }
   .menu-dialog .search > svg { top: 17px; left: 15px; }
   .menu-dialog .search kbd { display: none; }
   .menu-dialog .search-clear { right: 2px; top: 2px; width: 44px; height: 44px; }
@@ -672,7 +687,7 @@ h1, h2 { text-wrap: balance; }
   .menu-dialog .dd-list { max-height: min(320px, 45dvh); border-radius: 16px; padding: 6px; }
   .menu-dialog .dd-list li { min-height: 48px; padding: 10px; border-radius: 10px; font-size: 14px; }
   .menu-dialog .sfoot, .menu-dialog .side-tools, .menu-dialog .runsel { display: none; }
-  .menu-dialog:not([data-mode="stations"]) .search, .menu-dialog:not([data-mode="stations"]) .picker,
+  .menu-dialog:not([data-mode="stations"]) .search, .menu-dialog:not([data-mode="stations"]) .picker, .menu-dialog:not([data-mode="stations"]) .kinds,
   .menu-dialog:not([data-mode="stations"]) #search-status { display: none; }
   .menu-dialog[data-mode="other"] .side-tools { display: block; flex: 1; min-height: 0; overflow-y: auto; }
   .menu-dialog[data-mode="other"] .sfoot { display: flex; margin: 0 20px; padding: 8px 0 0; gap: 0 14px; }
@@ -779,13 +794,14 @@ h1, h2 { text-wrap: balance; }
     </a>
     <div class="search">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <input id="q" type="search" placeholder="Stanice nebo pohoří" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="search" aria-label="Hledat stanici nebo pohoří" aria-controls="picker">
+      <input id="q" type="search" placeholder="Hledat" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="search" aria-label="Hledat stanici, lyžařské středisko nebo pohoří" aria-controls="picker">
       <kbd id="qk">⌘K</kbd>
       <button class="search-clear" id="qclear" type="button" aria-label="Vymazat hledání" title="Vymazat hledání" hidden>
         <svg viewBox="0 0 16 16" aria-hidden="true"><defs><mask id="search-clear-cutout"><rect width="16" height="16" fill="#fff"/><path d="m5.6 5.6 4.8 4.8m0-4.8-4.8 4.8" fill="none" stroke="#000" stroke-width="1.4" stroke-linecap="round"/></mask></defs><circle cx="8" cy="8" r="7" fill="currentColor" mask="url(#search-clear-cutout)"/></svg>
       </button>
     </div>
-    <nav class="picker" id="picker" aria-label="Horské stanice"></nav>
+    <div class="kinds" id="kinds" role="group" aria-label="Zobrazit v seznamu" data-k="st"><span class="thumb" aria-hidden="true"></span><button type="button" data-k="st" aria-pressed="true">Stanice</button><button type="button" data-k="ar" aria-pressed="false">Střediska</button></div>
+    <nav class="picker" id="picker" aria-label="Horské stanice a lyžařská střediska"></nav>
     <span class="sr-only" id="search-status" role="status" aria-live="polite"></span>
     <nav class="side-tools" aria-label="Další přehledy"><a class="snow-nav" href="/snehove-zpravodajstvi/"><svg viewBox="0 0 640 640" fill="currentColor" aria-hidden="true"><!--!Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M344.1 56C344.1 42.7 333.4 32 320.1 32C306.8 32 296.1 42.7 296.1 56L296.1 134.1L273.1 111.1C263.7 101.7 248.5 101.7 239.2 111.1C229.9 120.5 229.8 135.7 239.2 145L296.2 202L296.2 278.5L230 240.3L209.1 162.5C205.7 149.7 192.5 142.1 179.7 145.5C166.9 148.9 159.2 162 162.7 174.8L171.1 206.3L103.5 167.3C92 160.6 77.3 164.5 70.7 176C64.1 187.5 68 202.2 79.5 208.8L147.1 247.8L115.6 256.2C102.8 259.6 95.2 272.8 98.6 285.6C102 298.4 115.2 306 128 302.6L205.8 281.7L272 319.9L205.8 358.1L128 337.2C115.2 333.8 102 341.4 98.6 354.2C95.2 367 102.8 380.2 115.6 383.6L147.1 392L79.5 431C68 437.8 64.1 452.5 70.7 464C77.3 475.5 92 479.4 103.5 472.8L171.1 433.8L162.7 465.3C159.3 478.1 166.9 491.3 179.7 494.7C192.5 498.1 205.7 490.5 209.1 477.7L230 399.9L296.2 361.7L296.2 438.2L239.2 495.2C229.8 504.6 229.8 519.8 239.2 529.1C248.6 538.4 263.8 538.5 273.1 529.1L296.1 506.1L296.1 584.2C296.1 597.5 306.8 608.2 320.1 608.2C333.4 608.2 344.1 597.5 344.1 584.2L344.1 506.1L367.1 529.1C376.5 538.5 391.7 538.5 401 529.1C410.3 519.7 410.4 504.5 401 495.2L344 438.2L344 361.7L410.2 399.9L431.1 477.7C434.5 490.5 447.7 498.1 460.5 494.7C473.3 491.3 480.9 478.1 477.5 465.3L469.1 433.8L536.7 472.8C548.2 479.4 562.9 475.5 569.5 464C576.1 452.5 572.2 437.8 560.7 431.2L493.1 392.2L524.6 383.8C537.4 380.4 545 367.2 541.6 354.4C538.2 341.6 525 334 512.2 337.4L434.4 358.3L368.2 320.1L434.4 281.9L512.2 302.8C525 306.2 538.2 298.6 541.6 285.8C545 273 537.4 259.8 524.6 256.4L493.1 248L560.7 209C572.2 202.4 576.1 187.7 569.5 176.2C562.9 164.7 548.2 160.8 536.7 167.4L469.1 206.4L477.5 174.9C480.9 162.1 473.3 148.9 460.5 145.5C447.7 142.1 434.5 149.7 431.1 162.5L410.2 240.3L344 278.5L344 202L401 145C410.4 135.6 410.4 120.4 401 111.1C391.6 101.8 376.4 101.7 367.1 111.1L344.1 134.1L344.1 56z"/></svg><span>Sněhové zpravodajství</span></a><a class="snow-nav avalanche-nav" href="/lavinova-predpoved/"><svg viewBox="0 0 640 640" fill="currentColor" aria-hidden="true"><!--!Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M320 64C334.7 64 348.2 72.1 355.2 85L571.2 485C577.9 497.4 577.6 512.4 570.4 524.5C563.2 536.6 550.1 544 536 544L104 544C89.9 544 76.8 536.6 69.6 524.5C62.4 512.4 62.1 497.4 68.8 485L284.8 85C291.8 72.1 305.3 64 320 64zM320 416C302.3 416 288 430.3 288 448C288 465.7 302.3 480 320 480C337.7 480 352 465.7 352 448C352 430.3 337.7 416 320 416zM320 224C301.8 224 287.3 239.5 288.6 257.7L296 361.7C296.9 374.2 307.4 384 319.9 384C332.5 384 342.9 374.3 343.8 361.7L351.2 257.7C352.5 239.5 338.1 224 319.8 224z"/></svg><span>Lavinová předpověď</span></a><a class="snow-nav winters-nav" href="/zimy-na-horach/"><svg viewBox="0 0 640 640" fill="currentColor" aria-hidden="true"><!--!Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M139.8 368.8L65 99.7C64.3 97.2 64 94.7 64 92.2C64 76.6 76.6 64 92.2 64L546.4 64C562.7 64 576 77.2 576 93.6C576 95.2 575.9 96.9 575.6 98.5L498.6 560.1C497.1 569.3 489.1 576 479.8 576C470.6 576 462.7 569.4 461.1 560.4L400 224L371.2 367.9C369.3 377.2 361.1 384 351.6 384C342.4 384 334.4 377.8 332.2 368.9L304 256L274.6 432.2C273.1 441.3 265.2 448 256 448C246.8 448 238.9 441.3 237.4 432.2L208 256L179.9 368.3C177.6 377.5 169.3 384 159.8 384C150.5 384 142.3 377.8 139.8 368.8z"/></svg><span>Zimy na horách</span></a></nav>
     <div class="runsel">
@@ -802,7 +818,7 @@ h1, h2 { text-wrap: balance; }
       <a href="/o-projektu/">O projektu</a>
       <a href="/ochrana-soukromi/">Ochrana soukromí</a>
       <a href="/ochrana-soukromi/#cookies" data-cookies>Cookies</a>
-      <small>© 2026 Meteogramy.cz · <span title="Verze aplikace">v1.2.0</span></small>
+      <small>© 2026 Meteogramy.cz · <span title="Verze aplikace">v1.3.0</span></small>
     </nav>
   </aside>
 
@@ -813,7 +829,7 @@ h1, h2 { text-wrap: balance; }
       <div>
       <p class="eyebrow">Předpověď pro české hory</p>
       <h1>Meteogramy, jak je znáte i neznáte.</h1>
-      <p class="lead">Předpověď modelu ALADIN pro <span id="hcount">109</span> horských stanic ČHMÚ<a class="fn" href="#pozn-vysky" aria-label="Poznámka 1">1</a>. Teplota, vítr, srážky a další údaje po hodinách na tři dny dopředu.</p>
+      <p class="lead">Předpověď modelu ALADIN pro <span id="hcount">109</span> horských stanic ČHMÚ a <span id="rcount">123</span> lyžařských středisek<a class="fn" href="#pozn-vysky" aria-label="Poznámka 1">1</a>. Teplota, vítr, srážky a další údaje po hodinách na tři dny dopředu.</p>
       <p class="origin">Projekt jsme vytvořili pro všechny, kterým chybí původní meteogramy a chtějí mít počasí na horách zase přehledně a na jednom místě v grafech.</p>
       <div id="hlast"></div>
       </div>
@@ -840,7 +856,7 @@ h1, h2 { text-wrap: balance; }
       <ul class="alerts-list hs-list" id="hs-list"></ul>
       <footer class="alerts-footer"><span class="alerts-source">Zdroj: Horská služba ČR<br><span id="hs-checked"></span></span><a class="alerts-link" href="https://www.horskasluzba.cz/cz/aktualni-informace/aktualne/aktuality" target="_blank" rel="noopener">Všechny zprávy <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8"/></svg></a></footer>
     </section>
-    <ol class="fnotes"><li id="pozn-vysky">Výšky u stanic jsou nadmořské výšky meteorologických stanic ČHMÚ, ne vrcholů hor. Stanice často stojí pod vrcholem, v sedle nebo u horské chaty.</li></ol>
+    <ol class="fnotes"><li id="pozn-vysky">Výšky u stanic jsou nadmořské výšky meteorologických stanic ČHMÚ, ne vrcholů hor. Stanice často stojí pod vrcholem, v sedle nebo u horské chaty. U lyžařských středisek uvádíme výšku vrcholu areálu, tedy nejvýše položené horní stanice vleku nebo lanovky.</li></ol>
   </section>
 
   <section class="home" id="range" hidden>
@@ -853,6 +869,8 @@ h1, h2 { text-wrap: balance; }
       <figure class="rmap"><img id="rimg" src="" alt="" width="800" height="450"></figure>
     </div>
     <div class="hl" id="rlist"></div>
+    <div class="sech" id="rres-h" hidden><h2>Lyžařská střediska</h2></div>
+    <div class="hl" id="rres" hidden></div>
     <div class="sech"><h2>Další pohoří</h2><div class="arws"><button type="button" class="arw" data-shelf="rmore" data-dir="-1" aria-label="Další pohoří – zpět"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button><button type="button" class="arw" data-shelf="rmore" data-dir="1" aria-label="Další pohoří – dál"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div></div>
     <nav class="shelf" id="rmore" aria-label="Další pohoří"></nav>
   </section>
@@ -869,7 +887,7 @@ h1, h2 { text-wrap: balance; }
     </div>
     <div class="metabar">
       <div id="meta"></div>
-      <div class="corr-wrap"><label class="tgl"><input type="checkbox" id="corr"><i></i>Teplota přepočtená na výšku stanice</label><button type="button" class="corr-i" id="corr-i" aria-expanded="false" aria-controls="corr-info" aria-label="Co znamená přepočet teploty"></button><div class="corr-info" id="corr-info" role="tooltip" hidden></div></div>
+      <div class="corr-wrap"><label class="tgl"><input type="checkbox" id="corr"><i></i><span id="corr-lab">Teplota přepočtená na výšku stanice</span></label><button type="button" class="corr-i" id="corr-i" aria-expanded="false" aria-controls="corr-info" aria-label="Co znamená přepočet teploty"></button><div class="corr-info" id="corr-info" role="tooltip" hidden></div></div>
     </div>
     <p class="chart-help" id="chart-help"><span aria-hidden="true">↔</span> Posuňte graf do stran. Klepnutím zobrazíte hodinové údaje.</p>
     <div class="chart-frame" id="chart-frame"><div id="chart" aria-describedby="chart-help"><div class="msg">Načítám data…</div><div id="tip"></div><div id="info" role="tooltip"></div></div></div>
@@ -966,7 +984,8 @@ h1, h2 { text-wrap: balance; }
     <h1>Meteogramy, jak je znáte i neznáte.</h1>
     <p class="lead">Meteogramy.cz jsme postavili od základu. Grafy vycházejí z klasického meteogramu ALADIN, takže se v nich vyznáte hned. Všechno ostatní je nové.</p>
     <div class="facts">
-      <div class="fact"><b>109</b><span>horských stanic ČHMÚ</span></div>
+      <div class="fact"><b id="fstations">109</b><span>horských stanic ČHMÚ</span></div>
+      <div class="fact"><b id="fresorts">123</b><span>lyžařských středisek</span></div>
       <div class="fact"><b>2,3 km</b><span>rozlišení modelu ALADIN</span></div>
       <div class="fact"><b>4× denně</b><span>nová předpověď na 3 dny</span></div>
     </div>
@@ -979,11 +998,13 @@ h1, h2 { text-wrap: balance; }
       <p>Vrstevnice na kartách pohoří jsou naším grafickým zpracováním výškových dat <a href="https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM" target="_blank" rel="noopener">Copernicus DEM GLO-90</a>. Zobrazují okolí nejvyšší stanice jednotlivých pohoří.</p>
       <p class="note" lang="en">Produced using Copernicus WorldDEM-90 © DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH 2014–2018 provided under COPERNICUS by the European Union and ESA; all rights reserved.</p>
       <p class="note"><a href="https://dataspace.copernicus.eu/sites/default/files/media/files/2025-06/copernicus_contributing_mission_data_access_v2_cop_dem_licenses.pdf" target="_blank" rel="noopener">Licenční podmínky Copernicus DEM (PDF)</a></p>
+      <p>Seznam lyžařských středisek přebíráme z mapy meteogramů ČHMÚ. Vrchol každého areálu určujeme podle vleků a lanovek z <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> (© přispěvatelé OpenStreetMap, licence ODbL) a jeho výšku podle modelu terénu <a href="https://land.copernicus.eu/en/products/products-that-are-no-longer-disseminated-on-the-clms-website" target="_blank" rel="noopener">Copernicus EU-DEM</a>.</p>
     </section>
     <section>
-      <h2>Bod modelu na míru každé stanici.</h2>
-      <p>Pro každou stanici hledáme v okruhu 1,5 km bod modelu, jehož výška nejlépe odpovídá výšce stanice. Z něj skládáme meteogram: teplota, vítr a nárazy, srážky a sníh, vlhkost, tlak a oblačnost. Hodinu po hodině, tři dny dopředu.</p>
-      <p>Model terén vyhlazuje, takže jsou v něm hory nižší – na nejvyšších vrcholech i o víc než sto metrů. Jedním přepínačem nad grafy přepočítáte teplotu na skutečnou výšku stanice.</p>
+      <h2>Bod modelu na míru každému místu.</h2>
+      <p>Pro každou stanici i lyžařské středisko hledáme v okruhu 1,5 km bod modelu, jehož výška nejlépe odpovídá skutečné výšce místa. Z něj skládáme meteogram: teplota, vítr a nárazy, srážky a sníh, vlhkost, tlak a oblačnost. Hodinu po hodině, tři dny dopředu.</p>
+      <p>U lyžařských středisek počítáme předpověď pro vrchol areálu – nejvýše položenou horní stanici vleku nebo lanovky. Nahoře bývá chladněji a víc fouká než v obci pod sjezdovkou.</p>
+      <p>Model terén vyhlazuje, takže jsou v něm hory nižší – na nejvyšších vrcholech i o víc než sto metrů. Jedním přepínačem nad grafy přepočítáte teplotu na skutečnou výšku stanice nebo vrcholu střediska.</p>
     </section>
     <section>
       <h2>Na hory s rozvahou.</h2>
@@ -992,7 +1013,7 @@ h1, h2 { text-wrap: balance; }
     </section>
     <section>
       <h2>Napište nám.</h2>
-      <p>Máte nápad, našli jste chybu, nebo vám chybí stanice? Ozvěte se na <a class="mail" href="#" data-m="bW9jLmR1b2xjaUByYWNsYWJ6">e-mail se zobrazí po načtení stránky</a>.</p>
+      <p>Máte nápad, našli jste chybu, nebo vám chybí stanice či středisko? Ozvěte se na <a class="mail" href="#" data-m="bW9jLmR1b2xjaUByYWNsYWJ6">e-mail se zobrazí po načtení stránky</a>.</p>
     </section>
     <figure class="dedic">
       <img src="/assets/snowboarding.jpg" alt="Snowboardisté s prkny v zasněženém lese" width="1600" height="1066" loading="lazy" decoding="async">
@@ -1026,7 +1047,7 @@ h1, h2 { text-wrap: balance; }
       <p>Pokud souhlas dáte, načte se služba Google Analytics 4 od společnosti Google Ireland Limited. Ta pomocí cookies <code>_ga</code> a <code>_ga_80GPH2DQCN</code> (platnost až 2 roky) rozpozná opakované návštěvy a zaznamená, které stránky si prohlížíte, odkud jste přišli, typ zařízení a prohlížeče a přibližnou polohu podle IP adresy (na úrovni země či města). Samotnou IP adresu Google Analytics 4 neukládá. Údaje vidíme jen v souhrnných přehledech a uchováváme je 14 měsíců. Google může údaje zpracovávat i v USA na základě rámce EU–USA pro ochranu osobních údajů (Data Privacy Framework). Právním základem je váš souhlas podle čl. 6 odst. 1 písm. a) GDPR.</p>
       <p>Souhlas můžete kdykoli změnit nebo odvolat; po odvolání se měření zastaví. Vaše volba platí rok, pak se zeptáme znovu.</p>
       <p><button type="button" class="ckbtn" data-cookies>Nastavení cookies</button></p>
-      <p>V místním úložišti prohlížeče si web pamatuje jen to, co slouží přímo vám: naposledy otevřenou stanici (pro tlačítko „Pokračovat“), zda máte zapnutý přepočet teploty na nadmořskou výšku stanice, a vaši volbu ohledně cookies (platí rok). Tyto údaje zůstávají ve vašem prohlížeči, k nám se neodesílají a vymažete je v nastavení prohlížeče odstraněním dat pro Meteogramy.cz.</p>
+      <p>V místním úložišti prohlížeče si web pamatuje jen to, co slouží přímo vám: naposledy otevřenou stanici nebo středisko (pro tlačítko „Pokračovat“), zda máte zapnutý přepočet teploty na nadmořskou výšku, zda máte v seznamu zvolené stanice, nebo střediska, a vaši volbu ohledně cookies (platí rok). Tyto údaje zůstávají ve vašem prohlížeči, k nám se neodesílají a vymažete je v nastavení prohlížeče odstraněním dat pro Meteogramy.cz.</p>
     </section>
     <section>
       <h2>Když nám napíšete.</h2>
@@ -1049,8 +1070,8 @@ h1, h2 { text-wrap: balance; }
 </div>
 
 <dialog class="menu-dialog" id="mobile-menu" aria-labelledby="menu-title" data-mode="stations">
-  <div class="menu-head"><h2 id="menu-title" tabindex="-1" autofocus>Vybrat stanici</h2><button class="menu-close" id="menu-close" type="button" aria-label="Zavřít menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>
-  <div class="menu-tabs" role="group" aria-label="Obsah menu"><button type="button" data-menu="stations" aria-pressed="true">Stanice</button><button type="button" data-menu="model" aria-pressed="false">Běh modelu</button><button type="button" data-menu="other" aria-pressed="false">Ostatní</button></div>
+  <div class="menu-head"><h2 id="menu-title" tabindex="-1" autofocus>Vybrat místo</h2><button class="menu-close" id="menu-close" type="button" aria-label="Zavřít menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>
+  <div class="menu-tabs" role="group" aria-label="Obsah menu"><button type="button" data-menu="stations" aria-pressed="true">Místa</button><button type="button" data-menu="model" aria-pressed="false">Běh modelu</button><button type="button" data-menu="other" aria-pressed="false">Ostatní</button></div>
   <div class="menu-content" id="menu-content"></div>
 </dialog>
 
@@ -1066,7 +1087,7 @@ h1, h2 { text-wrap: balance; }
   <div class="ck-f"><button type="button" id="ckmore">Nastavení</button><a href="/ochrana-soukromi/#cookies">Více o cookies</a></div>
 </section>
 
-<script src="/assets/snow.js"></script>
+<script src="/assets/snow.js?v=1.3.0"></script>
 <script src="/assets/avalanche.js"></script>
 <script src="/assets/alerts.js"></script>
 <script src="/assets/rescue.js"></script>
@@ -1095,7 +1116,7 @@ function chartEdges() {
 }
 $("chart").addEventListener("scroll", chartEdges, { passive: true });
 new ResizeObserver(chartEdges).observe($("chart"));
-const state = { run: null, data: null, id: null, m: null, corr: false, cache: {}, sum: {}, open: new Set(), q: "" };
+const state = { run: null, data: null, id: null, m: null, corr: false, cache: {}, sum: {}, open: new Set(), q: "", kind: "st" };
 
 // Nativní dialog drží fokus uvnitř menu. Seznam stanic se přesouvá, nikdy nekopíruje.
 const compactNavigation = matchMedia("(max-width: 1100px)");
@@ -1152,7 +1173,7 @@ function openNavigation(mode = "stations", trigger = document.activeElement) {
   const search = mode === "search";
   mode = search ? "stations" : mode;
   navigationDialog.dataset.mode = mode;
-  $("menu-title").textContent = mode === "model" ? "Běh modelu" : mode === "other" ? "Ostatní přehledy" : "Vybrat stanici";
+  $("menu-title").textContent = mode === "model" ? "Běh modelu" : mode === "other" ? "Ostatní přehledy" : "Vybrat místo";
   document.querySelectorAll(".menu-tabs [data-menu]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.menu === mode)));
   if (!navigationDialog.open) {
     menuTrigger = trigger;
@@ -1529,13 +1550,13 @@ function conditions(m, T, times) {
     tiles: snow.map(d => ({ d: d.name, v: `≈ ${Math.round(d.cm)}`, u: "cm sněhu", x: `sněží ${d.from}–${d.to} h` })),
     eyebrow: "Bude sypat", title: "Na horách přibude sníh",
     text: "Model počítá se sněžením, které stojí za zmínku – aspoň 2 cm nového sněhu za den. 1 mm srážek ve formě sněhu odpovídá zhruba 1 cm prašanu.",
-    foot: "Model ALADIN pro tuto stanici", bands: snow, band: "❄ sněží", target: "snow", link: "V grafu srážek ↓" });
+    foot: `Model ALADIN pro ${isResort(m) ? "toto středisko" : "tuto stanici"}`, bands: snow, band: "❄ sněží", target: "snow", link: "V grafu srážek ↓" });
   const inv = inversionDays(m, times);
   if (inv.length) out.push({ id: "inversion", cls: "inv", icon: "inv", name: "Inverze", when: inv[0].when, at: inv[0].i0,
     tiles: inv.map(d => ({ d: d.name, v: `+${fmtNum(d.diff)}`, u: "°C nahoře tepleji", x: `${d.from}–${d.to} h · nahoře ${deg(d.top)}, v údolí ${deg(d.low)} a mlha` })),
     eyebrow: "Inverze", title: "Nahoře tepleji, v údolí mlha",
     text: "Studený vzduch zůstane ležet v údolích a vyplní je mlha nebo nízká oblačnost. Nad ní je tepleji a jasno – z hřebenů bývá vidět moře mlhy.",
-    foot: `Model ALADIN: stanice proti údolí ve výšce ${m.valley.alt} m, ${fmtNum(m.valley.dist)} km od stanice`,
+    foot: `Model ALADIN: ${word(m).nom} proti údolí ve výšce ${m.valley.alt} m, ${fmtNum(m.valley.dist)} km od ${word(m).gen}`,
     bands: inv, band: "inverze", target: "temp", link: "V grafu teploty ↓" });
   const fw = foehnDays(m, times);
   if (fw.length) out.push({ id: "foehn", cls: "foehn", icon: "foehn", name: "Fénová stěna", when: fw[0].when, at: fw[0].i0,
@@ -1598,11 +1619,17 @@ function header(m, T, times) {
   const run = local(new Date(d.run));
   const dz = m.alt - m.node.alt;
   $("title").textContent = m.name;
-  $("sub").innerHTML = `${m.range} · <b>${m.alt} m n. m.</b><a class="fn" href="#pozn-vysky-st" aria-label="Poznámka 1">1</a> · stanice ČHMÚ${m.since ? ` (od ${m.since})` : ""}`;
+  const w = word(m);
+  $("sub").innerHTML = `${rangeName(m) ? rangeName(m) + " · " : ""}<b>${m.alt} m n. m.</b><a class="fn" href="#pozn-vysky-st" aria-label="Poznámka 1">1</a> · ` +
+    (isResort(m) ? (m.top ? "vrchol lyžařského střediska" : "lyžařské středisko") : `stanice ČHMÚ${m.since ? ` (od ${m.since})` : ""}`);
+  $("pozn-vysky-st").textContent = isResort(m) ? (m.top
+    ? "Uvedená výška a poloha patří vrcholu areálu: nejvýše položené horní stanici vleku nebo lanovky podle OpenStreetMap. Pro tento bod počítáme předpověď."
+    : "Poloha a výška střediska podle mapy lyžařských středisek ČHMÚ.") : STATION_NOTE;
+  $("corr-lab").textContent = `Teplota přepočtená na výšku ${w.gen}`;
   $("meta").innerHTML = `${d.model} · běh <b>${run.day}. ${run.month}. ${pad(run.hour)}:00 ${run.tz}</b> · uzel modelu ` +
-    `<b>${m.node.alt} m</b>, ${fmtNum(m.node.dist, 1)} km od stanice` +
+    `<b>${m.node.alt} m</b>, ${fmtNum(m.node.dist, 1)} km od ${w.gen}` +
     (state.corr ? ` · teplota ${dz >= 0 ? "snížena" : "zvýšena"} o ${fmtNum(Math.abs(0.0065 * dz), 1)} °C` : "");
-  document.title = `${m.name} (${m.alt} m) – meteogram ALADIN, předpověď počasí | Meteogramy.cz`;
+  document.title = `${m.name} (${m.alt} m) – ${isResort(m) ? "lyžařské středisko, meteogram ALADIN" : "meteogram ALADIN, předpověď počasí"} | Meteogramy.cz`;
 
   // teď a příštích 24 h
   const i0 = nowIndex(times);
@@ -1655,7 +1682,7 @@ const INFO = {
   w: ["Vítr", "Růžová čára je rychlost větru 10 m nad zemí, modré sloupce nejsilnější náraz během dané hodiny a červené šipky ukazují, kam vítr fouká. Orientačně: nárazy kolem 15 m/s jsou na hřebenech nepříjemné, od 20 m/s nebezpečné."],
   p: ["Srážky a vlhkost", "Sloupec ukazuje, kolik spadne za hodinu. Zelená část je sníh přepočtený na vodu – 1 mm odpovídá zhruba 1 cm nového sněhu. Tmavá čára je vlhkost vzduchu; kolem 100 % bývá mlha nebo nízká oblačnost."],
   m: ["Tlak", "Tlak vzduchu přepočtený na hladinu moře. Klesající tlak obvykle ohlašuje zhoršení počasí, stoupající zlepšení."],
-  c: ["Oblačnost", "Tmavá plocha je nízká oblačnost – na horách často znamená mlhu. Světlá plocha je celková oblačnost, červená a modrá čára střední a vysoká. Graf ukazuje oblačnost nad stanicí – při inverzi může být nahoře jasno, i když jsou údolí v mlze."],
+  c: ["Oblačnost", "Tmavá plocha je nízká oblačnost – na horách často znamená mlhu. Světlá plocha je celková oblačnost, červená a modrá čára střední a vysoká. Graf ukazuje oblačnost nad místem předpovědi – při inverzi může být nahoře jasno, i když jsou údolí v mlze."],
 };
 document.addEventListener("click", () => { const i = $("info"); if (i) i.style.display = "none"; document.querySelectorAll(".ib.on").forEach(g => { g.classList.remove("on"); g.setAttribute("aria-expanded", "false"); }); });
 
@@ -2013,12 +2040,13 @@ async function home() {
   if (!current()) return;
   if (!sr) { loadingError(["hcard", "hl", "favs"]); return; }
   const { S, times, i0, rows } = sr;
-  const all = Object.values(rows);
+  const all = Object.values(rows).filter(r => !isResort(r.p));
   if (!all.length) { loadingError(["hcard", "hl", "favs"]); return; }
   busy(["hcard", "hl"], false);
   const best = f => all.reduce((a, b) => f(b) > f(a) ? b : a);
 
   $("hcount").textContent = all.length;
+  $("rcount").textContent = state.data.places.filter(isResort).length;
   let last = null;
   try { last = localStorage.getItem("last"); } catch (e) {}
   const lp = last && rows[last];
@@ -2118,12 +2146,15 @@ async function home() {
 async function rangeView() {
   const name = RANGE_OF[pathId()];
   const run = state.run;
-  const list = state.data.places.filter(p => p.range === name).sort((a, b) => b.alt - a.alt);
+  const list = placesOf("st").filter(p => p.range === name).sort((a, b) => b.alt - a.alt);
+  const resorts = placesOf("ar").filter(p => p.range === name && !p.link).sort((a, b) => b.alt - a.alt);
   document.title = `${name} – meteogramy ALADIN, počasí na horách | Meteogramy.cz`;
   $("rtitle").textContent = `${name} – meteogramy a počasí na horách`;
   $("rimg").src = `/assets/pohori/${slug(name)}-siroka.svg?v=7`;
   $("rimg").alt = `Vrstevnice v okolí nejvyšší stanice: ${list[0].name}`;
-  $("rlead").textContent = `Hodinová předpověď modelu ALADIN pro ${list.length} ${list.length === 1 ? "horskou stanici" : list.length < 5 ? "horské stanice" : "horských stanic"} ČHMÚ v pohoří ${name}. Teplota, vítr a nárazy, srážky a sníh na tři dny dopředu.`;
+  $("rlead").textContent = `Hodinová předpověď modelu ALADIN pro ${list.length} ${list.length === 1 ? "horskou stanici" : list.length < 5 ? "horské stanice" : "horských stanic"} ČHMÚ` +
+    `${resorts.length ? ` a ${resorts.length} ${resortsWord(resorts.length)}` : ""} v pohoří ${name}. Teplota, vítr a nárazy, srážky a sníh na tři dny dopředu.`;
+  $("rres-h").hidden = $("rres").hidden = !resorts.length;
   $("rmore").innerHTML = rangeLinks(name);
   $("rmore").scrollLeft = 0;
   shelfArrows();
@@ -2131,14 +2162,16 @@ async function rangeView() {
   if (!state.sum[run] && ($("rlist").dataset.r !== name || $("rlist").dataset.run !== run)) {
     $("rlist").dataset.r = name;
     loadingCards("rlist", list.length);
+    if (resorts.length) loadingCards("rres", resorts.length);
   }
   const sr = await summaryRows("range");
   if (state.run !== run || state.loadingRun || viewOf() !== "range" || RANGE_OF[pathId()] !== name) return;
-  if (!sr) { loadingError(["rlist"]); return; }
+  if (!sr) { loadingError(["rlist", "rres"]); return; }
   $("rlist").innerHTML = list.filter(p => sr.rows[p.id]).map(p => card(sr.rows[p.id], `${p.alt} m n. m.`)).join("");
+  $("rres").innerHTML = resorts.filter(p => sr.rows[p.id]).map(p => card(sr.rows[p.id], `${p.alt} m n. m.`)).join("");
   $("rlist").dataset.r = name;
   $("rlist").dataset.run = run;
-  busy(["rlist"], false);
+  busy(["rlist", "rres"], false);
 }
 
 // pod meteogramem: denní přehled a text o stanici – stejný obsah generuje build_pages.py do statických stránek
@@ -2168,23 +2201,28 @@ function stationInfo(m) {
     `<td>${deg(Math.min(...g.t))} / <span class="tx">${deg(Math.max(...g.t))}</span></td><td>${Math.round(g.gust)} m/s</td>` +
     `<td>${g.prec < 0.1 ? "–" : fmtNum(g.prec) + " mm"}</td><td>${g.snow < 0.5 ? "–" : Math.round(g.snow) + " cm"}</td>` +
     `<td class="hm">${fmtNum(g.sun)} h</td></tr>`).join("");
-  const near = state.data.places.filter(p => p.id !== m.id).sort((a, b) => km(m, a) - km(m, b)).slice(0, 6);
+  const resort = isResort(m), w = word(m);
+  const near = placesOf(resort ? "ar" : "st").filter(p => p.id !== m.id && !p.link).sort((a, b) => km(m, a) - km(m, b)).slice(0, 6);
+  const station = resort && placesOf("st").sort((a, b) => km(m, a) - km(m, b))[0];
   const geo = v => v.toFixed(4).replace(".", ",");
+  const rangePage = RANGE_OF[slug(m.range)] && placesOf("st").some(p => p.range === m.range);
   return `<div><h2>Předpověď po dnech</h2><table class="days"><thead><tr><th>Den</th><th>Teplota</th><th>Nárazy</th>` +
     `<th>Srážky</th><th>Sníh</th><th class="hm">Slunce</th></tr></thead><tbody>${rowsHtml}</tbody></table>` +
-    `<p class="src">Model ALADIN CZ, běh ${run.day}. ${run.month}. ${pad(run.hour)}:00 ${run.tz}. Teplota ${dz ? `přepočtená na výšku stanice ${m.alt} m` : `ve výšce uzlu modelu ${m.node.alt} m`}.</p></div>` +
-    `<div><h2>O stanici</h2><dl class="spec">${[
-      ["Stanice", `ČHMÚ${m.since ? `, měří od roku ${m.since}` : ""}`],
-      ["Pohoří", m.range],
+    `<p class="src">Model ALADIN CZ, běh ${run.day}. ${run.month}. ${pad(run.hour)}:00 ${run.tz}. Teplota ${dz ? `přepočtená na výšku ${w.gen} ${m.alt} m` : `ve výšce uzlu modelu ${m.node.alt} m`}.</p></div>` +
+    `<div><h2>${resort ? "O středisku" : "O stanici"}</h2><dl class="spec">${[
+      resort ? ["Středisko", m.top ? "vrchol areálu – nejvýš položená horní stanice vleku nebo lanovky" : "lyžařské středisko"]
+        : ["Stanice", `ČHMÚ${m.since ? `, měří od roku ${m.since}` : ""}`],
+      ...(rangeName(m) ? [["Pohoří", m.range]] : []),
       ["Nadmořská výška", `${m.alt} m n. m.`],
       ["Souřadnice", `${geo(m.lat)}° s. š., ${geo(m.lon)}° v. d.`],
-      ["Bod modelu", `${m.node.alt} m n. m., ${fmtNum(m.node.dist, 1)} km od stanice`],
+      ["Bod modelu", `${m.node.alt} m n. m., ${fmtNum(m.node.dist, 1)} km od ${w.gen}`],
+      ...(station ? [["Nejbližší stanice ČHMÚ", `<a href="/${station.id}/">${station.name}</a>, ${fmtNum(km(m, station), 1)} km`]] : []),
       ["Model", "ALADIN CZ, ČHMÚ"],
       ["Předpověď", "3 dny po hodinách, 4× denně"],
       ["Veličiny", "teplota, vítr a nárazy, srážky, sníh, vlhkost, tlak, oblačnost"],
     ].map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>` +
-    `<h2>Stanice v okolí</h2><nav class="near" aria-label="Stanice v okolí">${near.map(p => `<a href="/${p.id}/">${p.name} <small>${p.alt} m</small></a>`).join("")}</nav>` +
-    `<a class="more" href="/${slug(m.range)}/">Všechny stanice: ${m.range} →</a></div>`;
+    `<h2>${resort ? "Střediska" : "Stanice"} v okolí</h2><nav class="near" aria-label="${resort ? "Střediska" : "Stanice"} v okolí">${near.map(p => `<a href="/${p.id}/">${p.name} <small>${p.alt} m</small></a>`).join("")}</nav>` +
+    (rangePage ? `<a class="more" href="/${slug(m.range)}/">${resort ? "Střediska a stanice" : "Všechny stanice"}: ${m.range} →</a>` : "") + `</div>`;
 }
 
 const PAGES = { "/lavinova-predpoved/": "Lavinová předpověď – Krkonoše a Jeseníky | Meteogramy.cz", "/snehove-zpravodajstvi/": "Sněhové zpravodajství – výška sněhu na horách | Meteogramy.cz", "/o-projektu/": "O projektu – Meteogramy.cz", "/ochrana-soukromi/": "Ochrana soukromí – Meteogramy.cz", "/zimy-na-horach/": "Zimy na horách – Krkonoše a Hrubý Jeseník | Meteogramy.cz" };
@@ -2363,6 +2401,8 @@ async function show(id) {
   const run = state.run;
   const current = () => state.stationRequest === request && state.run === run && !state.loadingRun && viewOf() === "mg" && pathId() === meta.id;
   const ps = state.data.places;
+  // střediska přibyla později: starší běh modelu je ještě nemá, otevře se nejnovější
+  if (!ps.some(x => x.id === id) && state.runs && state.run !== state.runs[0]) { loadRun(state.runs[0]); return; }
   const meta = ps.find(x => x.id === id) || ps.find(x => x.id === DEFAULT_ID) || ps[0];
   if (meta.id !== id) history.replaceState(null, "", `/${meta.id}/`);
   const key = `${state.run}/${meta.id}`;
@@ -2380,6 +2420,8 @@ async function show(id) {
   state.m = { ...meta, ...state.cache[key] };
   loadSnowObs();
   state.open.add(meta.range);
+  const kind = isResort(meta) || (state.kind === "ar" && (state.data.links || []).some(l => l.same === meta.id)) ? "ar" : "st";
+  if (kind !== state.kind) setKind(kind);
   render();
   $("sinfo").innerHTML = stationInfo(state.m);
   picker();
@@ -2392,12 +2434,26 @@ const FEATURED_ID = "praded";  // stanice na kartě v úvodu
 const PEAK = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 19.5 9 8.5l4 6.5 2.5-4 6 8.5z"/></svg>`;
 const fold = t => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
-// pohoří od toho s nejvyšší stanicí, ve skupině stanice od nejvyšší (stejně jako groups() v build_pages.py)
-function groups() {
+const GONDOLA = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5 21 3M12 4.6V8"/><rect x="6" y="8" width="12" height="11" rx="2.5"/><path d="M6 13.5h12"/></svg>`;
+const STATION_NOTE = "Uvedená výška je nadmořská výška meteorologické stanice ČHMÚ, ne vrcholu hory. Stanice často stojí pod vrcholem, v sedle nebo u horské chaty.";
+// lyžařské středisko (build_resorts.py): předpověď pro vrchol areálu; „link“ = středisko s vrcholem u stanice, vede na ni
+const isResort = p => p.kind === "resort";
+const word = m => isResort(m) ? (m.top ? { nom: "vrchol", gen: "vrcholu", here: "U tohoto střediska" } : { nom: "středisko", gen: "střediska", here: "U tohoto střediska" })
+  : { nom: "stanice", gen: "stanice", here: "U této stanice" };
+const rangeName = m => m.range === "Ostatní" ? "" : m.range;
+const resortsWord = n => n === 1 ? "lyžařské středisko" : n < 5 ? "lyžařská střediska" : "lyžařských středisek";
+function placesOf(kind) {
   const ps = state.data.places;
-  return [...new Set(ps.map(p => p.range))]
-    .map(r => [r, ps.filter(p => p.range === r).sort((a, b) => b.alt - a.alt)])
-    .sort((a, b) => b[1][0].alt - a[1][0].alt);
+  if (kind !== "ar") return ps.filter(p => !isResort(p));
+  const byId = new Map(ps.map(p => [p.id, p]));
+  return [...ps.filter(isResort), ...(state.data.links || []).filter(l => byId.has(l.same)).map(l => ({ ...l, id: l.same, link: true }))];
+}
+const groupList = ps => [...new Set(ps.map(p => p.range))]
+  .map(r => [r, ps.filter(p => p.range === r).sort((a, b) => b.alt - a.alt)])
+  .sort((a, b) => (a[0] === "Ostatní") - (b[0] === "Ostatní") || b[1][0].alt - a[1][0].alt);
+// pohoří od toho s nejvyšší stanicí, ve skupině stanice od nejvyšší (stejně jako groups() v build_pages.py)
+function groups(kind = "st") {
+  return groupList(placesOf(kind));
 }
 
 // sidebar: pohoří jako rozbalovací skupiny, ve skupině stanice; při hledání se vše rozbalí a vyfiltruje
@@ -2406,18 +2462,26 @@ function picker() {
   const q = fold(state.q.trim());
   const chev = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>`;
   let html = "";
-  for (const [r, list] of groups()) {
+  // běh modelu bez středisek (starší než seznam středisek): přepínač schovat a ukázat stanice
+  const hasResorts = state.data.places.some(isResort);
+  $("kinds").hidden = !hasResorts;
+  if (!hasResorts && state.kind === "ar") setKind("st");
+  // hledá se ve stanicích i střediscích naráz, jinak se ukazuje jen zvolený druh
+  const seen = new Set();
+  const pool = (q ? [...placesOf("st"), ...placesOf("ar")] : placesOf(state.kind))
+    .filter(p => { const k = p.id + "|" + fold(p.name); return !seen.has(k) && seen.add(k); });
+  for (const [r, list] of groupList(pool)) {
     const hits = q ? list.filter(p => fold(p.name).includes(q) || fold(r).includes(q)) : list;
     if (!hits.length) continue;
     const open = q || state.open.has(r);
     html += `<div class="grp${open ? " open" : ""}"><button class="gh" data-r="${r}" aria-expanded="${!!open}">${chev}<span>${r}</span><small>${hits.length}</small></button>` +
       `<div class="items"><div>${hits.map(p =>
-        `<a class="pk${p.id === state.id ? " on" : ""}"${p.id === state.id ? ' aria-current="page"' : ""} href="/${p.id}/">${PEAK}<span class="nm"><span class="in">${p.name}</span></span><small>${p.alt} m</small></a>`).join("")}</div></div></div>`;
+        `<a class="pk${p.id === state.id ? " on" : ""}"${p.id === state.id ? ' aria-current="page"' : ""} href="/${p.id}/">${isResort(p) || p.link ? GONDOLA : PEAK}<span class="nm"><span class="in">${p.name}</span></span><small>${p.alt} m</small></a>`).join("")}</div></div></div>`;
   }
   $("picker").innerHTML = html || `<div class="nores">Nic nenalezeno</div>`;
   if (q) {
     const count = $("picker").querySelectorAll(".pk").length;
-    $("search-status").textContent = count ? `Počet nalezených stanic: ${count}` : "Žádná stanice nenalezena.";
+    $("search-status").textContent = count ? `Počet nalezených míst: ${count}` : "Nic nenalezeno.";
   } else $("search-status").textContent = "";
   // při hledání jsou rozbalená všechna pohoří, klik na nadpis nic nemění
   $("picker").querySelectorAll(".gh").forEach(b => b.onclick = () => {
@@ -2437,6 +2501,21 @@ function picker() {
   });
   pickerEdge();
 }
+
+// přepínač Stanice | Střediska; volba se pamatuje v prohlížeči
+function setKind(kind, user) {
+  state.kind = kind;
+  $("kinds").dataset.k = kind;
+  $("kinds").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.k === kind)));
+  if (!user) return;
+  try { localStorage.setItem("kind", kind); } catch (e) {}
+  if (state.data) { picker(); $("picker").scrollTop = 0; pickerEdge(); }
+}
+try { if (localStorage.getItem("kind") === "ar") setKind("ar"); } catch (e) {}
+$("kinds").addEventListener("click", e => {
+  const b = e.target.closest("button[data-k]");
+  if (b && b.dataset.k !== state.kind) setKind(b.dataset.k, true);
+});
 
 if (!/Mac|iPhone|iPad/.test(navigator.platform)) $("qk").textContent = "Ctrl K";
 document.addEventListener("keydown", e => {
@@ -2580,6 +2659,7 @@ async function init() {
     skeletonSidebar();
     const idx = await readJSON("/data/index.json");
     if (!idx.runs?.length) throw new Error("Chybí běhy modelu");
+    state.runs = idx.runs;
     if (await loadRun(idx.runs[0])) runsDropdown(idx.runs);
   } catch (e) {
     state.loadingRun = false;
@@ -2599,11 +2679,12 @@ async function init() {
     if (m) {
       const dz = m.alt - m.node.alt, dt = Math.abs(0.0065 * dz);
       detail = Math.abs(dz) < 5
-        ? ` U této stanice leží bod modelu ve výšce ${m.node.alt} m, téměř stejně jako stanice (${m.alt} m), takže se teplota skoro nezmění.`
-        : ` U této stanice leží bod modelu ve výšce ${m.node.alt} m, stanice ve ${m.alt} m – teplota bude o ${fmtNum(dt)} °C ${dz > 0 ? "nižší" : "vyšší"}.`;
+        ? ` ${word(m).here} leží bod modelu ve výšce ${m.node.alt} m, téměř stejně jako ${word(m).nom} (${m.alt} m), takže se teplota skoro nezmění.`
+        : ` ${word(m).here} leží bod modelu ve výšce ${m.node.alt} m, ${word(m).nom} ve ${m.alt} m – teplota bude o ${fmtNum(dt)} °C ${dz > 0 ? "nižší" : "vyšší"}.`;
     }
-    box.innerHTML = `<b>Teplota přepočtená na výšku stanice</b>Model ALADIN počítá teplotu pro nejbližší bod své mřížky, jehož výška se od stanice může lišit. ` +
-      `Po zapnutí teplotu přepočítáme na skutečnou výšku stanice: o 0,65 °C na každých 100 m rozdílu.${detail} Ostatní údaje zůstávají beze změny.`;
+    const w = m ? word(m) : word({});
+    box.innerHTML = `<b>Teplota přepočtená na výšku ${w.gen}</b>Model ALADIN počítá teplotu pro nejbližší bod své mřížky, jehož výška se od ${w.gen} může lišit. ` +
+      `Po zapnutí teplotu přepočítáme na skutečnou výšku ${w.gen}: o 0,65 °C na každých 100 m rozdílu.${detail} Ostatní údaje zůstávají beze změny.`;
     box.hidden = false; btn.setAttribute("aria-expanded", "true");
   };
   const hide = () => { box.hidden = true; btn.setAttribute("aria-expanded", "false"); };
