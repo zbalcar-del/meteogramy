@@ -194,7 +194,7 @@ function ranked($map, $label) {
 function dashboard($span, $ROOT, $STATS) {
     $today = strtotime('today');
     $cur = ['pv' => 0, 'uv' => 0, 'app' => 0, 'pages' => [], 'refs' => [], 'dev' => [], 'br' => [], 'os' => [], 'consent' => [], 'hours' => array_fill(0, 24, 0)];
-    $prev = ['pv' => 0, 'uv' => 0];
+    $prev = ['pv' => 0, 'uv' => 0, 'days' => 0];
     $daily = [];
     for ($i = 2 * $span - 1; $i >= 0; $i--) {
         $ts = strtotime("-$i days", $today);
@@ -202,6 +202,7 @@ function dashboard($span, $ROOT, $STATS) {
         if ($i >= $span) {
             $prev['pv'] += $d['pv'] ?? 0;
             $prev['uv'] += $d['uv'] ?? 0;
+            if (isset($d['pv'])) $prev['days']++;
             continue;
         }
         $daily[] = [date('Y-m-d', $ts), $d['uv'] ?? 0, $d['pv'] ?? 0];
@@ -734,8 +735,6 @@ button { font: inherit; border: 0; cursor: pointer; }
 
   <section class="card top" data-slot="status"><h2 class="lb"><?= icon('pulse') ?><span>Stav webu</span><span class="pill" id="pill" hidden></span></h2><div class="body"></div></section>
 
-  <section class="card top" data-slot="badges"><h2 class="lb"><?= icon('tag') ?><span>Štítky na stanicích</span><small id="badges-run"></small></h2><div class="body"></div></section>
-
   <section class="hl" aria-live="polite">
     <?= tile('uv', 'user', 'Návštěvy') ?>
     <?= tile('pv', 'eye', 'Zobrazení stránek') ?>
@@ -756,6 +755,7 @@ button { font: inherit; border: 0; cursor: pointer; }
   </div>
   <section class="card gap" data-slot="consent"><?= head('cookie', 'Cookies', '· jak lidé odpovídají na lištu se souhlasem') ?><div class="body"></div></section>
   <section class="card gap" data-slot="fav"><?= head('star', 'Oblíbené stanice', '· otevření za 30 dní') ?><div class="body"></div></section>
+  <section class="card gap" data-slot="badges"><h2 class="lb"><?= icon('tag') ?><span>Štítky na stanicích</span><small id="badges-run"></small></h2><div class="body"></div></section>
 
   <footer>
     <span>Anonymní součty bez cookies · návštěva = jeden návštěvník za den</span>
@@ -947,6 +947,8 @@ function ago(ts, now) {
 }
 
 function render(d) {
+  // srovnání s předchozím obdobím jen tehdy, když z něj máme data aspoň za 80 % dní (jinak by čísla byla nesmyslná)
+  if (d.prev.days < 0.8 * span) d.prev = { pv: 0, uv: 0, days: d.prev.days };
   const perVisit = d.uv ? (d.pv / d.uv).toLocaleString("cs-CZ", { maximumFractionDigits: 1 }) : "–";
   tile("uv", d.uv, num, d.prev.uv ? delta(d.uv, d.prev.uv) : `za ${span === 365 ? "poslední rok" : `posledních ${span} dní`}`);
   tile("pv", d.pv, num, `${d.prev.pv ? delta(d.pv, d.prev.pv).replace(/ proti.*/, "") + " · " : ""}<em>${perVisit}</em> na návštěvu`);
