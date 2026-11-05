@@ -1,11 +1,12 @@
 /* Samostatný přehled naměřeného sněhu ve vizuálním systému Meteogramy.cz. */
 .side-tools { padding: 10px 0 2px; }
-.snow-nav { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 8px 10px; border-radius: 12px;
+.snow-nav { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 6px 10px; border-radius: 9px;
   color: var(--ink-2); font-size: 13px; font-weight: 600; text-decoration: none; transition: background .15s, color .15s; }
-.snow-nav svg { width: 21px; height: 21px; flex: 0 0 auto; color: var(--accent); }
+.snow-nav + .snow-nav { margin-top: 2px; }
+.snow-nav svg { width: 18px; height: 18px; flex: 0 0 auto; color: var(--accent); }
 .snow-nav:hover, .snow-nav[aria-current="page"] { color: var(--accent); background: var(--accent-bg); }
 .menu-dialog .side-tools { margin: 0 20px; padding: 7px 0; }
-.menu-dialog .snow-nav { min-height: 48px; font-size: 14px; }
+.menu-dialog .snow-nav { min-height: 44px; font-size: 14px; }
 .snow-page { max-width: 1180px; margin: 0 auto; padding: 28px 0 0; }
 .snow-hero { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 10px 8px 30px; }
 .snow-hero .eyebrow { font-size: 14px; font-weight: 600; color: #86868b; margin: 0 0 10px; }
@@ -73,8 +74,7 @@
 .snow-explainer { padding: 20px 8px 6px; color: #687486; font-size: 13px; line-height: 1.6; }
 .snow-explainer h2 { margin: 0 0 16px; font-size: 13px; font-weight: 600; color: #4e6076; }
 .snow-explainer p { max-width: 850px; margin: 0 0 12px; }
-.snow-explainer a, .snow-source a { color: var(--accent); }
-.snow-source { margin: 12px 8px 0; color: #748091; font-size: 11px; line-height: 1.6; }
+.snow-explainer a { color: var(--accent); }
 @media (max-width: 1300px) {
   .snow-table-head, .snow-row { grid-template-columns: minmax(150px,1fr) 90px 100px 130px; gap: 12px; }
   .snow-trend, .snow-table-head span:nth-child(4) { display: none; }

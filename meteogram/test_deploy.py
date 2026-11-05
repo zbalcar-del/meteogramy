@@ -11,6 +11,24 @@ import deploy
 
 
 class ManualDeployTests(unittest.TestCase):
+    def test_winters_upload_is_limited_to_two_history_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            history = root / 'web/data/historie'
+            history.mkdir(parents=True)
+            for name in ('krkonose', 'hruby-jesenik'):
+                (history / f'{name}.json').write_text(json.dumps({'stations': [{'id': name}]}))
+            (history / 'other.json').write_text('{}')
+            site = root / 'build/manual-deploy/site'
+            builder = MagicMock()
+            builder.main.return_value = site
+            def reader(path):
+                return json.dumps({'runs': ['2026110400']} if path == 'index.json' else {}).encode()
+            with patch.dict('sys.modules', {'build_pages': builder}):
+                deploy.prepare_pages(root, reader, winters=True)
+            files = sorted(str(p.relative_to(site)) for p in site.rglob('*') if p.is_file())
+            self.assertEqual(files, ['data/historie/hruby-jesenik.json', 'data/historie/krkonose.json'])
+
     def test_build_reads_production_metadata_only(self):
         requested = []
         def reader(path):

@@ -37,7 +37,10 @@ SNOW_DESC = 'Naměřená výška sněhu na českých horách podle ČHMÚ. Denn�
 AVALANCHE_PATH = '/lavinova-predpoved/'
 AVALANCHE_TITLE = 'Lavinová předpověď – Krkonoše a Jeseníky | Meteogramy.cz'
 AVALANCHE_DESC = 'Lavinová předpověď Horské služby ČR pro Krkonoše a Jeseníky. Stupeň nebezpečí, rizikové situace, čas vydání a odkazy na oficiální bulletiny.'
-RESERVED = {'data', 'api', 'assets', SNOW_PATH.strip('/'), AVALANCHE_PATH.strip('/'), *PAGES}
+WINTERS_PATH = '/historie-zim/'
+WINTERS_TITLE = 'Historie zim – Krkonoše a Hrubý Jeseník | Meteogramy.cz'
+WINTERS_DESC = 'Výška sněhu na horských stanicích ČHMÚ v Krkonoších a Hrubém Jeseníku za všechny zimy od konce 19. století.'
+RESERVED = {'data', 'api', 'assets', SNOW_PATH.strip('/'), AVALANCHE_PATH.strip('/'), WINTERS_PATH.strip('/'), *PAGES}
 # AI asistenti a jejich vyhledávače, kterým robots.txt výslovně povoluje přístup
 AI_BOTS = ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'Claude-User',
            'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'Applebot-Extended', 'CCBot']
@@ -173,7 +176,7 @@ def fill(html, el_id, inner, attrs=''):
 
 
 def visible(html, show):
-    for el_id in ('home', 'range', 'mg', 'sinfo', 'stnotes', 'about', 'privacy', 'snow', 'avalanche'):
+    for el_id in ('home', 'range', 'mg', 'sinfo', 'stnotes', 'about', 'privacy', 'snow', 'avalanche', 'winters'):
         html, n = re.subn(rf'id="{el_id}"( hidden)?', f'id="{el_id}"' + ('' if el_id in show else ' hidden'), html, count=1)
         assert n == 1, el_id
     return html
@@ -261,6 +264,15 @@ def write_avalanche_page(out, data):
                                   extra=[crumbs(('Meteogramy.cz', '/'), ('Lavinová předpověď', AVALANCHE_PATH))]))
     write(out, 'data/avalanche-fragment.html', fragment)
     return modified
+
+
+def write_winters_page(out):
+    """Rozpracovaná stránka: mimo sitemapu a vyhledávače."""
+    html = visible((WEB / 'index.html').read_text(), {'winters'})
+    html = html.replace('class="snow-nav winters-nav"', 'class="snow-nav winters-nav" aria-current="page"', 1)
+    html = page(html, WINTERS_PATH, WINTERS_TITLE, WINTERS_DESC)
+    html = html.replace('<meta name="description"', '<meta name="robots" content="noindex">\n<meta name="description"', 1)
+    write(out, WINTERS_PATH, html)
 
 
 def not_found():
@@ -369,6 +381,7 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
     snow_modified = write_snow_page(out, data)
     urls.append(SNOW_PATH)
     avalanche_modified = write_avalanche_page(out, data)
+    write_winters_page(out)
     urls.append(AVALANCHE_PATH)
     write(out, '404.html', not_found())
     lastmods = {u: snow_modified or modified if u == SNOW_PATH else modified for u in urls}

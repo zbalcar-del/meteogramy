@@ -21,7 +21,7 @@ def quote(value):
     return '"' + value.replace('\\', '\\\\').replace('"', '\\"').replace('$', '\\$').replace('`', '\\`') + '"'
 
 
-def prepare_pages(root, reader=None):
+def prepare_pages(root, reader=None, winters=False):
     """Pro ruční build použije aktuální veřejná produkční data, nikoli lokální běh."""
     if reader is None:
         def reader(path):
@@ -49,16 +49,30 @@ def prepare_pages(root, reader=None):
         destination.write_bytes(raw)
     sys.path.insert(0, str(root / 'meteogram'))
     import build_pages
-    return build_pages.main(root / 'build/manual-deploy/site', data)
+    site = build_pages.main(root / 'build/manual-deploy/site', data)
+    if winters:
+        for name in ('krkonose', 'hruby-jesenik'):
+            source = root / f'web/data/historie/{name}.json'
+            raw = source.read_bytes()
+            doc = json.loads(raw)
+            if not isinstance(doc.get('stations'), list) or not doc['stations']:
+                raise ValueError(f'Chybí historická měření: {name}.')
+            destination = site / f'data/historie/{name}.json'
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(raw)
+    return site
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--dry-run', action='store_true', help='Pouze vypíše plánované přenosy.')
     parser.add_argument('--pages', action='store_true', help='Nasadí také HTML stránky sestavené z aktuálních produkčních dat.')
+    parser.add_argument('--winters', action='store_true', help='S --pages přenese také místní data historie zim pro Krkonoše a Jeseníky.')
     parser.add_argument('--list', action='store_true', help='Zobrazí cílovou složku bez zápisu.')
     parser.add_argument('--remove-wordpress', action='store_true', help='Po přenosu odstraní soubory původního WordPressu bez zálohy.')
     args = parser.parse_args()
+    if args.winters and not args.pages:
+        parser.error('--winters vyžaduje --pages.')
     if args.pages and args.list:
         parser.error('--pages nelze kombinovat s --list.')
     if args.remove_wordpress and (args.dry_run or args.list):
@@ -83,7 +97,7 @@ def main():
         parser.error('SFTP_PORT musí být číslo.')
     if not shutil.which('lftp'):
         parser.error('Chybí lftp (instalace: brew install lftp).')
-    pages = prepare_pages(root) if args.pages else None
+    pages = prepare_pages(root, winters=args.winters) if args.pages else None
     # Heslo předáváme přes standardní vstup, nikdy jako argument procesu.
     # Záměrně bez --delete: soubory na hostingu nemažeme.
     known_hosts = root / '.env.known_hosts'
