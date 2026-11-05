@@ -11,6 +11,8 @@ RewriteRule ^ https://meteogramy.cz%{REQUEST_URI} [R=301,L]
 
 # otisky souborů pro nasazování nejsou veřejné
 RewriteRule ^\.deploy-manifest - [F,L]
+# počty návštěv a stav přihlášení do správy webu čtou jen skripty v api/ a sprava-webu-meteo/
+RewriteRule ^api/stats/ - [F,L]
 
 # Stránky stanic, pohoří a informační stránky jsou vygenerované složky (meteogram/build_pages.py).
 

@@ -1008,9 +1008,13 @@ h1, h2 { text-wrap: balance; }
       <h2>Oblíbené stanice.</h2>
       <p>Když otevřete meteogram stanice, web na náš hosting odešle název stanice. Server k němu přičte jedničku do denního součtu za celý web; vaši IP adresu, cookies ani jiný identifikátor k součtu neukládá. Z těchto anonymních součtů za posledních 30 dní sestavujeme oblíbené stanice na úvodní stránce. Starší denní součty se automaticky mažou. Samotný požadavek se jako každý jiný může objevit v přístupových logech hostingu (viz výše).</p>
     </section>
+    <section>
+      <h2>Anonymní návštěvnost.</h2>
+      <p>Při zobrazení stránky web na náš hosting odešle její adresu a doménu webu, ze kterého jste přišli (například google.com, bez konkrétní adresy). Server z technických údajů požadavku odhadne typ zařízení, prohlížeč a operační systém a přičte je do denních součtů za celý web. Aby každého návštěvníka započítal za den jen jednou, vytvoří z IP adresy a typu prohlížeče jednosměrný otisk s náhodným klíčem, který platí jediný den. Otisky se s koncem dne mažou i s klíčem, takže je nelze zpětně přiřadit žádné osobě. IP adresu ani otisk do součtů neukládáme, nepoužíváme k tomu cookies ani úložiště prohlížeče a souhrny nikomu nepředáváme. Stejně anonymně sčítáme, kolikrát se zobrazila lišta se souhlasem a kterou volbu v ní lidé zvolili, abychom věděli, jakou část návštěvnosti Google Analytics zachytí. Denní součty uchováváme nejvýše 400 dní. Právním základem je oprávněný zájem na provozu a zlepšování webu podle čl. 6 odst. 1 písm. f) GDPR.</p>
+    </section>
     <section id="cookies">
       <h2>Cookies a úložiště prohlížeče.</h2>
-      <p>Bez vašeho souhlasu Meteogramy.cz nepoužívají žádné cookies ani analytické a reklamní nástroje. Při první návštěvě se vás proto zeptáme, zda smíme měřit návštěvnost. Odmítnutí nijak neomezí přístup k předpovědi.</p>
+      <p>Bez vašeho souhlasu Meteogramy.cz nepoužívají žádné cookies ani analytické a reklamní nástroje třetích stran; měří jen anonymní souhrnnou návštěvnost popsanou výše. Při první návštěvě se vás proto zeptáme, zda smíme měřit návštěvnost. Odmítnutí nijak neomezí přístup k předpovědi.</p>
       <p>Pokud souhlas dáte, načte se služba Google Analytics 4 od společnosti Google Ireland Limited. Ta pomocí cookies <code>_ga</code> a <code>_ga_80GPH2DQCN</code> (platnost až 2 roky) rozpozná opakované návštěvy a zaznamená, které stránky si prohlížíte, odkud jste přišli, typ zařízení a prohlížeče a přibližnou polohu podle IP adresy (na úrovni země či města). Samotnou IP adresu Google Analytics 4 neukládá. Údaje vidíme jen v souhrnných přehledech a uchováváme je 14 měsíců. Google může údaje zpracovávat i v USA na základě rámce EU–USA pro ochranu osobních údajů (Data Privacy Framework). Právním základem je váš souhlas podle čl. 6 odst. 1 písm. a) GDPR.</p>
       <p>Souhlas můžete kdykoli změnit nebo odvolat; po odvolání se měření zastaví. Vaše volba platí rok, pak se zeptáme znovu.</p>
       <p><button type="button" class="ckbtn" data-cookies>Nastavení cookies</button></p>
@@ -1247,25 +1251,45 @@ function openConsent(settings) {
   $("ck").hidden = false;
 }
 function closeConsent() { $("ck").hidden = true; }
-$("ckyes").onclick = () => saveConsent(true);
-$("ckno").onclick = () => saveConsent(!$("ckset").hidden && $("ckan").checked);
-$("ckmore").onclick = () => openConsent(true);
+// anonymní počet rozhodnutí v liště (api/stats.php, karta Cookies ve správě webu); jen na produkčním webu
+function consentEvent(e) {
+  if (location.hostname !== "meteogramy.cz") return;
+  try { navigator.sendBeacon("/api/stats.php", new URLSearchParams({ e })); } catch (err) {}
+}
+$("ckyes").onclick = () => { consentEvent("all"); saveConsent(true); };
+$("ckno").onclick = () => {
+  const custom = !$("ckset").hidden, analytics = custom && $("ckan").checked;
+  consentEvent(custom ? (analytics ? "custom-yes" : "custom-no") : "no");
+  saveConsent(analytics);
+};
+$("ckmore").onclick = () => { consentEvent("settings"); openConsent(true); };
 // zavření bez volby nic neukládá; bez souhlasu se nic neměří
-$("ckx").onclick = closeConsent;
+$("ckx").onclick = () => { consentEvent("closed"); closeConsent(); };
 $("ck").addEventListener("keydown", e => { if (e.key === "Escape") closeConsent(); });
 document.addEventListener("click", e => {
   const a = e.target.closest("[data-cookies]");
   if (!a || e.metaKey || e.ctrlKey) return;
   e.preventDefault();
+  consentEvent("reopen");
   openConsent(true);
 });
 {
   const c = readConsent();
   if (c && c.analytics) loadAnalytics();
-  else if (!c && ANALYTICS_ID) openConsent(false);
+  else if (!c && ANALYTICS_ID) { consentEvent("shown"); openConsent(false); }
 }  // dřívější počty jen pro tento prohlížeč
 function countVisit(id) {
   try { navigator.sendBeacon(`/api/oblibene.php?id=${encodeURIComponent(id)}`); } catch (e) {}
+}
+// anonymní návštěvnost bez cookies (api/stats.php, přehled na /sprava-webu-meteo/); jen na produkčním webu
+let trackedPath = null;
+function trackView() {
+  const p = pagePath();
+  if (p === trackedPath || location.hostname !== "meteogramy.cz") return;
+  const body = new URLSearchParams({ p, r: trackedPath === null ? document.referrer : "",
+    a: matchMedia("(display-mode: standalone)").matches || navigator.standalone ? "1" : "" });
+  trackedPath = p;
+  try { navigator.sendBeacon("/api/stats.php", body); } catch (e) {}
 }
 function loadPopular() {
   if (!state.popular) state.popular = readJSON("/api/oblibene.php", 8000).then(d => d.ids || []).catch(() => []);
@@ -2122,6 +2146,7 @@ const viewOf = () => PAGES[pagePath()] ? pagePath() : pagePath() === "/" ? "home
 
 // přepne pohled podle adresy; meteogram se při návratu překreslí na správnou šířku
 function route() {
+  trackView();
   const v = viewOf();
   mobileContext();
   $("mg").hidden = $("sinfo").hidden = $("stnotes").hidden = v !== "mg";

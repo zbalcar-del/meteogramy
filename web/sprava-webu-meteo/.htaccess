@@ -1,0 +1,6 @@
+DirectoryIndex index.php
+<IfModule mod_headers.c>
+  Header always set X-Robots-Tag "noindex, nofollow"
+  Header always set Referrer-Policy "same-origin"
+  Header always set Cache-Control "no-store"
+</IfModule>

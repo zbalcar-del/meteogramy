@@ -22,3 +22,5 @@ web/_t*.html
 *.pem
 *.key
 secrets*
+# adresa pro přihlašovací kódy správy webu (na hostingu leží mimo public_html)
+meteogramy-admin.txt

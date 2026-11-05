@@ -40,7 +40,7 @@ AVALANCHE_DESC = 'Lavinová předpověď Horské služby ČR pro Krkonoše a Jes
 WINTERS_PATH = '/historie-zim/'
 WINTERS_TITLE = 'Historie zim – Krkonoše a Hrubý Jeseník | Meteogramy.cz'
 WINTERS_DESC = 'Výška sněhu na horských stanicích ČHMÚ v Krkonoších a Hrubém Jeseníku za všechny zimy od konce 19. století.'
-RESERVED = {'data', 'api', 'assets', SNOW_PATH.strip('/'), AVALANCHE_PATH.strip('/'), WINTERS_PATH.strip('/'), *PAGES}
+RESERVED = {'data', 'api', 'assets', 'sprava-webu-meteo', SNOW_PATH.strip('/'), AVALANCHE_PATH.strip('/'), WINTERS_PATH.strip('/'), *PAGES}
 # AI asistenti a jejich vyhledávače, kterým robots.txt výslovně povoluje přístup
 AI_BOTS = ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'Claude-User',
            'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'Applebot-Extended', 'CCBot']
