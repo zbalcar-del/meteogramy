@@ -214,6 +214,9 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .bb-btn.inv { border-color: rgba(13,128,120,.24); background: linear-gradient(135deg, #f0fbf9, #d5f0eb); color: #0b6b64; box-shadow: 0 1px 2px rgba(11,107,100,.08); }
 .bb-btn.inv span { color: #4f9d96; }
 .bb-btn.inv:hover, .bb-btn.inv[aria-expanded="true"] { box-shadow: 0 0 0 3px rgba(13,128,120,.13), 0 1px 2px rgba(11,107,100,.08); }
+.bb-btn.foehn { border-color: rgba(94,92,230,.24); background: linear-gradient(135deg, #f5f4ff, #e3e1fb); color: #4b3fc4; box-shadow: 0 1px 2px rgba(75,63,196,.08); }
+.bb-btn.foehn span { color: #8580d6; }
+.bb-btn.foehn:hover, .bb-btn.foehn[aria-expanded="true"] { box-shadow: 0 0 0 3px rgba(94,92,230,.13), 0 1px 2px rgba(75,63,196,.08); }
 .bb-btn svg { width: 16px; height: 16px; flex: 0 0 auto; overflow: visible; }
 .bb-btn .spin { transform-origin: 12px 12px; animation: bb-spin 14s linear infinite; }
 .bb-btn.powder .spin { transform-origin: 10px 11px; animation-duration: 20s; }
@@ -1431,6 +1434,41 @@ function inversionDays(m, times) {
   return [...days.values()].filter(d => d.idx.length >= 3).map(d => ({ ...d, i0: d.idx[0], i1: d.idx[d.idx.length - 1],
     from: local(times[d.idx[0]]).hour, to: (local(times[d.idx[d.idx.length - 1]]).hour + 1) % 24 }));
 }
+// Fénová stěna – tip na fotku: oblak se přelévá přes hřeben a na závětrné straně se rozpouští. Hodina se počítá, když
+// na stanici fouká aspoň 8 m/s ze směru kolmého na hřeben, stanice je v oblaku (nízká oblačnost aspoň 80 %, vlhkost aspoň 95 %)
+// a údolí pod ní leží po větru (do 75° od směru proudění) a je téměř bez nízké oblačnosti (nejvýš 30 %).
+// Jen stanice od 900 m ve třech pohořích s dlouhým hřebenem, jen za světla; den se počítá od 2 takových hodin.
+const FOEHN_CROSS = { "Krkonoše": [[300, 60], [150, 230]], "Hrubý Jeseník": [[220, 320], [50, 130]], "Krušné hory": [[270, 360], [110, 180]] };
+// lokální ukázka vzhledu: ?ukazka-fen na localhostu přidá tip na zítřejší dopoledne
+const FOEHN_DEMO = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && new URLSearchParams(location.search).has("ukazka-fen");
+function bearing(a, b) {
+  const r = Math.PI / 180, y = Math.sin((b.lon - a.lon) * r) * Math.cos(b.lat * r);
+  const x = Math.cos(a.lat * r) * Math.sin(b.lat * r) - Math.sin(a.lat * r) * Math.cos(b.lat * r) * Math.cos((b.lon - a.lon) * r);
+  return (Math.atan2(y, x) / r + 360) % 360;
+}
+function foehnDays(m, times) {
+  const cross = FOEHN_CROSS[m.range];
+  if (!cross || m.alt < 900 || !m.valley || !m.vcll) return [];
+  const lee = bearing(m.node || m, m.valley);
+  const inRange = (d, [a, b]) => a < b ? d >= a && d <= b : d >= a || d <= b;
+  const angle = (a, b) => Math.abs(((a - b + 540) % 360) - 180);
+  const now = nowIndex(times), days = new Map();
+  for (let i = now; i < times.length; i++) {
+    if (isNight(times[i], m.lat, m.lon)) continue;
+    const l = local(times[i]);
+    const demo = FOEHN_DEMO && whenLabel(times[i]) === "zítra" && l.hour >= 9 && l.hour <= 13;
+    const ok = demo || (m.ws[i] >= 8 && cross.some(r => inRange(m.wd[i], r)) && m.cll[i] >= 80 && m.rh[i] >= 95
+      && angle(lee, (m.wd[i] + 180) % 360) <= 75 && m.vcll[i] <= 30);
+    if (!ok) continue;
+    const key = `${l.day}.${l.month}`;
+    if (!days.has(key)) days.set(key, { key, name: `${l.wd} ${l.day}. ${l.month}.`, when: whenLabel(times[i]), idx: [], ws: 0, wd: 0 });
+    const d = days.get(key);
+    d.idx.push(i);
+    if (m.ws[i] >= d.ws) Object.assign(d, { ws: m.ws[i], wd: m.wd[i] });
+  }
+  return [...days.values()].filter(d => d.idx.length >= 2).map(d => ({ ...d, i0: d.idx[0], i1: d.idx[d.idx.length - 1],
+    from: local(times[d.idx[0]]).hour, to: (local(times[d.idx[d.idx.length - 1]]).hour + 1) % 24 }));
+}
 function snowDays(m, times) {
   const now = nowIndex(times), days = new Map();
   for (let i = now; i < times.length; i++) {
@@ -1463,6 +1501,9 @@ const BADGE_ICON = {
   powder: `<g class="spin" stroke="currentColor" stroke-width="1.8"><path d="M10 3.5v15M3.5 7.25l13 7.5M3.5 14.75l13-7.5M7.8 4.6 10 6.6l2.2-2"/></g>` +
     `<path d="M19 15.5v5M16.5 18h5" stroke="currentColor" stroke-width="1.6"/><path d="M19.5 3.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" fill="currentColor" stroke="none"/>`,
 };
+BADGE_ICON.foehn = `<path d="M2.5 20.5 9 11l3.5 4.5L15 12l6.5 8.5" stroke="currentColor" stroke-width="1.8"/>` +
+  `<path d="M3.5 9.5c1.6-2.2 3.6-2.6 5.5-1.2 1.4-2.4 4.4-2.6 6-.4 1.4-.8 3.2-.4 4 1" stroke="currentColor" stroke-width="1.8"/>` +
+  `<path d="M16.5 9.5c.6 1.6.4 3.2-.6 4.6" stroke="currentColor" stroke-width="1.6" opacity=".7"/>`;
 const badgeSvg = k => `<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${BADGE_ICON[k]}</svg>`;
 
 // Štítky vpravo nahoře: powder alert, bude sypat, bluebird. Každý má vlastní vysvětlivku, otevřená je vždy jen jedna.
@@ -1496,6 +1537,13 @@ function conditions(m, T, times) {
     text: "Studený vzduch zůstane ležet v údolích a vyplní je mlha nebo nízká oblačnost. Nad ní je tepleji a jasno – z hřebenů bývá vidět moře mlhy.",
     foot: `Model ALADIN: stanice proti údolí ve výšce ${m.valley.alt} m, ${fmtNum(m.valley.dist)} km od stanice`,
     bands: inv, band: "inverze", target: "temp", link: "V grafu teploty ↓" });
+  const fw = foehnDays(m, times);
+  if (fw.length) out.push({ id: "foehn", cls: "foehn", icon: "foehn", name: "Fénová stěna", when: fw[0].when, at: fw[0].i0,
+    tiles: fw.map(d => ({ d: d.name, v: `${d.from}–${d.to}`, u: "h", x: `vítr ${compass(d.wd)} ${Math.round(d.ws)} m/s · hřeben v oblaku, v závětří jasno` })),
+    eyebrow: "Tip na fotku", title: "Šance na fénovou stěnu",
+    text: "Silný vítr žene přes hřeben oblačnost, která se na závětrné straně přelévá dolů jako vodopád a pod hřebenem se rozpouští. Model ukazuje vhodné podmínky – jestli bude stěna opravdu vidět, rozhodnou detaily, které model nezachytí.",
+    foot: `Model ALADIN: vítr a oblak na hřebeni, jasno v údolí po větru (${m.valley.alt} m, ${fmtNum(m.valley.dist)} km)`,
+    bands: fw, band: "fénová stěna", target: "cloud", link: "V grafu oblačnosti ↓" });
   if (bb.length) out.push({ id: "bluebird", cls: "", icon: "sun", name: "Bluebird", when: bb[0].when, at: bb[0].i0,
     tiles: bb.map(d => ({ d: d.name, v: fmtNum(d.sun), u: "h slunce", x: `oblačnost ${Math.round(d.cloud)} % · ${deg(d.tMin)} / ${deg(d.tMax)}`,
       pw: d.powder ? `po sněžení ≈ ${Math.round(d.powder)} cm` : "" })),
@@ -1516,7 +1564,7 @@ function badges(list) {
       `${badgeSvg(b.icon)}${b.name} <span>${b.when}</span>${more}</button>`;
   }).join("")}</div>` + list.map(b =>
     `<div class="bb-pop ${b.cls}" id="bb-pop-${b.id}" role="dialog" aria-label="${b.name}" hidden>` +
-    `<p class="eyebrow">${ICON(b.icon === "sun" ? "sun" : b.icon === "inv" ? "inv" : "flake")}<span>${b.eyebrow}</span></p><h3>${b.title}</h3><p>${b.text}</p>` +
+    `<p class="eyebrow">${ICON(b.icon === "sun" ? "sun" : b.icon === "inv" ? "inv" : b.icon === "foehn" ? "wind" : "flake")}<span>${b.eyebrow}</span></p><h3>${b.title}</h3><p>${b.text}</p>` +
     `<ul class="bb-days">${b.tiles.map(t => `<li><span class="d">${t.d}</span><b>${t.v} <span>${t.u}</span></b><span class="v">${t.x}</span>` +
       (t.pw ? `<span class="pw"><i></i>${t.pw}</span>` : "") + `</li>`).join("")}</ul>` +
     `<div class="bb-foot"><span>${b.foot}</span><button type="button" class="bb-show" data-target="${b.target}">${b.link}</button></div></div>`).join("");
@@ -1776,8 +1824,8 @@ function render() {
   Y = frame(pC, 0, 100, 20, "[%]");
   for (const c of conds) if (c.target === "cloud") for (const d of c.bands) {
     const x0 = x(d.i0) - bw / 2, x1 = x(d.i1) + bw / 2;
-    s += `<rect class="band-cloud" x="${x0.toFixed(1)}" y="${pC.top}" width="${(x1 - x0).toFixed(1)}" height="${pC.h}" fill="#0a84ff" opacity=".07"/>`;
-    s += text((x0 + x1) / 2, pC.top + 13, d.powder ? "❄ bluebird" : "☀ bluebird", { c: "#0a5cc2" });
+    s += `<rect class="band-cloud" x="${x0.toFixed(1)}" y="${pC.top}" width="${(x1 - x0).toFixed(1)}" height="${pC.h}" fill="${c.id === "foehn" ? "#5e5ce6" : "#0a84ff"}" opacity=".07"/>`;
+    s += text((x0 + x1) / 2, pC.top + (c.id === "foehn" ? 28 : 13), c.id === "foehn" ? c.band : d.powder ? "❄ bluebird" : "☀ bluebird", { c: c.id === "foehn" ? "#4b3fc4" : "#0a5cc2" });
   }
   const area = (arr, col) => `<path d="M${x(0)} ${Y(0)}${arr.map((v, i) => `L${x(i).toFixed(1)} ${Y(v).toFixed(1)}`).join("")}L${x(n - 1)} ${Y(0)}Z" fill="${col}"/>`;
   s += area(m.clt, C.clt);

@@ -268,7 +268,137 @@ function dashboard($span, $ROOT, $STATS) {
         'fav' => array_map(fn($x) => [$names["/{$x[0]}/"] ?? $x[0], $x[1], $rangeOf[$x[0]] ?? ''], ranked($fav, fn($id) => $id)),
         'consent' => (object)$cur['consent'],
         'status' => $status,
+        'stationBadges' => station_badges($ROOT),
     ];
+}
+
+// --- štítky na stanicích ------------------------------------------------------------------------------
+// Stejná pravidla jako na webu: bluebirdDays(), snowDays(), snowBase(), foehnDays() a conditions() v index.html.
+// Při změně pravidel na webu je potřeba upravit i tady.
+const FOEHN_CROSS = ['Krkonoše' => [[300, 60], [150, 230]], 'Hrubý Jeseník' => [[220, 320], [50, 130]], 'Krušné hory' => [[270, 360], [110, 180]]];
+const WD_CS = ['Ne', 'Po', 'Út', 'St', 'Čt', 'Pá', 'So'];
+const WHEN_CS = ['v neděli', 'v pondělí', 'v úterý', 've středu', 've čtvrtek', 'v pátek', 'v sobotu'];
+
+function sun_utc($ts, $lat, $lon) {
+    $n = (int)floor(($ts - gmmktime(0, 0, 0, 1, 0, (int)gmdate('Y', $ts))) / 86400);
+    $g = 2 * M_PI / 365 * ($n - 1);
+    $eq = 229.18 * (0.000075 + 0.001868 * cos($g) - 0.032077 * sin($g) - 0.014615 * cos(2 * $g) - 0.040849 * sin(2 * $g));
+    $dec = 0.006918 - 0.399912 * cos($g) + 0.070257 * sin($g) - 0.006758 * cos(2 * $g) + 0.000907 * sin(2 * $g) - 0.002697 * cos(3 * $g) + 0.00148 * sin(3 * $g);
+    $r = M_PI / 180;
+    $ha = acos(cos(90.833 * $r) / (cos($lat * $r) * cos($dec)) - tan($lat * $r) * tan($dec)) / $r;
+    return [720 - 4 * ($lon + $ha) - $eq, 720 - 4 * ($lon - $ha) - $eq];
+}
+function is_night($ts, $lat, $lon) {
+    [$rise, $set] = sun_utc($ts, $lat, $lon);
+    $m = (int)gmdate('G', $ts) * 60 + (int)gmdate('i', $ts);
+    return $m < $rise || $m > $set;
+}
+function loc($ts) {
+    $d = new DateTime('@' . $ts);
+    $d->setTimezone(new DateTimeZone('Europe/Prague'));
+    return ['day' => (int)$d->format('j'), 'month' => (int)$d->format('n'), 'hour' => (int)$d->format('G'), 'wd' => WD_CS[(int)$d->format('w')], 'ymd' => $d->format('Y-m-d')];
+}
+function when_label($ts) {
+    $diff = (int)round((strtotime(loc($ts)['ymd'] . ' 12:00') - strtotime(loc(time())['ymd'] . ' 12:00')) / 86400);
+    return $diff <= 0 ? 'dnes' : ($diff === 1 ? 'zítra' : ($diff === 2 ? 'pozítří' : WHEN_CS[(int)date('w', strtotime(loc($ts)['ymd']))]));
+}
+function day_entry($ts) { $l = loc($ts); return ['name' => "{$l['wd']} {$l['day']}. {$l['month']}.", 'when' => when_label($ts), 'ts' => $ts]; }
+function hours_of($times, $idx) { return loc($times[$idx[0]])['hour'] . '–' . ((loc($times[end($idx)])['hour'] + 1) % 24) . ' h'; }
+function compass_cs($d) { return ['S', 'SV', 'V', 'JV', 'J', 'JZ', 'Z', 'SZ'][((int)round($d / 45)) % 8]; }
+function n1($v) { return str_replace('.', ',', number_format($v, 1, '.', '')); }
+
+function bluebird_days($m, $times, $now) {
+    $groups = [];
+    foreach ($times as $i => $t) {
+        if ($i < $now || is_night($t, $m['lat'], $m['lon'])) continue;
+        $l = loc($t);
+        $groups[$l['ymd']][] = $i;
+    }
+    $out = [];
+    foreach ($groups as $ymd => $idx) {
+        if (count($idx) < ($ymd === loc(time())['ymd'] ? 3 : 4)) continue;
+        $last = end($idx);
+        if ($last === count($times) - 1 && !is_night($times[$last] + 3600, $m['lat'], $m['lon'])) continue;
+        $clt = array_map(fn($i) => $m['clt'][$i], $idx);
+        $cll = array_map(fn($i) => $m['cll'][$i], $idx);
+        $mean = array_sum($clt) / count($clt);
+        $over = fn($a, $lim) => count(array_filter($a, fn($v) => $v > $lim));
+        if ($mean > 20 || $over($clt, 50) > 1 || $over($cll, 20) > 1) continue;
+        $sun = array_sum(array_map(fn($i) => $m['sun'][$i], $idx));
+        if (array_sum(array_map(fn($i) => $m['prec'][$i], $idx)) >= 0.2 || $sun < count($idx) * 60 * 0.6) continue;
+        $out[] = day_entry($times[$idx[0]]) + ['detail' => n1($sun / 60) . ' h slunce · oblačnost ' . round($mean) . ' %'];
+    }
+    return $out;
+}
+function snow_days($m, $times, $now) {
+    $days = [];
+    for ($i = $now; $i < count($times); $i++) {
+        $ymd = loc($times[$i])['ymd'];
+        $days[$ymd] ??= ['cm' => 0, 'idx' => [], 'first' => $times[$i]];
+        $days[$ymd]['cm'] += $m['snow'][$i];
+        if ($m['snow'][$i] >= 0.1) $days[$ymd]['idx'][] = $i;
+    }
+    $out = [];
+    foreach ($days as $d) if ($d['idx']) $out[] = day_entry($times[$d['idx'][0]]) + ['cm' => $d['cm'], 'hours' => hours_of($times, $d['idx'])];
+    return $out;
+}
+function foehn_days($m, $times, $now) {
+    $cross = FOEHN_CROSS[$m['range']] ?? null;
+    if (!$cross || $m['alt'] < 900 || empty($m['valley']) || empty($m['vcll'])) return [];
+    $a = $m['node'] ?? $m; $b = $m['valley']; $r = M_PI / 180;
+    $lee = fmod(rad2deg(atan2(sin(($b['lon'] - $a['lon']) * $r) * cos($b['lat'] * $r),
+        cos($a['lat'] * $r) * sin($b['lat'] * $r) - sin($a['lat'] * $r) * cos($b['lat'] * $r) * cos(($b['lon'] - $a['lon']) * $r))) + 360, 360);
+    $in = fn($d, $rg) => $rg[0] < $rg[1] ? $d >= $rg[0] && $d <= $rg[1] : $d >= $rg[0] || $d <= $rg[1];
+    $angle = fn($x, $y) => abs(fmod($x - $y + 540, 360) - 180);
+    $days = [];
+    for ($i = $now; $i < count($times); $i++) {
+        if (is_night($times[$i], $m['lat'], $m['lon'])) continue;
+        $wd = $m['wd'][$i];
+        $ok = $m['ws'][$i] >= 8 && array_filter($cross, fn($rg) => $in($wd, $rg)) && $m['cll'][$i] >= 80 && $m['rh'][$i] >= 95
+            && $angle($lee, fmod($wd + 180, 360)) <= 75 && $m['vcll'][$i] <= 30;
+        if (!$ok) continue;
+        $ymd = loc($times[$i])['ymd'];
+        $days[$ymd] ??= ['idx' => [], 'ws' => 0, 'wd' => 0];
+        $days[$ymd]['idx'][] = $i;
+        if ($m['ws'][$i] >= $days[$ymd]['ws']) { $days[$ymd]['ws'] = $m['ws'][$i]; $days[$ymd]['wd'] = $wd; }
+    }
+    $out = [];
+    foreach ($days as $d) if (count($d['idx']) >= 2)
+        $out[] = day_entry($times[$d['idx'][0]]) + ['detail' => hours_of($times, $d['idx']) . ' · vítr ' . compass_cs($d['wd']) . ' ' . round($d['ws']) . ' m/s'];
+    return $out;
+}
+
+// Pro každý štítek seznam stanic a dnů, kde ho web v aktuálním běhu ukazuje.
+function station_badges($ROOT) {
+    $run = read_json("$ROOT/data/index.json")['runs'][0] ?? '';
+    if (!preg_match('/^20\d{8}$/', $run)) return ['run' => '', 'badges' => []];
+    $places = read_json("$ROOT/data/$run/index.json")['places'] ?? [];
+    $snowObs = [];
+    foreach (read_json("$ROOT/data/snow.json")['stations'] ?? [] as $st) $snowObs[$st['id'] ?? ''] = $st;
+    $res = ['powder' => [], 'snow' => [], 'bluebird' => [], 'foehn' => []];
+    foreach ($places as $p) {
+        $series = read_json("$ROOT/data/$run/{$p['id']}.json");
+        if (empty($series['times'])) continue;
+        $m = $p + $series;
+        $times = array_map('strtotime', $series['times']);
+        $now = max(0, min(count($times) - 1, (int)round((time() - $times[0]) / 3600)));
+        $row = fn($d, $detail) => ['id' => $p['id'], 'station' => $p['name'], 'range' => $p['range'], 'when' => $d['when'], 'day' => $d['name'], 'ts' => $d['ts'], 'detail' => $detail];
+        // základ sněhu z měření ČHMÚ (nejvýš 4 dny staré), jako snowBase()
+        $obs = $snowObs[$p['id']] ?? null;
+        $base = $obs && isset($obs['depth']) && !empty($obs['observed_at']) && time() - strtotime($obs['observed_at']) <= 4 * 86400 ? $obs : null;
+        $sd = snow_days($m, $times, $now);
+        $deep = $base && $base['depth'] >= 75;
+        $powder = $deep ? array_values(array_filter($sd, fn($d) => $d['cm'] >= 10)) : [];
+        if ($deep && ($base['change'] ?? 0) >= 10 && time() - strtotime($base['observed_at']) < 30 * 3600)
+            $res['powder'][] = $row(['when' => 'dnes', 'name' => 'napadlo', 'ts' => strtotime($base['observed_at'])], '+' . round($base['change']) . ' cm za den podle ČHMÚ');
+        foreach ($powder as $d) $res['powder'][] = $row($d, '≈ ' . round($d['cm']) . ' cm nového · ' . $d['hours'] . ' · základ ' . round($base['depth']) . ' cm');
+        foreach ($sd as $d) if ($d['cm'] >= 2 && !in_array($d, $powder, true)) $res['snow'][] = $row($d, '≈ ' . round($d['cm']) . ' cm · sněží ' . $d['hours']);
+        foreach (bluebird_days($m, $times, $now) as $d) $res['bluebird'][] = $row($d, $d['detail']);
+        foreach (foehn_days($m, $times, $now) as $d) $res['foehn'][] = $row($d, $d['detail']);
+    }
+    foreach ($res as &$list) usort($list, fn($a, $b) => [$a['ts'], $a['range'], $a['station']] <=> [$b['ts'], $b['range'], $b['station']]);
+    unset($list);
+    return ['run' => $run, 'badges' => $res];
 }
 
 // data pro přehled načítá stránka na pozadí (kvůli skeletonům a přepínání období bez nového načtení)
@@ -293,6 +423,7 @@ const ICONS = [
     'screen' => '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
     'star' => '<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/>',
     'pulse' => '<path d="M3 12h4l3-8 4 16 3-8h4"/>',
+    'tag' => '<path d="M3 12V4h8l10 10-8 8z"/><path d="M7.5 7.5h.01"/>',
     'cookie' => '<path d="M12 3a9 9 0 1 0 9 9 4 4 0 0 1-4.5-4.5A4 4 0 0 1 12 3z"/><path d="M8.5 11.5h.01M12 16h.01M15.5 14h.01M9 15.5h.01"/>',
 ];
 function icon($k) {
@@ -387,6 +518,29 @@ header { display: flex; align-items: center; gap: 14px 20px; flex-wrap: wrap; ma
 .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .gap { margin-top: var(--gap); }
 .top { margin-bottom: var(--gap); }
+/* štítky na stanicích: čtyři sloupce, štítek vypadá jako na kartě stanice (.bb-btn v index.html) */
+.badges { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.bcol { background: #f5f5f7; border-radius: 16px; padding: 12px 14px 10px; min-width: 0; }
+.chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px 0 8px; border-radius: 14px; font-size: 12.5px; font-weight: 600;
+  border: .5px solid rgba(10,132,255,.22); background: linear-gradient(135deg, #eef7ff, #d9ecff); color: #0a5cc2; box-shadow: 0 1px 2px rgba(10,92,194,.08); }
+.chip svg { width: 16px; height: 16px; flex: 0 0 auto; }
+.chip.snow { border-color: rgba(68,84,106,.2); background: linear-gradient(135deg, #f6f8fb, #e5eaf1); color: #3b4a60; }
+.chip.powder { border-color: rgba(191,135,0,.3); background: linear-gradient(135deg, #fff9ea, #fbe3a6); color: #8a5a00; }
+.chip.foehn { border-color: rgba(94,92,230,.24); background: linear-gradient(135deg, #f5f4ff, #e3e1fb); color: #4b3fc4; }
+.bcol .cnt { margin: 10px 0 2px; font-size: 22px; font-weight: 600; letter-spacing: -.015em; font-variant-numeric: tabular-nums; }
+.bcol .cnt span { font-size: 13px; font-weight: 500; color: #6e6e73; letter-spacing: 0; }
+.bcol .days { font-size: 12px; color: #6e6e73; min-height: 17px; }
+.bcol .days em { font-style: normal; color: var(--ink); font-weight: 600; }
+.blist { list-style: none; margin: 8px 0 0; padding: 0; }
+.blist li { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; padding: 6px 0; font-size: 13.5px; }
+.blist li + li { border-top: .5px solid #e3e3e8; }
+.blist a { color: var(--ink); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.blist a:hover { color: var(--accent); }
+.blist small { display: block; grid-column: 1; font-size: 11.5px; color: #8e8e93; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.blist .w { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-size: 12px; color: #6e6e73; text-align: right; white-space: nowrap; }
+.bcol .none { margin: 8px 0 4px; font-size: 13px; color: #8e8e93; }
+@media (max-width: 1020px) { .badges { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 680px) { .badges { grid-template-columns: minmax(0, 1fr); } }
 /* koláč zdrojů návštěv: prstenec s mezerami mezi výsečemi, uprostřed součet, vedle legenda s čísly.
    Barvy: prvních pět slotů ověřené kategorické palety (validate_palette.js, i na spoji kruhu), zbytek šedé „Ostatní“. */
 /* karta je stejně vysoká jako sousední „Nejčtenější stránky“; koláč zabere všechno místo nad legendou */
@@ -579,6 +733,8 @@ button { font: inherit; border: 0; cursor: pointer; }
   </header>
 
   <section class="card top" data-slot="status"><h2 class="lb"><?= icon('pulse') ?><span>Stav webu</span><span class="pill" id="pill" hidden></span></h2><div class="body"></div></section>
+
+  <section class="card top" data-slot="badges"><h2 class="lb"><?= icon('tag') ?><span>Štítky na stanicích</span><small id="badges-run"></small></h2><div class="body"></div></section>
 
   <section class="hl" aria-live="polite">
     <?= tile('uv', 'user', 'Návštěvy') ?>
@@ -819,6 +975,35 @@ function render(d) {
     fig("Rozhodlo se", pct(Math.min(decided, cv("shown")), cv("shown")), `<em>${num(cv("closed"))}</em> zavřelo bez volby`) + `</div>` +
     rows(outcomes, { limit: 8 }) +
     `<p class="foot">Nastavení z lišty otevřeno <em>${num(cv("settings"))}×</em> · znovu přes odkaz Cookies <em>${num(cv("reopen"))}×</em></p>`;
+
+  // štítky na stanicích v aktuálním běhu
+  const SB = d.stationBadges, BICON = {
+    bluebird: '<circle cx="12" cy="12" r="4.2" fill="#ffcc00" stroke="#f5a400" stroke-width="1.4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" stroke="#f5a400" stroke-width="1.8"/>',
+    snow: '<path d="M12 2.5v19M3.8 7.25l16.4 9.5M3.8 16.75l16.4-9.5M9.5 3.8 12 6.3l2.5-2.5M9.5 20.2 12 17.7l2.5 2.5" stroke="currentColor" stroke-width="1.8"/>',
+    powder: '<path d="M10 3.5v15M3.5 7.25l13 7.5M3.5 14.75l13-7.5M7.8 4.6 10 6.6l2.2-2" stroke="currentColor" stroke-width="1.8"/><path d="M19 15.5v5M16.5 18h5" stroke="currentColor" stroke-width="1.6"/>',
+    foehn: '<path d="M2.5 20.5 9 11l3.5 4.5L15 12l6.5 8.5" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 9.5c1.6-2.2 3.6-2.6 5.5-1.2 1.4-2.4 4.4-2.6 6-.4 1.4-.8 3.2-.4 4 1" stroke="currentColor" stroke-width="1.8"/>' };
+  const BNAME = { bluebird: "Bluebird", snow: "Bude sypat", powder: "Powder alert", foehn: "Fénová stěna" };
+  if (SB.run) {
+    // čas běhu v českém čase jako na webu („5. 11. 13:00 SEČ“)
+    const r = SB.run, t = new Date(Date.UTC(+r.slice(0, 4), +r.slice(4, 6) - 1, +r.slice(6, 8), +r.slice(8, 10)));
+    const f = Object.fromEntries(new Intl.DateTimeFormat("cs-CZ", { timeZone: "Europe/Prague", day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZoneName: "short" }).formatToParts(t).map(x => [x.type, x.value]));
+    $("#badges-run").textContent = `· běh ALADIN ${f.day}. ${f.month}. ${f.hour}:${f.minute} ${/GMT\+2|SELČ|CEST/.test(f.timeZoneName) ? "SELČ" : "SEČ"}`;
+  }
+  $('[data-slot="badges"] .body').innerHTML = `<div class="badges">${["bluebird", "snow", "powder", "foehn"].map(k => {
+    const list = SB.badges[k] || [], st = new Map(), perDay = new Map();
+    for (const x of list) {
+      if (!st.has(x.id)) st.set(x.id, { ...x, whens: [], details: [] });
+      st.get(x.id).whens.push(x.when); st.get(x.id).details.push(`${x.day}: ${x.detail}`);
+      perDay.set(x.when, (perDay.get(x.when) || 0) + 1);
+    }
+    const n = st.size, chip = `<span class="chip ${k === "bluebird" ? "" : k}"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${BICON[k]}</svg>${BNAME[k]}</span>`;
+    if (!n) return `<div class="bcol">${chip}<div class="cnt">0 <span>stanic</span></div><p class="none">Teď nikde.</p></div>`;
+    const li = s => `<li title="${esc(s.details.join("\n"))}"><a href="/${esc(s.id)}/" target="_blank" rel="noopener">${esc(s.station)}</a><span class="w">${esc([...new Set(s.whens)].join(", "))}</span><small>${esc(s.range)}</small></li>`;
+    const rowsAll = [...st.values()], head = rowsAll.slice(0, 6).map(li).join(""), rest = rowsAll.slice(6).map(li).join("");
+    return `<div class="bcol">${chip}<div class="cnt">${n} <span>${n === 1 ? "stanice" : n < 5 ? "stanice" : "stanic"}</span></div>` +
+      `<div class="days">${[...perDay].map(([w, c]) => `${esc(w)} <em>${c}</em>`).join(" · ")}</div>` +
+      `<ul class="blist">${head}</ul>` + (rest ? `<ul class="blist" hidden>${rest}</ul><button class="more" type="button">Zobrazit všech ${n}</button>` : "") + `</div>`;
+  }).join("")}</div>`;
 
   const bad = d.status.filter(s => !s.fine).length;
   const pill = $("#pill");
