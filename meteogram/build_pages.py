@@ -356,11 +356,14 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
 
     # úvod
     # počty míst v popisech, úvodu a O projektu podle aktuálního seznamu
-    for old, new in (('109 horských stanic ČHMÚ a 123 lyžařských středisek', f'{len(stations_)} horských stanic ČHMÚ a {len(resorts)} lyžařských středisek'),
+    # běh spočítaný před přidáním středisek je ještě nemá: počet ze seznamu středisek (build_resorts.py)
+    resorts_file = ROOT / 'meteogram' / 'resorts.json'
+    n_resorts = len(resorts) or (sum('same' not in r for r in json.loads(resorts_file.read_text())) if resorts_file.exists() else 0)
+    for old, new in (('109 horských stanic ČHMÚ a 123 lyžařských středisek', f'{len(stations_)} horských stanic ČHMÚ a {n_resorts} lyžařských středisek'),
                      ('<span id="hcount">109</span>', f'<span id="hcount">{len(stations_)}</span>'),
-                     ('<span id="rcount">123</span>', f'<span id="rcount">{len(resorts)}</span>'),
+                     ('<span id="rcount">123</span>', f'<span id="rcount">{n_resorts}</span>'),
                      ('<b id="fstations">109</b>', f'<b id="fstations">{len(stations_)}</b>'),
-                     ('<b id="fresorts">123</b>', f'<b id="fresorts">{len(resorts)}</b>')):
+                     ('<b id="fresorts">123</b>', f'<b id="fresorts">{n_resorts}</b>')):
         assert old in template, old
         template = template.replace(old, new)
     html = fill(template, 'hranges', range_links(stations_))

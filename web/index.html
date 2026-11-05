@@ -2046,7 +2046,8 @@ async function home() {
   const best = f => all.reduce((a, b) => f(b) > f(a) ? b : a);
 
   $("hcount").textContent = all.length;
-  $("rcount").textContent = state.data.places.filter(isResort).length;
+  const nResorts = state.data.places.filter(isResort).length;
+  if (nResorts) $("rcount").textContent = nResorts;
   let last = null;
   try { last = localStorage.getItem("last"); } catch (e) {}
   const lp = last && rows[last];
