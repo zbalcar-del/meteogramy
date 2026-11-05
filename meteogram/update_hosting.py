@@ -1,6 +1,6 @@
 """Aktualizuje data předpovědi a stránky webu na hostingu. Přístupy čte z prostředí GitHub Actions.
 
-Plánovaný běh (každou hodinu) nahraje nový běh modelu a s ním přegenerované stránky stanic.
+Plánovaný běh (každou hodinu; cron GitHubu nebo externí repository_dispatch) nahraje nový běh modelu a s ním přegenerované stránky stanic.
 Push nebo ruční spuštění navíc nasadí statické soubory z web/ a stránky vygeneruje vždy.
 """
 
@@ -235,7 +235,7 @@ def main():
         if not complete:
             raise RuntimeError('ČHMÚ neposkytlo žádný úplný běh.')
         published = False
-        deploy = os.environ.get('GITHUB_EVENT_NAME') != 'schedule'
+        deploy = os.environ.get('GITHUB_EVENT_NAME') not in ('schedule', 'repository_dispatch')
         if previous and complete[0] <= max(previous):
             print('Na hostingu už je nejnovější dostupný běh.', flush=True)
             if deploy:

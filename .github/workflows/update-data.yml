@@ -14,8 +14,12 @@ on:
       - 'meteogram/alerts.py'
       - 'meteogram/rescue.py'
       - 'web/**'
+  # Plánovač GitHubu běhy často vynechává; spolehlivě spouští externí cron
+  # (cron-job.org) přes repository_dispatch, tento cron zůstává jako záloha.
   schedule:
     - cron: '17 * * * *'
+  repository_dispatch:
+    types: [scheduled-update]
   workflow_dispatch:
 
 permissions:
