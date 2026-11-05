@@ -67,7 +67,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--dry-run', action='store_true', help='Pouze vypíše plánované přenosy.')
     parser.add_argument('--pages', action='store_true', help='Nasadí také HTML stránky sestavené z aktuálních produkčních dat.')
-    parser.add_argument('--winters', action='store_true', help='S --pages přenese také místní data historie zim pro Krkonoše a Jeseníky.')
+    parser.add_argument('--winters', action='store_true', help='S --pages přenese také místní data stránky Zimy na horách pro Krkonoše a Jeseníky.')
     parser.add_argument('--list', action='store_true', help='Zobrazí cílovou složku bez zápisu.')
     parser.add_argument('--remove-wordpress', action='store_true', help='Po přenosu odstraní soubory původního WordPressu bez zálohy.')
     args = parser.parse_args()

@@ -14,6 +14,15 @@ RewriteRule ^\.deploy-manifest - [F,L]
 # počty návštěv a stav přihlášení do správy webu čtou jen skripty v api/ a sprava-webu-meteo/
 RewriteRule ^api/stats/ - [F,L]
 
+# stránka se přejmenovala z Historie zim na Zimy na horách
+RewriteRule ^historie-zim/?$ https://meteogramy.cz/zimy-na-horach/ [R=301,L]
+
+# Neexistující adresy: hosting pravidlo ErrorDocument ignoruje a ukazoval vlastní stránku LiteSpeed,
+# proto je obsluhuje 404.php (vrátí 404.html s kódem 404).
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ /404.php [L]
+
 # Stránky stanic, pohoří a informační stránky jsou vygenerované složky (meteogram/build_pages.py).
 
 # data se mění s každým během modelu

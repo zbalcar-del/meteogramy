@@ -27,6 +27,8 @@ $NONCE = base64_encode(random_bytes(12));
 
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: no-store');
+// hosting (LiteSpeed) si jinak stránku ukládá do své mezipaměti
+header('X-LiteSpeed-Cache-Control: no-cache');
 header('X-Robots-Tag: noindex, nofollow');
 header('Referrer-Policy: same-origin');
 header('X-Content-Type-Options: nosniff');
@@ -213,7 +215,7 @@ function dashboard($span, $ROOT, $STATS) {
     // názvy stanic a pohoří z posledního běhu modelu
     $run = read_json("$ROOT/data/index.json")['runs'][0] ?? '';
     $names = ['/' => 'Úvod', '/snehove-zpravodajstvi/' => 'Sněhové zpravodajství', '/lavinova-predpoved/' => 'Lavinová předpověď',
-              '/historie-zim/' => 'Historie zim', '/o-projektu/' => 'O projektu', '/ochrana-soukromi/' => 'Ochrana soukromí'];
+              '/zimy-na-horach/' => 'Zimy na horách', '/historie-zim/' => 'Zimy na horách (stará adresa)', '/o-projektu/' => 'O projektu', '/ochrana-soukromi/' => 'Ochrana soukromí'];
     $places = preg_match('/^20\d{8}$/', $run) ? (read_json("$ROOT/data/$run/index.json")['places'] ?? []) : [];
     $rangeOf = $subOf = [];
     foreach ($places as $p) {

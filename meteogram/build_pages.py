@@ -37,8 +37,8 @@ SNOW_DESC = 'Naměřená výška sněhu na českých horách podle ČHMÚ. Denn�
 AVALANCHE_PATH = '/lavinova-predpoved/'
 AVALANCHE_TITLE = 'Lavinová předpověď – Krkonoše a Jeseníky | Meteogramy.cz'
 AVALANCHE_DESC = 'Lavinová předpověď Horské služby ČR pro Krkonoše a Jeseníky. Stupeň nebezpečí, rizikové situace, čas vydání a odkazy na oficiální bulletiny.'
-WINTERS_PATH = '/historie-zim/'
-WINTERS_TITLE = 'Historie zim – Krkonoše a Hrubý Jeseník | Meteogramy.cz'
+WINTERS_PATH = '/zimy-na-horach/'
+WINTERS_TITLE = 'Zimy na horách – Krkonoše a Hrubý Jeseník | Meteogramy.cz'
 WINTERS_DESC = 'Výška sněhu na horských stanicích ČHMÚ v Krkonoších a Hrubém Jeseníku za všechny zimy od konce 19. století.'
 RESERVED = {'data', 'api', 'assets', 'sprava-webu-meteo', SNOW_PATH.strip('/'), AVALANCHE_PATH.strip('/'), WINTERS_PATH.strip('/'), *PAGES}
 # AI asistenti a jejich vyhledávače, kterým robots.txt výslovně povoluje přístup
@@ -266,13 +266,11 @@ def write_avalanche_page(out, data):
     return modified
 
 
-def write_winters_page(out):
-    """Rozpracovaná stránka: mimo sitemapu a vyhledávače."""
+def write_winters_page(out, modified=None):
     html = visible((WEB / 'index.html').read_text(), {'winters'})
     html = html.replace('class="snow-nav winters-nav"', 'class="snow-nav winters-nav" aria-current="page"', 1)
-    html = page(html, WINTERS_PATH, WINTERS_TITLE, WINTERS_DESC)
-    html = html.replace('<meta name="description"', '<meta name="robots" content="noindex">\n<meta name="description"', 1)
-    write(out, WINTERS_PATH, html)
+    write(out, WINTERS_PATH, page(html, WINTERS_PATH, WINTERS_TITLE, WINTERS_DESC, modified=modified,
+                                  extra=[crumbs(('Meteogramy.cz', '/'), ('Zimy na horách', WINTERS_PATH))]))
 
 
 def not_found():
@@ -381,8 +379,9 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
     snow_modified = write_snow_page(out, data)
     urls.append(SNOW_PATH)
     avalanche_modified = write_avalanche_page(out, data)
-    write_winters_page(out)
+    write_winters_page(out, modified)
     urls.append(AVALANCHE_PATH)
+    urls.append(WINTERS_PATH)
     write(out, '404.html', not_found())
     lastmods = {u: snow_modified or modified if u == SNOW_PATH else modified for u in urls}
     lastmods[AVALANCHE_PATH] = avalanche_modified or modified
@@ -424,6 +423,7 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
         '',
         f'- [Lavinová předpověď]({SITE}{AVALANCHE_PATH}): bulletiny Horské služby pro Krkonoše a Jeseníky',
         f'- [Sněhové zpravodajství]({SITE}{SNOW_PATH}): naměřená výška sněhu a denní změna pokrývky, ČHMÚ',
+        f'- [Zimy na horách]({SITE}{WINTERS_PATH}): výška sněhu v Krkonoších a Hrubém Jeseníku za všechny zimy od konce 19. století, ČHMÚ',
         f'- [O projektu]({SITE}/o-projektu/): odkud jsou data a jak meteogramy vznikají',
         f'- [Ochrana soukromí]({SITE}/ochrana-soukromi/)',
         '',

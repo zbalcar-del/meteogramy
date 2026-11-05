@@ -11,6 +11,7 @@ $dir = __DIR__ . '/stats';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
+header('X-LiteSpeed-Cache-Control: no-cache');
 header('X-Robots-Tag: noindex');
 
 function done($code = 204) {

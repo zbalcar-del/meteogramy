@@ -1,4 +1,4 @@
-/* Historie zim: jedna karta na pohoří, data z /data/historie/<pohoří>.json (meteogram/winters.py). */
+/* Zimy na horách: jedna karta na pohoří, data z /data/historie/<pohoří>.json (meteogram/winters.py). */
 (() => {
   'use strict';
   const DAYS = 243;                       // 1. 10. – 31. 5. bez přestupného 29. 2.
@@ -410,7 +410,7 @@
   function skeleton(card) {
     const body = card.querySelector('.wbody');
     body.setAttribute('aria-busy', 'true');
-    body.innerHTML = `<p class="sr-only" role="status">Načítám historii zim…</p><div aria-hidden="true">
+    body.innerHTML = `<p class="sr-only" role="status">Načítám zimy na horách…</p><div aria-hidden="true">
       <header class="whead"><div class="skstack"><h2 id="w-${card.dataset.range}">${esc(card.dataset.name)}</h2><i class="sk" style="width:200px;height:14px"></i></div>
       <div class="wctl"><i class="sk" style="width:220px;height:48px"></i><i class="sk" style="width:160px;height:48px"></i></div></header>
       <div class="wstats">${Array.from({length: 4}, () => '<div class="wstat skstack"><i class="sk" style="width:65%;height:12px"></i><i class="sk" style="width:50%;height:36px"></i><i class="sk" style="height:12px"></i></div>').join('')}</div>

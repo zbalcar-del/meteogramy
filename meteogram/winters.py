@@ -1,4 +1,4 @@
-"""Historie zim: denní výška sněhu ČHMÚ pro Krkonoše a Hrubý Jeseník (python3 meteogram/winters.py).
+"""Zimy na horách: denní výška sněhu ČHMÚ pro Krkonoše a Hrubý Jeseník (python3 meteogram/winters.py).
 
 Historická denní data ČHMÚ (climate/historical, končí vždy předchozím rokem) se stáhnou jednou
 do build/historie a doplní se měsíčními soubory climate/recent. Výsledek je jeden kompaktní JSON
