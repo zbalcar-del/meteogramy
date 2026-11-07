@@ -119,6 +119,7 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
   font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: opacity .15s; }
 .kinds button[aria-pressed="true"] { font-weight: 600; }
 .kinds button:active { opacity: .6; }
+.kinds button small { margin-left: 3px; font-size: 12px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; }
 .kinds button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 @media (prefers-reduced-motion: reduce) { .kinds .thumb { transition: none; } }
 .side > .picker { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 0; padding: 2px 12px 12px;
@@ -156,6 +157,7 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .grp.open .items { grid-template-rows: 1fr; visibility: visible; transition: grid-template-rows .26s cubic-bezier(.25, .8, .25, 1), visibility 0s; }
 @media (prefers-reduced-motion: reduce) { .items, .grp.open .items { transition: none; } }
 .nores { padding: 10px; font-size: 13.5px; color: var(--muted); }
+.nores-sw { padding: 0; border: 0; background: none; font: inherit; color: var(--accent); cursor: pointer; }
 .pk { font-size: 14px; padding-left: 28px; }
 .pk svg { flex: 0 0 auto; color: var(--accent); }
 .pk small { color: #8a9099; font-size: 12.5px; font-variant-numeric: tabular-nums; }
@@ -2539,23 +2541,32 @@ function picker() {
   const hasResorts = state.data.places.some(isResort);
   $("kinds").hidden = !hasResorts;
   if (!hasResorts && state.kind === "ar") setKind("st");
-  // hledá se ve stanicích i střediscích naráz, jinak se ukazuje jen zvolený druh
-  const seen = new Set();
-  const pool = (q ? [...placesOf("st"), ...placesOf("ar")] : placesOf(state.kind))
-    .filter(p => { const k = p.id + "|" + fold(p.name); return !seen.has(k) && seen.add(k); });
+  // seznam i hledání ukazují jen zvolený druh (přepínač filtruje i výsledky hledání)
+  const pool = placesOf(state.kind);
+  const match = (p, r) => fold(p.name).includes(q) || fold(r ?? p.range).includes(q);
+  // při hledání ukáže přepínač počet výsledků v každé záložce
+  $("kinds").querySelectorAll("button").forEach(b => {
+    const label = b.dataset.k === "ar" ? "Střediska" : "Stanice";
+    b.innerHTML = q ? `${label} <small>${placesOf(b.dataset.k).filter(p => match(p)).length}</small>` : label;
+  });
   // víc položek vede na stejnou stanici (Kvilda a Nové Hutě): zvýraznit středisko z adresy, jinak stanici
   const byId = new Map(state.data.places.map(p => [p.id, p]));
   const same = pool.filter(p => p.id === state.id), cur = currentLink(), here = byId.get(state.id)?.name;
   const onName = (cur && same.find(p => p.link && p.name === cur.name) || same.find(p => !p.link || p.name === here) || same[0])?.name;
   for (const [r, list] of groupList(pool)) {
-    const hits = q ? list.filter(p => fold(p.name).includes(q) || fold(r).includes(q)) : list;
+    const hits = q ? list.filter(p => match(p, r)) : list;
     if (!hits.length) continue;
     const open = q || state.open.has(r);
     html += `<div class="grp${open ? " open" : ""}"><button class="gh" data-r="${r}" aria-expanded="${!!open}">${chev}<span>${r}</span><small>${hits.length}</small></button>` +
       `<div class="items"><div>${hits.map(p =>
         `<a class="pk${p.id === state.id && p.name === onName ? " on" : ""}"${p.id === state.id && p.name === onName ? ' aria-current="page"' : ""} href="${p.link ? linkHref(p, byId.get(p.id)) : `/${p.id}/`}">${isResort(p) || p.link ? GONDOLA : PEAK}<span class="nm"><span class="in">${p.name}</span></span><small>${p.alt} m</small></a>`).join("")}</div></div></div>`;
   }
-  $("picker").innerHTML = html || `<div class="nores">Nic nenalezeno</div>`;
+  // nic ve zvoleném druhu, ale ve druhém ano: nabídnout přepnutí
+  const other = state.kind === "ar" ? "st" : "ar";
+  const elsewhere = q && !html && hasResorts ? placesOf(other).filter(p => match(p)).length : 0;
+  $("picker").innerHTML = html || `<div class="nores">Nic nenalezeno${elsewhere
+    ? `. <button type="button" class="nores-sw" data-k="${other}">${other === "ar" ? "Střediska" : "Stanice"}: ${elsewhere} →</button>` : ""}</div>`;
+  $("picker").querySelector(".nores-sw")?.addEventListener("click", e => setKind(e.currentTarget.dataset.k, true));
   if (q) {
     const count = $("picker").querySelectorAll(".pk").length;
     $("search-status").textContent = count ? `Počet nalezených míst: ${count}` : "Nic nenalezeno.";
