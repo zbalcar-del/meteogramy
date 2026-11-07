@@ -132,7 +132,7 @@ def main():
 
     # adresy stanic, pohoří a stránek webu jsou obsazené
     taken = {p["id"] for p in stations} | {slug(r[0]) for r in RANGES} | {"krusne-hory", "ostatni", "data", "api", "assets",
-             "sprava-webu-meteo", "snehove-zpravodajstvi", "lavinova-predpoved", "zimy-na-horach", "o-projektu", "ochrana-soukromi"}
+             "sprava-webu-meteo", "snehove-zpravodajstvi", "lavinova-predpoved", "zimy-na-horach", "o-projektu", "aladin", "ochrana-soukromi"}
     resorts, tops, same = [], {}, []
     for name, lat0, lon0, chmi, ends in points:
         lat, lon = lat0, lon0

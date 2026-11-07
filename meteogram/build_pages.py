@@ -28,9 +28,13 @@ WD = ['po', 'út', 'st', 'čt', 'pá', 'so', 'ne']
 PAGES = {
     'o-projektu': ('O projektu – Meteogramy.cz',
                    'Odkud jsou data, jak meteogramy ALADIN pro české hory vznikají a jak číst předpověď z modelu.'),
+    'aladin': ('Meteogramy ALADIN – předpověď modelu ALADIN pro české hory | Meteogramy.cz',
+               'Meteogramy ALADIN v klasické podobě: co je model ALADIN ČHMÚ, jak číst meteogram a kde najdete hodinovou předpověď ALADIN pro horské stanice a lyžařská střediska.'),
     'ochrana-soukromi': ('Ochrana soukromí – Meteogramy.cz',
                          'Jak Meteogramy.cz nakládají s údaji a cookies. Web používáte bez účtu; návštěvnost měříme pomocí Google Analytics jen s vaším souhlasem.'),
 }
+# hovorový název pohoří, jak ho lidé hledají (jen do titulku); stejně jako RANGE_ALSO v index.html
+RANGE_ALSO = {'Hrubý Jeseník': 'Jeseníky'}
 SNOW_PATH = '/snehove-zpravodajstvi/'
 SNOW_TITLE = 'Sněhové zpravodajství – výška sněhu na horách | Meteogramy.cz'
 SNOW_DESC = 'Naměřená výška sněhu na českých horách podle ČHMÚ. Denní změna pokrývky, vývoj a čas posledního měření pro horské stanice podle pohoří.'
@@ -126,7 +130,19 @@ TOP_NOTE = ('Uvedená výška a poloha patří vrcholu areálu: nejvýše polož
 RESORT_NOTE = 'Poloha a výška střediska podle mapy lyžařských středisek ČHMÚ.'
 
 
-def station_info(m, places, series, times, run, range_pages=()):
+def site_links(links, places):
+    """Střediska s vrcholem u stanice; dvě části téhož areálu („Klínovec, jih“) jednou. Stejně jako siteLinks() v index.html."""
+    ids = {p['id'] for p in places}
+    links = [l for l in links if l['same'] in ids]
+    return [l for l in links if not any(o is not l and o['same'] == l['same'] and l['name'].startswith(o['name'] + ',') for o in links)]
+
+
+def link_href(l, station):
+    """Stejně jako linkHref() v index.html: /kvilda/?stredisko=nove-hute, stejnojmenné středisko jen /kvilda/."""
+    return f'/{l["same"]}/' if l['name'] == station['name'] else f'/{l["same"]}/?stredisko={slug(l["name"])}'
+
+
+def station_info(m, places, series, times, run, range_pages=(), links=()):
     rows = ''
     if series:
         for g in daily(times, series):
@@ -138,11 +154,14 @@ def station_info(m, places, series, times, run, range_pages=()):
     resort, (_, gen) = is_resort(m), word(m)
     near = sorted((p for p in places if p['id'] != m['id'] and is_resort(p) == resort), key=lambda p: km(m, p))[:6]
     station = resort and min((p for p in places if not is_resort(p)), key=lambda p: km(m, p))
+    areas = [] if resort else [escape(l['name']) for l in site_links(links, places) if l['same'] == m['id']]
     name, rng = escape(m['name']), escape(m['range'])
     geo = lambda v: f'{v:.4f}'.replace('.', ',')
     spec = [
         ('Středisko', 'vrchol areálu – nejvýš položená horní stanice vleku nebo lanovky' if m.get('top') else 'lyžařské středisko')
         if resort else ('Stanice', f'ČHMÚ, měří od roku {m["since"]}' if m.get('since') else 'ČHMÚ'),
+        *([('Lyžařská střediska' if len(areas) > 1 else 'Lyžařské středisko',
+            f'{", ".join(areas)} – předpověď platí i pro {"vrcholy areálů" if len(areas) > 1 else "vrchol areálu"}')] if areas else []),
         *([('Pohoří', rng)] if m['range'] != 'Ostatní' else []),
         ('Nadmořská výška', f'{m["alt"]} m n. m.'),
         ('Souřadnice', f'{geo(m["lat"])}° s. š., {geo(m["lon"])}° v. d.'),
@@ -179,7 +198,8 @@ def summary_row(p, d, times):
 
 def card(p, r):
     prec = (f'{js_round(r["sn"])} cm sněhu' if r['sn'] >= 0.5 else 'bez srážek' if r['pr'] < 0.1 else f'{num(r["pr"])} mm')
-    return (f'<a class="st" href="/{p["id"]}/"><div class="lb">{p["alt"]} m n. m.</div><b>{num(r["now"])}°</b>'
+    href = p.get('href') or f'/{p["id"]}/'
+    return (f'<a class="st" href="{href}"><div class="lb">{p["alt"]} m n. m.</div><b>{num(r["now"])}°</b>'
             f'<div class="sx"><em>{escape(p["name"])}</em></div><div class="sx"><i class="gd" style="background:{gust_color(r["gmax"])}"></i>'
             f'{js_round(r["gmax"])} m/s · {prec}</div></a>')
 
@@ -205,7 +225,7 @@ def fill(html, el_id, inner, attrs=''):
 
 
 def visible(html, show):
-    for el_id in ('home', 'range', 'mg', 'sinfo', 'stnotes', 'about', 'privacy', 'snow', 'avalanche', 'winters'):
+    for el_id in ('home', 'range', 'mg', 'sinfo', 'stnotes', 'about', 'aladin', 'privacy', 'snow', 'avalanche', 'winters'):
         html, n = re.subn(rf'id="{el_id}"( hidden)?', f'id="{el_id}"' + ('' if el_id in show else ' hidden'), html, count=1)
         assert n == 1, el_id
     return html
@@ -372,26 +392,32 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
     urls.append('/')
 
     # pohoří
+    by_id = {p['id']: p for p in places}
+    links = site_links(meta.get('links', []), places)
     for r, ps in by_range:
         path = f'/{slug(r)}/'
         rs = sorted((p for p in resorts if p['range'] == r), key=lambda p: -p['alt'])
-        also = f' a {len(rs)} {resorts_word(len(rs))}' if rs else ''
-        title = f'{r} – meteogramy ALADIN, počasí na horách | Meteogramy.cz'
-        desc = (f'Meteogramy ALADIN pro {len(ps)} {stations(len(ps))} ČHMÚ{also} v pohoří {r}: '
-                f'hodinová předpověď teploty, větru a nárazů, srážek a sněhu na 3 dny.')
+        # střediska s vrcholem u stanice (Ramzová na Šeráku): karta se souhrnem stanice a odkazem na středisko
+        rs_all = sorted(rs + [{**by_id[l['same']], 'name': l['name'], 'href': link_href(l, by_id[l['same']])}
+                              for l in links if l['range'] == r], key=lambda p: -p['alt'])
+        also = f' a {len(rs_all)} {resorts_word(len(rs_all))}' if rs_all else ''
+        # musí odpovídat rangeView() v index.html
+        title = f'Počasí {r}{f" ({RANGE_ALSO[r]})" if r in RANGE_ALSO else ""} – meteogramy ALADIN | Meteogramy.cz'
+        desc = (f'Počasí {r} na 3 dny po hodinách: meteogramy ALADIN pro {len(ps)} {stations(len(ps))} ČHMÚ{also} – '
+                f'teplota, vítr a nárazy, srážky a sníh.')
         lead = (f'Hodinová předpověď modelu ALADIN pro {len(ps)} {stations(len(ps))} ČHMÚ{also} '
                 f'v pohoří {r}. Teplota, vítr a nárazy, srážky a sníh na tři dny dopředu.')
         html = visible(template, {'range'})
-        html = fill(html, 'rtitle', f'{escape(r)} – meteogramy a počasí na horách')
+        html = fill(html, 'rtitle', f'Počasí {escape(r)} – meteogramy ALADIN')
         html = fill(html, 'rlead', escape(lead))
         html = html.replace('<img id="rimg" src="" alt=""', f'<img id="rimg" src="/assets/pohori/{slug(r)}-siroka.svg?v=7" '
                             f'alt="Vrstevnice v okolí nejvyšší stanice: {escape(ps[0]["name"])}"', 1)
         html = fill(html, 'rlist', ''.join(card(p, summary_row(p, summary['places'][p['id']], times))
                                            for p in ps if p['id'] in summary['places']), f' data-r="{escape(r)}" data-run="{runs[0]}"')
-        if rs:
+        if rs_all:
             html = html.replace('<div class="sech" id="rres-h" hidden>', '<div class="sech" id="rres-h">', 1)
             html = fill(html, 'rres', ''.join(card(p, summary_row(p, summary['places'][p['id']], times))
-                                              for p in rs if p['id'] in summary['places']))
+                                              for p in rs_all if p['id'] in summary['places']))
             html = html.replace('<div class="hl" id="rres" hidden>', '<div class="hl" id="rres">', 1)
         html = fill(html, 'rmore', range_links(stations_, r))
         listing = {'@type': 'ItemList', 'name': f'Horské stanice a lyžařská střediska – {r}', 'itemListElement': [
@@ -423,7 +449,7 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
         html = fill(html, 'sub', f'{escape(rng) + " · " if rng else ""}<b>{p["alt"]} m n. m.</b><a class="fn" href="#pozn-vysky-st" aria-label="Poznámka 1">1</a> · {kind}')
         html = fill(html, 'pozn-vysky-st', escape(note))
         html = fill(html, 'corr-lab', f'Teplota přepočtená na výšku {word(p)[1]}')
-        html = fill(html, 'sinfo', station_info(p, places, summary['places'].get(p['id']), times, run, range_pages))
+        html = fill(html, 'sinfo', station_info(p, places, summary['places'].get(p['id']), times, run, range_pages, meta.get('links', [])))
         place = {'@type': 'Place', '@id': f'{SITE}{path}#misto', 'name': p['name'],
                  'description': (f'Lyžařské středisko, {where}' if resort else f'Meteorologická stanice ČHMÚ, {p["range"]}, {p["alt"]} m n. m.'),
                  'geo': {'@type': 'GeoCoordinates', 'latitude': p['lat'], 'longitude': p['lon'], 'elevation': p['alt']}}
@@ -437,7 +463,7 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
     # informační stránky
     for key, (title, desc) in PAGES.items():
         path = f'/{key}/'
-        html = visible(template, {'about' if key == 'o-projektu' else 'privacy'})
+        html = visible(template, {{'o-projektu': 'about', 'aladin': 'aladin'}.get(key, 'privacy')})
         write(out, path, page(html, path, title, desc))
         urls.append(path)
 
@@ -472,7 +498,7 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
         '',
         f'Každá stanice i lyžařské středisko má vlastní stránku s meteogramem a tabulkou předpovědi po dnech (minimální a maximální teplota, '
         f'nejsilnější nárazy větru, srážky, nový sníh, slunce). Aktuální běh modelu: {lt.day}. {lt.month}. {lt.year} '
-        f'{lt.hour:02d}:00 {tz_name(lt)}. Zdroj dat: ČHMÚ – otevřená data (https://opendata.chmi.cz/). '
+        f'{lt.hour:02d}:00 {tz_name(lt)}. Zdroj dat: ČHMÚ – otevřená data (https://opendata.chmi.cz/), licence CC BY 4.0. '
         'Jde o automatickou modelovou předpověď bez zásahu meteorologa; výstrahy vydává ČHMÚ (https://www.chmi.cz/).',
         '',
         '## Pohoří',
@@ -497,6 +523,7 @@ def main(out=ROOT / 'build' / 'site', data=WEB / 'data'):
         f'- [Sněhové zpravodajství]({SITE}{SNOW_PATH}): naměřená výška sněhu a denní změna pokrývky, ČHMÚ',
         f'- [Zimy na horách]({SITE}{WINTERS_PATH}): výška sněhu v Krkonoších a Hrubém Jeseníku za všechny zimy od konce 19. století, ČHMÚ',
         f'- [O projektu]({SITE}/o-projektu/): odkud jsou data a jak meteogramy vznikají',
+        f'- [Meteogramy ALADIN]({SITE}/aladin/): co je model ALADIN ČHMÚ a jak číst meteogram',
         f'- [Ochrana soukromí]({SITE}/ochrana-soukromi/)',
         '',
     ]))
