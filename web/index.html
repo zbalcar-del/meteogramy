@@ -1830,7 +1830,7 @@ function render() {
   if (lo < 0 && hi > 0) s += `<line x1="${L}" x2="${L + pw}" y1="${Y(0)}" y2="${Y(0)}" stroke="${C.frame}" stroke-width="1"/>`;
   for (const c of conds) if (c.target === "temp") for (const d of c.bands) {
     const x0 = x(d.i0) - bw / 2, x1 = x(d.i1) + bw / 2;
-    s += `<rect class="band-temp" x="${x0.toFixed(1)}" y="${pT.top}" width="${(x1 - x0).toFixed(1)}" height="${pT.h}" fill="#0d8078" opacity=".07"/>`;
+    s += `<rect class="band-temp" x="${x0.toFixed(1)}" y="${pT.top}" width="${(x1 - x0).toFixed(1)}" height="${pT.h}" fill="#0d8078" opacity=".1"/>`;
     s += text((x0 + x1) / 2, pT.top + 13, c.band, { c: "#0b6b64" });
   }
   s += line(T, Y, C.temp);
@@ -1862,8 +1862,8 @@ function render() {
   const Yrh = v => pP.top + pP.h - v / 100 * pP.h;
   for (const c of conds) if (c.target === "snow") for (const d of c.bands) {
     const x0 = x(d.i0) - bw / 2, x1 = x(d.i1) + bw / 2, col = c.id === "powder" ? "#a06c00" : "#5a6b85";
-    s += `<rect class="band-snow" x="${x0.toFixed(1)}" y="${pP.top}" width="${(x1 - x0).toFixed(1)}" height="${pP.h}" fill="${col}" opacity=".07"/>`;
-    s += text((x0 + x1) / 2, pP.top + 13, c.band, { c: col });
+    s += `<rect class="band-snow" x="${x0.toFixed(1)}" y="${pP.top}" width="${(x1 - x0).toFixed(1)}" height="${pP.h}" fill="${c.id === "powder" ? col : C.snow}" opacity=".1"/>`;
+    s += text((x0 + x1) / 2, pP.top + 13, c.band, { c: c.id === "powder" ? "#8a5a00" : "#1f7a2e" });
   }
   s += line(m.rh, Yrh, C.rh);
   for (let i = 0; i < n; i++) {
@@ -1887,7 +1887,7 @@ function render() {
   Y = frame(pC, 0, 100, 20, "[%]");
   for (const c of conds) if (c.target === "cloud") for (const d of c.bands) {
     const x0 = x(d.i0) - bw / 2, x1 = x(d.i1) + bw / 2;
-    s += `<rect class="band-cloud" x="${x0.toFixed(1)}" y="${pC.top}" width="${(x1 - x0).toFixed(1)}" height="${pC.h}" fill="${c.id === "foehn" ? "#5e5ce6" : "#0a84ff"}" opacity=".07"/>`;
+    s += `<rect class="band-cloud" x="${x0.toFixed(1)}" y="${pC.top}" width="${(x1 - x0).toFixed(1)}" height="${pC.h}" fill="${c.id === "foehn" ? "#5e5ce6" : "#0a84ff"}" opacity=".1"/>`;
     s += text((x0 + x1) / 2, pC.top + (c.id === "foehn" ? 28 : 13), c.id === "foehn" ? c.band : d.powder ? "❄ bluebird" : "☀ bluebird", { c: c.id === "foehn" ? "#4b3fc4" : "#0a5cc2" });
   }
   const area = (arr, col) => `<path d="M${x(0)} ${Y(0)}${arr.map((v, i) => `L${x(i).toFixed(1)} ${Y(v).toFixed(1)}`).join("")}L${x(n - 1)} ${Y(0)}Z" fill="${col}"/>`;
