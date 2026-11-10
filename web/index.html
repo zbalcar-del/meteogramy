@@ -1723,7 +1723,7 @@ function header(m, T, times) {
   const tcol = temperatureColor;
   const bar = `<div class="bar"><em style="left:${tf(tMin)}%;width:${Math.max(2, tf(tMax) - tf(tMin))}%;background:linear-gradient(90deg,${tcol(tMin)},${tcol(tMax)})"></em><u style="left:${tf(nowT)}%"></u></div>`;
   // stejná šipka jako v grafu větru: míří ve směru proudění
-  const arrow = `<svg width="18" height="18" viewBox="-8 -8 16 16" aria-hidden="true"><g transform="rotate(${Math.round(wd + 90)})">${ARROW("#0a84ff")}</g></svg>`;
+  const arrow = `<svg width="18" height="18" viewBox="-8 -8 16 16" aria-hidden="true"><g transform="rotate(${Math.round(wd + 90)})">${ARROW(css("--dir"))}</g></svg>`;
   const [gTxt, gCol] = gust(gmax);
   const tile = (cls, icon, label, val, sub) => `<div class="st ${cls}"><div class="lb">${ICON(icon)}<span>${label}</span></div><b>${val}</b>${sub}</div>`;
   const sx = t => `<div class="sx">${t}</div>`;
@@ -1795,8 +1795,15 @@ function render() {
   // všechny čáry v grafech stejným stylem: bílý lem pod čarou, stejná tloušťka, kulaté spoje
   const LINE_W = 2.4;
   const line = (arr, Y, col, w = LINE_W) => path(arr, Y, "#fff", w + 3) + path(arr, Y, col, w);
+  // body křivky od levé po pravou hranu grafu: krajní půlhodiny pokračují ve směru krajních hodin
+  // (jako graf na úvodní stránce), omezené na rozsah osy, aby nic nepřestřelilo rámeček
+  const edgePts = (arr, Y) => {
+    const lo = Y.lo ?? Math.min(...arr), hi = Y.hi ?? Math.max(...arr), cl = v => Math.max(lo, Math.min(hi, v));
+    const k = arr.length - 1, a = k ? cl(arr[0] - (arr[1] - arr[0]) / 2) : arr[0], b = k ? cl(arr[k] + (arr[k] - arr[k - 1]) / 2) : arr[k];
+    return [[L, Y(a)], ...arr.map((v, i) => [x(i), Y(v)]), [L + pw, Y(b)]].map(([px, py]) => px.toFixed(1) + " " + py.toFixed(1));
+  };
   const path = (arr, Y, col, w = 2) =>
-    `<path d="${arr.map((v, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + Y(v).toFixed(1)).join("")}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"/>`;
+    `<path d="M${edgePts(arr, Y).join("L")}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="butt"/>`;
 
   // legenda nad panelem: [druh, barva, text]
   const infos = [];
@@ -1821,6 +1828,7 @@ function render() {
 
   function frame(p, lo, hi, step, title, right) {
     const Y = v => p.top + p.h - (v - lo) / (hi - lo) * p.h;
+    Y.lo = lo; Y.hi = hi;
     for (let i = 0; i < n; i++)
       if (isNight(times[i], m.lat, m.lon)) s += `<rect x="${(x(i) - bw / 2).toFixed(1)}" y="${p.top}" width="${(bw + .5).toFixed(1)}" height="${p.h}" fill="${C.night}"/>`;
     for (const t of ticks(lo, hi, step)) {
@@ -1889,6 +1897,7 @@ function render() {
   legend(pP, "Srážky", [["bar", C.prec, "celkem [mm/h]"], ["bar", C.snow, "z toho sníh"], ["line", C.rh, "rel. vlhkost [%]"]]);
   Y = frame(pP, 0, pTop, pstep, "[mm/h]", { lo: 0, hi: 100, step: 20, c: C.rh, title: "[%]" });
   const Yrh = v => pP.top + pP.h - v / 100 * pP.h;
+  Yrh.lo = 0; Yrh.hi = 100;
   for (const c of conds) if (c.target === "snow") for (const d of c.bands) {
     const x0 = x(d.i0) - bw / 2, x1 = x(d.i1) + bw / 2, col = c.id === "powder" ? "#a06c00" : "#5a6b85";
     s += `<rect class="band-snow" x="${x0.toFixed(1)}" y="${pP.top}" width="${(x1 - x0).toFixed(1)}" height="${pP.h}" fill="${c.id === "powder" ? col : C.snow}" opacity=".1"/>`;
@@ -1919,7 +1928,7 @@ function render() {
     s += `<rect class="band-cloud" x="${x0.toFixed(1)}" y="${pC.top}" width="${(x1 - x0).toFixed(1)}" height="${pC.h}" fill="${c.id === "foehn" ? "#5e5ce6" : "#0a84ff"}" opacity=".1"/>`;
     s += text((x0 + x1) / 2, pC.top + (c.id === "foehn" ? 28 : 13), c.id === "foehn" ? c.band : d.powder ? "❄ bluebird" : "☀ bluebird", { c: c.id === "foehn" ? "#4b3fc4" : "#0a5cc2" });
   }
-  const area = (arr, col) => `<path d="M${x(0)} ${Y(0)}${arr.map((v, i) => `L${x(i).toFixed(1)} ${Y(v).toFixed(1)}`).join("")}L${x(n - 1)} ${Y(0)}Z" fill="${col}"/>`;
+  const area = (arr, col) => `<path d="M${L} ${Y(0)}L${edgePts(arr, Y).join("L")}L${L + pw} ${Y(0)}Z" fill="${col}"/>`;
   s += area(m.clt, C.clt);
   s += area(m.cll, C.cll);
   s += line(m.clh, Y, C.clh);
