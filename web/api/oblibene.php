@@ -8,6 +8,8 @@ const TOP = 8;
 $store = __DIR__ . '/stats/views.json';
 
 header('Content-Type: application/json; charset=utf-8');
+// dny v českém čase jako v api/stats.php, aby šly oba přehledy porovnat
+date_default_timezone_set('Europe/Prague');
 
 function load($fp) {
     $raw = stream_get_contents($fp);
@@ -17,6 +19,12 @@ function load($fp) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Cache-Control: no-store');
+    // roboti a automatické prohlížeče se nepočítají (stejné pravidlo jako v api/stats.php)
+    $ua = (string)($_SERVER['HTTP_USER_AGENT'] ?? '');
+    if ($ua === '' || preg_match('/bot|crawl|spider|slurp|preview|headless|lighthouse|pingdom|uptime|monitor|curl|wget|python|scrapy|httpclient|java\//i', $ua)) {
+        http_response_code(204);
+        exit;
+    }
     $id = $_GET['id'] ?? '';
     // počítáme jen stanice, které existují v aktuálně publikovaném běhu modelu
     $index = json_decode(@file_get_contents(__DIR__ . '/../data/index.json'), true);
@@ -31,10 +39,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fp = fopen($store, 'c+');
     flock($fp, LOCK_EX);
     $data = load($fp);
-    $day = gmdate('Y-m-d');
+    $day = date('Y-m-d');
     $data[$day][$id] = ($data[$day][$id] ?? 0) + 1;
     // starší dny už do součtu nepatří
-    $cutoff = gmdate('Y-m-d', time() - DAYS * 86400);
+    $cutoff = date('Y-m-d', time() - DAYS * 86400);
     foreach (array_keys($data) as $d) if ($d <= $cutoff) unset($data[$d]);
     ftruncate($fp, 0);
     rewind($fp);
@@ -54,7 +62,7 @@ if (is_file($store)) {
     $data = load($fp);
     flock($fp, LOCK_UN);
     fclose($fp);
-    $cutoff = gmdate('Y-m-d', time() - DAYS * 86400);
+    $cutoff = date('Y-m-d', time() - DAYS * 86400);
     foreach ($data as $d => $counts) {
         if ($d <= $cutoff) continue;
         foreach ($counts as $id => $n) $totals[$id] = ($totals[$id] ?? 0) + $n;

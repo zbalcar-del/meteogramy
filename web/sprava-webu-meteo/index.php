@@ -760,6 +760,7 @@ button { font: inherit; border: 0; cursor: pointer; }
   <footer>
     <span>Anonymní součty bez cookies · návštěva = jeden návštěvník za den</span>
     <span>
+      <button class="ghost" id="notrack" type="button" hidden></button>
       <form method="post"><input type="hidden" name="akce" value="odhlasit"><button class="ghost">Odhlásit</button></form>
       <form method="post"><input type="hidden" name="akce" value="odhlasit-vse"><button class="ghost">Odhlásit všechna zařízení</button></form>
     </span>
@@ -777,6 +778,16 @@ const day = (iso, wd = true) => { const d = new Date(iso + "T12:00:00"); return 
 const ICON_OK = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const ICON_BAD = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M12 6v7M12 18h.01"/></svg>';
 let span = <?= $span ?>, req = 0;
+
+// vyřazení tohoto prohlížeče z měření: web (index.html) čte stejný klíč v localStorage a pak nic neposílá
+{
+  const b = $("#notrack");
+  const get = () => { try { return localStorage.getItem("notrack") === "1"; } catch (e) { return null; } };
+  const show = () => { const on = get(); b.hidden = on === null;
+    b.textContent = on ? "Tento prohlížeč se nepočítá · zapnout měření" : "Nepočítat tento prohlížeč"; };
+  b.onclick = () => { try { get() ? localStorage.removeItem("notrack") : localStorage.setItem("notrack", "1"); } catch (e) {} show(); };
+  show();
+}
 
 // --- skeletony a objevení obsahu (jako reveal() na webu) ---
 function skeleton() {

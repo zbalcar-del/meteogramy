@@ -1277,6 +1277,8 @@ try { localStorage.removeItem("visits"); } catch (e) {}
 // (otevře ji jen odkaz Cookies). Po doplnění ID se zeptá každého návštěvníka a Google Analytics
 // načte až po souhlasu. Volba se pamatuje rok; při změně rozsahu zvyšte CONSENT_VERSION.
 const ANALYTICS_ID = "G-80GPH2DQCN";  // Google Analytics 4, datový stream meteogramy.cz
+// prohlížeč vyřazený z měření (přepínač ve správě webu /sprava-webu-meteo/): nic se neposílá ani nenačítá
+const NOTRACK = (() => { try { return localStorage.getItem("notrack") === "1"; } catch (e) { return false; } })();
 const CONSENT_VERSION = 1;
 function readConsent() {
   try {
@@ -1293,7 +1295,7 @@ function saveConsent(analytics) {
   else if (had) location.reload();  // odvolání souhlasu: znovu načíst stránku bez analytiky
 }
 function loadAnalytics() {
-  if (!ANALYTICS_ID || window.gtag) return;
+  if (!ANALYTICS_ID || NOTRACK || window.gtag) return;
   window.dataLayer = window.dataLayer || [];
   window.gtag = function () { dataLayer.push(arguments); };
   gtag("js", new Date());
@@ -1316,7 +1318,7 @@ function openConsent(settings) {
 function closeConsent() { $("ck").hidden = true; }
 // anonymní počet rozhodnutí v liště (api/stats.php, karta Cookies ve správě webu); jen na produkčním webu
 function consentEvent(e) {
-  if (location.hostname !== "meteogramy.cz") return;
+  if (location.hostname !== "meteogramy.cz" || NOTRACK) return;
   try { navigator.sendBeacon("/api/stats.php", new URLSearchParams({ e })); } catch (err) {}
 }
 $("ckyes").onclick = () => { consentEvent("all"); saveConsent(true); };
@@ -1342,13 +1344,14 @@ document.addEventListener("click", e => {
   else if (!c && ANALYTICS_ID) { consentEvent("shown"); openConsent(false); }
 }  // dřívější počty jen pro tento prohlížeč
 function countVisit(id) {
+  if (location.hostname !== "meteogramy.cz" || NOTRACK) return;
   try { navigator.sendBeacon(`/api/oblibene.php?id=${encodeURIComponent(id)}`); } catch (e) {}
 }
 // anonymní návštěvnost bez cookies (api/stats.php, přehled na /sprava-webu-meteo/); jen na produkčním webu
 let trackedPath = null;
 function trackView() {
   const p = pagePath();
-  if (p === trackedPath || location.hostname !== "meteogramy.cz") return;
+  if (p === trackedPath || location.hostname !== "meteogramy.cz" || NOTRACK) return;
   const body = new URLSearchParams({ p, r: trackedPath === null ? document.referrer : "",
     a: matchMedia("(display-mode: standalone)").matches || navigator.standalone ? "1" : "" });
   trackedPath = p;
