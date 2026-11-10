@@ -386,16 +386,16 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .fnotes li:target { color: var(--ink); }
 /* poznámky, zdroje a data tvoří na přehledech jeden blok zarovnaný vlevo */
 #stnotes { max-width: 1180px; margin: 30px auto 0; }
-.main:has(> #home:not([hidden]), > #stnotes:not([hidden]), > #avalanche:not([hidden]), > #snow:not([hidden]), > #about:not([hidden])) > .foot { max-width: 1180px; margin: 10px auto 0; text-align: left; font-size: 12px; line-height: 1.55; color: #86868b; }
-.main:has(> #home:not([hidden]), > #stnotes:not([hidden]), > #avalanche:not([hidden]), > #snow:not([hidden]), > #about:not([hidden])) > .foot a { color: #86868b; }
+.main:has(> #home:not([hidden]), > #stnotes:not([hidden]), > #avalanche:not([hidden]), > #snow:not([hidden]), > #about:not([hidden]), > #aladin:not([hidden]), > #privacy:not([hidden])) > .foot { max-width: 1180px; margin: 10px auto 0; text-align: left; font-size: 12px; line-height: 1.55; color: #86868b; }
+.main:has(> #home:not([hidden]), > #stnotes:not([hidden]), > #avalanche:not([hidden]), > #snow:not([hidden]), > #about:not([hidden]), > #aladin:not([hidden]), > #privacy:not([hidden])) > .foot a { color: #86868b; }
 @media (max-width: 860px) {
-  .main:has(> #home:not([hidden]), > #stnotes:not([hidden]), > #avalanche:not([hidden]), > #snow:not([hidden]), > #about:not([hidden])) > .foot { display: block; text-wrap: pretty; }
-  .main:has(> #home:not([hidden]), > #stnotes:not([hidden]), > #avalanche:not([hidden]), > #snow:not([hidden]), > #about:not([hidden])) > .foot .foot-sep { display: inline; }
-  .main:has(> #home:not([hidden]), > #stnotes:not([hidden]), > #avalanche:not([hidden]), > #snow:not([hidden]), > #about:not([hidden])) > .foot a { display: inline; min-height: 0; }
+  .main:has(> #home:not([hidden]), > #stnotes:not([hidden]), > #avalanche:not([hidden]), > #snow:not([hidden]), > #about:not([hidden]), > #aladin:not([hidden]), > #privacy:not([hidden])) > .foot { display: block; text-wrap: pretty; }
+  .main:has(> #home:not([hidden]), > #stnotes:not([hidden]), > #avalanche:not([hidden]), > #snow:not([hidden]), > #about:not([hidden]), > #aladin:not([hidden]), > #privacy:not([hidden])) > .foot .foot-sep { display: inline; }
+  .main:has(> #home:not([hidden]), > #stnotes:not([hidden]), > #avalanche:not([hidden]), > #snow:not([hidden]), > #about:not([hidden]), > #aladin:not([hidden]), > #privacy:not([hidden])) > .foot a { display: inline; min-height: 0; }
 }
-.main:has(> #about:not([hidden])) > .foot { max-width: 744px; width: calc(100% - 16px); margin-top: 30px; padding-top: 16px; border-top: 1px solid #e3e3e8; }
+.main:has(> #about:not([hidden]), > #aladin:not([hidden]), > #privacy:not([hidden])) > .foot { max-width: 744px; width: calc(100% - 16px); margin-top: 30px; padding-top: 16px; border-top: 1px solid #e3e3e8; }
 @media (max-width: 600px) {
-  .main:has(> #about:not([hidden])) > .foot { width: 100%; }
+  .main:has(> #about:not([hidden]), > #aladin:not([hidden]), > #privacy:not([hidden])) > .foot { width: 100%; }
 }
 /* úvodní stránka */
 .home { max-width: 1180px; margin: 0 auto; }
@@ -791,7 +791,7 @@ h1, h2 { text-wrap: balance; }
   }
 }
 </style>
-<link rel="stylesheet" href="/assets/snow.css">
+<link rel="stylesheet" href="/assets/snow.css?v=2">
 <link rel="stylesheet" href="/assets/alerts.css?v=2">
 <link rel="stylesheet" href="/assets/winters.css">
 </head>
