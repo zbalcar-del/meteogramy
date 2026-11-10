@@ -234,7 +234,7 @@ function dashboard($span, $ROOT, $STATS) {
     // oblíbené stanice (api/oblibene.php, posledních 30 dní)
     $fav = [];
     foreach (read_json("$STATS/views.json") as $d => $counts)
-        if ($d > gmdate('Y-m-d', time() - 30 * 86400)) foreach ($counts as $id => $v) $fav[$id] = ($fav[$id] ?? 0) + $v;
+        if ($d > date('Y-m-d', time() - 30 * 86400)) foreach ($counts as $id => $v) $fav[$id] = ($fav[$id] ?? 0) + $v;
 
     // stav aktualizací: kdy naposledy proběhly a jestli nejsou starší než jejich limit
     $status = [];
@@ -487,11 +487,11 @@ header { display: flex; align-items: center; gap: 14px 20px; flex-wrap: wrap; ma
 .brand small { display: block; font-size: 12px; color: var(--muted); line-height: 1.3; margin-top: 1px; }
 
 /* přepínač období: posuvný jezdec jako segmentový ovladač v iOS */
-.seg { position: relative; display: inline-flex; background: rgba(118,118,128,.12); border-radius: 10px; padding: 2px; }
-.seg .thumb { position: absolute; top: 2px; bottom: 2px; left: 0; width: 0; border-radius: 8px; background: var(--paper);
-  box-shadow: 0 3px 8px rgba(0,0,0,.12), 0 3px 1px rgba(0,0,0,.04), 0 0 0 .5px rgba(0,0,0,.04); transition: transform .35s var(--ease), width .35s var(--ease); }
+.seg { position: relative; display: inline-flex; background: #e7e9ee; border-radius: 9px; padding: 2px; }
+.seg .thumb { position: absolute; top: 2px; bottom: 2px; left: 0; width: 0; border-radius: 7px; background: var(--paper);
+  box-shadow: 0 2px 5px rgba(0,0,0,.08), 0 1px 1px rgba(0,0,0,.04), 0 0 0 .5px rgba(0,0,0,.05); transition: transform .35s var(--ease), width .35s var(--ease); }
 .seg a { position: relative; z-index: 1; padding: 6px 15px; color: var(--ink); text-decoration: none; font-size: 13px; font-weight: 500;
-  border-radius: 8px; transition: opacity .15s; text-align: center; }
+  border-radius: 7px; transition: opacity .15s; text-align: center; }
 .seg a[aria-current] { font-weight: 600; }
 .seg a:active { opacity: .6; }
 
@@ -742,7 +742,7 @@ button { font: inherit; border: 0; cursor: pointer; }
     <?= tile('mobile', 'phone', 'Z mobilu a tabletu') ?>
   </section>
 
-  <section class="card" data-slot="daily"><?= head('chart', 'Návštěvy po dnech') ?><div class="body"></div></section>
+  <section class="card" data-slot="daily"><?= head('chart', 'Návštěvy po dnech', '· každý návštěvník jednou za den') ?><div class="body"></div></section>
   <section class="card gap" data-slot="hours"><?= head('clock', 'Během dne', '· zobrazení podle hodiny') ?><div class="body"></div></section>
   <div class="g2">
     <section class="card" data-slot="pages"><?= head('page', 'Nejčtenější stránky') ?><div class="body"></div></section>
@@ -961,7 +961,7 @@ function render(d) {
   // srovnání s předchozím obdobím jen tehdy, když z něj máme data aspoň za 80 % dní (jinak by čísla byla nesmyslná)
   if (d.prev.days < 0.8 * span) d.prev = { pv: 0, uv: 0, days: d.prev.days };
   const perVisit = d.uv ? (d.pv / d.uv).toLocaleString("cs-CZ", { maximumFractionDigits: 1 }) : "–";
-  tile("uv", d.uv, num, d.prev.uv ? delta(d.uv, d.prev.uv) : `za ${span === 365 ? "poslední rok" : `posledních ${span} dní`}`);
+  tile("uv", d.uv, num, d.prev.uv ? delta(d.uv, d.prev.uv) : `součet po dnech za ${span === 365 ? "poslední rok" : `posledních ${span} dní`}`);
   tile("pv", d.pv, num, `${d.prev.pv ? delta(d.pv, d.prev.pv).replace(/ proti.*/, "") + " · " : ""}<em>${perVisit}</em> na návštěvu`);
   tile("today", d.today.uv, num, `<em>${num(d.today.pv)}</em> zobrazení`);
   tile("mobile", d.uv ? 100 * d.mobile / d.uv : 0, v => d.uv ? Math.round(v) + " %" : "–", `<em>${num(d.app)}×</em> z ikony na ploše`);
@@ -992,8 +992,9 @@ function render(d) {
   // štítky na stanicích v aktuálním běhu
   const SB = d.stationBadges, BICON = {
     bluebird: '<circle cx="12" cy="12" r="4.2" fill="#ffcc00" stroke="#f5a400" stroke-width="1.4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" stroke="#f5a400" stroke-width="1.8"/>',
-    snow: '<path d="M12 2.5v19M3.8 7.25l16.4 9.5M3.8 16.75l16.4-9.5M9.5 3.8 12 6.3l2.5-2.5M9.5 20.2 12 17.7l2.5 2.5" stroke="currentColor" stroke-width="1.8"/>',
-    powder: '<path d="M10 3.5v15M3.5 7.25l13 7.5M3.5 14.75l13-7.5M7.8 4.6 10 6.6l2.2-2" stroke="currentColor" stroke-width="1.8"/><path d="M19 15.5v5M16.5 18h5" stroke="currentColor" stroke-width="1.6"/>',
+    // vločka webu (assets/icons/snowflake-regular-full.svg), stejně jako štítky v index.html
+    snow: '<path d="M344.1 56C344.1 42.7 333.4 32 320.1 32C306.8 32 296.1 42.7 296.1 56L296.1 134.1L273.1 111.1C263.7 101.7 248.5 101.7 239.2 111.1C229.9 120.5 229.8 135.7 239.2 145L296.2 202L296.2 278.5L230 240.3L209.1 162.5C205.7 149.7 192.5 142.1 179.7 145.5C166.9 148.9 159.2 162 162.7 174.8L171.1 206.3L103.5 167.3C92 160.6 77.3 164.5 70.7 176C64.1 187.5 68 202.2 79.5 208.8L147.1 247.8L115.6 256.2C102.8 259.6 95.2 272.8 98.6 285.6C102 298.4 115.2 306 128 302.6L205.8 281.7L272 319.9L205.8 358.1L128 337.2C115.2 333.8 102 341.4 98.6 354.2C95.2 367 102.8 380.2 115.6 383.6L147.1 392L79.5 431C68 437.8 64.1 452.5 70.7 464C77.3 475.5 92 479.4 103.5 472.8L171.1 433.8L162.7 465.3C159.3 478.1 166.9 491.3 179.7 494.7C192.5 498.1 205.7 490.5 209.1 477.7L230 399.9L296.2 361.7L296.2 438.2L239.2 495.2C229.8 504.6 229.8 519.8 239.2 529.1C248.6 538.4 263.8 538.5 273.1 529.1L296.1 506.1L296.1 584.2C296.1 597.5 306.8 608.2 320.1 608.2C333.4 608.2 344.1 597.5 344.1 584.2L344.1 506.1L367.1 529.1C376.5 538.5 391.7 538.5 401 529.1C410.3 519.7 410.4 504.5 401 495.2L344 438.2L344 361.7L410.2 399.9L431.1 477.7C434.5 490.5 447.7 498.1 460.5 494.7C473.3 491.3 480.9 478.1 477.5 465.3L469.1 433.8L536.7 472.8C548.2 479.4 562.9 475.5 569.5 464C576.1 452.5 572.2 437.8 560.7 431.2L493.1 392.2L524.6 383.8C537.4 380.4 545 367.2 541.6 354.4C538.2 341.6 525 334 512.2 337.4L434.4 358.3L368.2 320.1L434.4 281.9L512.2 302.8C525 306.2 538.2 298.6 541.6 285.8C545 273 537.4 259.8 524.6 256.4L493.1 248L560.7 209C572.2 202.4 576.1 187.7 569.5 176.2C562.9 164.7 548.2 160.8 536.7 167.4L469.1 206.4L477.5 174.9C480.9 162.1 473.3 148.9 460.5 145.5C447.7 142.1 434.5 149.7 431.1 162.5L410.2 240.3L344 278.5L344 202L401 145C410.4 135.6 410.4 120.4 401 111.1C391.6 101.8 376.4 101.7 367.1 111.1L344.1 134.1L344.1 56z" transform="scale(.0375)" fill="currentColor" stroke="none"/>',
+    powder: '<path d="M344.1 56C344.1 42.7 333.4 32 320.1 32C306.8 32 296.1 42.7 296.1 56L296.1 134.1L273.1 111.1C263.7 101.7 248.5 101.7 239.2 111.1C229.9 120.5 229.8 135.7 239.2 145L296.2 202L296.2 278.5L230 240.3L209.1 162.5C205.7 149.7 192.5 142.1 179.7 145.5C166.9 148.9 159.2 162 162.7 174.8L171.1 206.3L103.5 167.3C92 160.6 77.3 164.5 70.7 176C64.1 187.5 68 202.2 79.5 208.8L147.1 247.8L115.6 256.2C102.8 259.6 95.2 272.8 98.6 285.6C102 298.4 115.2 306 128 302.6L205.8 281.7L272 319.9L205.8 358.1L128 337.2C115.2 333.8 102 341.4 98.6 354.2C95.2 367 102.8 380.2 115.6 383.6L147.1 392L79.5 431C68 437.8 64.1 452.5 70.7 464C77.3 475.5 92 479.4 103.5 472.8L171.1 433.8L162.7 465.3C159.3 478.1 166.9 491.3 179.7 494.7C192.5 498.1 205.7 490.5 209.1 477.7L230 399.9L296.2 361.7L296.2 438.2L239.2 495.2C229.8 504.6 229.8 519.8 239.2 529.1C248.6 538.4 263.8 538.5 273.1 529.1L296.1 506.1L296.1 584.2C296.1 597.5 306.8 608.2 320.1 608.2C333.4 608.2 344.1 597.5 344.1 584.2L344.1 506.1L367.1 529.1C376.5 538.5 391.7 538.5 401 529.1C410.3 519.7 410.4 504.5 401 495.2L344 438.2L344 361.7L410.2 399.9L431.1 477.7C434.5 490.5 447.7 498.1 460.5 494.7C473.3 491.3 480.9 478.1 477.5 465.3L469.1 433.8L536.7 472.8C548.2 479.4 562.9 475.5 569.5 464C576.1 452.5 572.2 437.8 560.7 431.2L493.1 392.2L524.6 383.8C537.4 380.4 545 367.2 541.6 354.4C538.2 341.6 525 334 512.2 337.4L434.4 358.3L368.2 320.1L434.4 281.9L512.2 302.8C525 306.2 538.2 298.6 541.6 285.8C545 273 537.4 259.8 524.6 256.4L493.1 248L560.7 209C572.2 202.4 576.1 187.7 569.5 176.2C562.9 164.7 548.2 160.8 536.7 167.4L469.1 206.4L477.5 174.9C480.9 162.1 473.3 148.9 460.5 145.5C447.7 142.1 434.5 149.7 431.1 162.5L410.2 240.3L344 278.5L344 202L401 145C410.4 135.6 410.4 120.4 401 111.1C391.6 101.8 376.4 101.7 367.1 111.1L344.1 134.1L344.1 56z" transform="scale(.0375)" fill="currentColor" stroke="none"/>',
     foehn: '<path d="M2.5 20.5 9 11l3.5 4.5L15 12l6.5 8.5" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 9.5c1.6-2.2 3.6-2.6 5.5-1.2 1.4-2.4 4.4-2.6 6-.4 1.4-.8 3.2-.4 4 1" stroke="currentColor" stroke-width="1.8"/>' };
   const BNAME = { bluebird: "Bluebird", snow: "Bude sypat", powder: "Powder alert", foehn: "Fénová stěna" };
   if (SB.run) {

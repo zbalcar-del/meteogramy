@@ -233,7 +233,7 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .bb-btn.foehn:hover, .bb-btn.foehn[aria-expanded="true"] { box-shadow: 0 0 0 3px rgba(94,92,230,.13), 0 1px 2px rgba(75,63,196,.08); }
 .bb-btn svg { width: 16px; height: 16px; flex: 0 0 auto; overflow: visible; }
 .bb-btn .spin { transform-origin: 12px 12px; animation: bb-spin 14s linear infinite; }
-.bb-btn.powder .spin { transform-origin: 10px 11px; animation-duration: 20s; }
+.bb-btn.powder .spin { transform-origin: 12px 12px; animation-duration: 20s; }
 .bb-btn.snow .spin { animation: none; }
 .bb-btn::after { content: ""; position: absolute; inset: 0; transform: translateX(-120%);
   background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.75) 50%, transparent 70%); animation: bb-shine 1.4s .6s var(--ease) 1 forwards; }
@@ -532,6 +532,20 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .sinfo > div { background: var(--paper); border-radius: 18px; padding: 20px 24px;
   box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.04), 0 8px 28px rgba(0,0,0,.05); }
 .sinfo h2 { font-size: 17px; letter-spacing: -.01em; margin: 0 0 10px; }
+/* partnerská karta pod předpovědí po dnech: na desktopu vyplní levý sloupec až po spodek pravého (řádek 1fr dostane jen zbytek) */
+.sinfo:has(> .promo) { grid-template-rows: auto 1fr; }
+.sinfo > .promo { grid-column: 1; grid-row: 2; align-self: stretch; min-height: 180px; margin: 0; position: relative; overflow: hidden; border-radius: 18px;
+  background: var(--paper); box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.04), 0 8px 28px rgba(0,0,0,.05); }
+.sinfo > .promo { background: #1c2128; }
+.sinfo > .promo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1.2s var(--ease); }
+.sinfo > .promo:hover img { transform: scale(1.03); }
+/* text přes fotku stejně jako věnování na stránce O projektu (.about .dedic) */
+.sinfo > .promo figcaption { position: absolute; inset: auto 0 0; display: flex; flex-direction: column; gap: 6px; padding: 64px 24px 22px;
+  background: linear-gradient(180deg, rgba(10,14,20,0), rgba(10,14,20,.62)); color: #fff; }
+.sinfo > .promo b { font-size: 26px; line-height: 1.1; letter-spacing: -.025em; font-weight: 700; text-wrap: balance; }
+.sinfo > .promo .tag { font-size: 15px; font-weight: 600; color: rgba(255,255,255,.86); }
+.sinfo > .promo small { position: absolute; right: 20px; bottom: 22px; font-size: 12px; color: rgba(255,255,255,.6); }
+.sinfo:has(> .promo) > div:nth-child(2) { grid-column: 2; grid-row: 1 / span 2; }
 .sinfo h2 + .near { margin-top: 2px; }
 .sinfo p { margin: 0 0 16px; font-size: 14.5px; line-height: 1.55; color: #424245; text-wrap: pretty; }
 /* technické údaje o stanici: řádky popisek – hodnota */
@@ -574,6 +588,9 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
   .rc b { font-size: 15px; }
   .sinfo { grid-template-columns: minmax(0, 1fr); gap: var(--card-gap); margin-top: var(--card-gap); }
   .sinfo > div { padding: 16px; }
+  .sinfo > .promo { display: none; }
+  .sinfo:has(> .promo) { grid-template-rows: none; }
+  .sinfo:has(> .promo) > div:nth-child(2) { grid-column: auto; grid-row: auto; }
   .days { font-size: 13px; }
   .days .hm { display: none; }
 }
@@ -1403,15 +1420,24 @@ function niceRange(vals, step, minSpan) {
   while (hi - lo < minSpan) { hi += step; if (hi - lo < minSpan) lo -= step; }
   return [lo, hi];
 }
+// osa y s nejvýš maxTicks popisky: první krok z nabídky, při kterém se rozsah vejde
+function niceAxis(vals, steps, minSpan, maxTicks = 5) {
+  for (const step of steps) {
+    const [lo, hi] = niceRange(vals, step, minSpan);
+    if ((hi - lo) / step + 1 <= maxTicks || step === steps[steps.length - 1]) return [lo, hi, step];
+  }
+}
 const ticks = (lo, hi, step) => { const t = []; for (let v = lo; v <= hi + 1e-9; v += step) t.push(+v.toFixed(6)); return t; };
 
+// vločka webu (assets/icons/snowflake-regular-full.svg, Font Awesome Free, mřížka 640) pro štítky Bude sypat a Powder alert
+const FLAKE = `M344.1 56C344.1 42.7 333.4 32 320.1 32C306.8 32 296.1 42.7 296.1 56L296.1 134.1L273.1 111.1C263.7 101.7 248.5 101.7 239.2 111.1C229.9 120.5 229.8 135.7 239.2 145L296.2 202L296.2 278.5L230 240.3L209.1 162.5C205.7 149.7 192.5 142.1 179.7 145.5C166.9 148.9 159.2 162 162.7 174.8L171.1 206.3L103.5 167.3C92 160.6 77.3 164.5 70.7 176C64.1 187.5 68 202.2 79.5 208.8L147.1 247.8L115.6 256.2C102.8 259.6 95.2 272.8 98.6 285.6C102 298.4 115.2 306 128 302.6L205.8 281.7L272 319.9L205.8 358.1L128 337.2C115.2 333.8 102 341.4 98.6 354.2C95.2 367 102.8 380.2 115.6 383.6L147.1 392L79.5 431C68 437.8 64.1 452.5 70.7 464C77.3 475.5 92 479.4 103.5 472.8L171.1 433.8L162.7 465.3C159.3 478.1 166.9 491.3 179.7 494.7C192.5 498.1 205.7 490.5 209.1 477.7L230 399.9L296.2 361.7L296.2 438.2L239.2 495.2C229.8 504.6 229.8 519.8 239.2 529.1C248.6 538.4 263.8 538.5 273.1 529.1L296.1 506.1L296.1 584.2C296.1 597.5 306.8 608.2 320.1 608.2C333.4 608.2 344.1 597.5 344.1 584.2L344.1 506.1L367.1 529.1C376.5 538.5 391.7 538.5 401 529.1C410.3 519.7 410.4 504.5 401 495.2L344 438.2L344 361.7L410.2 399.9L431.1 477.7C434.5 490.5 447.7 498.1 460.5 494.7C473.3 491.3 480.9 478.1 477.5 465.3L469.1 433.8L536.7 472.8C548.2 479.4 562.9 475.5 569.5 464C576.1 452.5 572.2 437.8 560.7 431.2L493.1 392.2L524.6 383.8C537.4 380.4 545 367.2 541.6 354.4C538.2 341.6 525 334 512.2 337.4L434.4 358.3L368.2 320.1L434.4 281.9L512.2 302.8C525 306.2 538.2 298.6 541.6 285.8C545 273 537.4 259.8 524.6 256.4L493.1 248L560.7 209C572.2 202.4 576.1 187.7 569.5 176.2C562.9 164.7 548.2 160.8 536.7 167.4L469.1 206.4L477.5 174.9C480.9 162.1 473.3 148.9 460.5 145.5C447.7 142.1 434.5 149.7 431.1 162.5L410.2 240.3L344 278.5L344 202L401 145C410.4 135.6 410.4 120.4 401 111.1C391.6 101.8 376.4 101.7 367.1 111.1L344.1 134.1L344.1 56z`;
 const ICONS = {
   thermo: '<path d="M10 14V5a2 2 0 1 1 4 0v9a4 4 0 1 1-4 0z"/>',
   wind: '<path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/>',
   range: '<path d="M12 3v18M8 7l4-4 4 4M8 17l4 4 4-4"/>',
   gust: '<path d="M3 7h9a3 3 0 1 0-3-3M3 12h13M3 17h9a3 3 0 1 1-3 3"/>',
   drop: '<path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/>',
-  flake: '<path d="M12 2v20M3.3 7l17.4 10M3.3 17l17.4-10M9 3l3 3 3-3M9 21l3-3 3 3"/>',
+  flake: `<path d="${FLAKE}" transform="scale(.0375)" fill="currentColor" stroke="none"/>`,
   inv: '<circle cx="12" cy="8" r="3.5"/><path d="M3 15.5h18M5 19.5h14"/>',
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
 };
@@ -1553,11 +1579,10 @@ function loadSnowObs() {
 const BADGE_ICON = {
   sun: `<circle cx="12" cy="12" r="4.2" fill="#ffcc00" stroke="#f5a400" stroke-width="1.4"/>` +
     `<g class="spin" stroke="#f5a400" stroke-width="1.8"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g>`,
-  flake: `<g class="spin" stroke="currentColor" stroke-width="1.8"><path d="M12 2.5v19M3.8 7.25l16.4 9.5M3.8 16.75l16.4-9.5M9.5 3.8 12 6.3l2.5-2.5M9.5 20.2 12 17.7l2.5 2.5"/></g>`,
+  flake: `<g class="spin"><path d="${FLAKE}" transform="scale(.0375)" fill="currentColor" stroke="none"/></g>`,
   inv: `<circle cx="12" cy="8" r="3.4" fill="currentColor" stroke="none" opacity=".9"/>` +
     `<path d="M3 15.5h18M5 19h14" stroke="currentColor" stroke-width="1.9"/>`,
-  powder: `<g class="spin" stroke="currentColor" stroke-width="1.8"><path d="M10 3.5v15M3.5 7.25l13 7.5M3.5 14.75l13-7.5M7.8 4.6 10 6.6l2.2-2"/></g>` +
-    `<path d="M19 15.5v5M16.5 18h5" stroke="currentColor" stroke-width="1.6"/><path d="M19.5 3.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" fill="currentColor" stroke="none"/>`,
+  powder: `<g class="spin"><path d="${FLAKE}" transform="scale(.0375)" fill="currentColor" stroke="none"/></g>`,
 };
 BADGE_ICON.foehn = `<path d="M2.5 20.5 9 11l3.5 4.5L15 12l6.5 8.5" stroke="currentColor" stroke-width="1.8"/>` +
   `<path d="M3.5 9.5c1.6-2.2 3.6-2.6 5.5-1.2 1.4-2.4 4.4-2.6 6-.4 1.4-.8 3.2-.4 4 1" stroke="currentColor" stroke-width="1.8"/>` +
@@ -1809,7 +1834,8 @@ function render() {
       s += text(L + pw + 5, yy + 3.5, String(t), { a: "start", c: right.c });
     }
     for (let i = 0; i < n; i++) {
-      const xx = x(i) - bw / 2;
+      // čára hodiny vede přesně bodem té hodiny (křivky i kurzor leží na x(i)), ne na okraji hodinového sloupce
+      const xx = x(i);
       if (lt[i].hour === 0) {
         s += `<line x1="${xx}" x2="${xx}" y1="${p.top - 4}" y2="${p.top + p.h}" stroke="${C.frame}" stroke-width="1"/>`;
         s += text(xx, p.top - 7, `${lt[i].day}. ${lt[i].month}. ${lt[i].wd}`, { c: C.ink, w: 600 });
@@ -1827,9 +1853,9 @@ function render() {
   const close = p => { s += `<rect x="${L}" y="${p.top}" width="${pw}" height="${p.h}" fill="none" stroke="${C.frame}"/>`; };
 
   // 1 teplota
-  let [lo, hi] = niceRange(T, 2, 6);
+  let [lo, hi, st] = niceAxis(T, [2, 3, 4, 5, 10], 6);
   legend(pT, "Teplota", [["line", C.temp, "2 m nad zemí [°C]"]]);
-  let Y = frame(pT, lo, hi, hi - lo > 16 ? 4 : 2, "[°C]");
+  let Y = frame(pT, lo, hi, st, "[°C]");
   if (lo < 0 && hi > 0) s += `<line x1="${L}" x2="${L + pw}" y1="${Y(0)}" y2="${Y(0)}" stroke="${C.frame}" stroke-width="1"/>`;
   for (const c of conds) if (c.target === "temp") for (const d of c.bands) {
     const x0 = x(d.i0) - bw / 2, x1 = x(d.i1) + bw / 2;
@@ -1879,9 +1905,9 @@ function render() {
   close(pP);
 
   // 4 tlak
-  [lo, hi] = niceRange(m.mslp, 4, 8);
+  [lo, hi, st] = niceAxis(m.mslp, [4, 5, 10], 8);
   legend(pM, "Tlak", [["line", C.pres, "přepočtený na hladinu moře [hPa]"]]);
-  Y = frame(pM, lo, hi, 4, "[hPa]");
+  Y = frame(pM, lo, hi, st, "[hPa]");
   s += line(m.mslp, Y, C.pres);
   close(pM);
 
@@ -2111,18 +2137,21 @@ async function home() {
       const a = slopes[i - 1], b = slopes[i];
       return a * b <= 0 ? 0 : 2 * a * b / (a + b);
     });
-    let curve = `M${X(0).toFixed(2)} ${ys[0].toFixed(2)}`;
+    // křivka vede od levé po pravou hranu grafu: krajní půlhodiny pokračují ve směru krajních hodin
+    const xL = left, xR = W - right, yL = ys[0] - tangents[0] * step / 2, yR = ys[n - 1] + tangents[n - 1] * step / 2;
+    let curve = `M${xL} ${yL.toFixed(2)}L${X(0).toFixed(2)} ${ys[0].toFixed(2)}`;
     for (let i = 1; i < n; i++) {
       curve += `C${(X(i - 1) + step / 3).toFixed(2)} ${(ys[i - 1] + tangents[i - 1] * step / 3).toFixed(2)} ` +
         `${(X(i) - step / 3).toFixed(2)} ${(ys[i] - tangents[i] * step / 3).toFixed(2)} ${X(i).toFixed(2)} ${ys[i].toFixed(2)}`;
     }
+    curve += `L${xR} ${yR.toFixed(2)}`;
     const color = temperatureColor;
     let sp = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs>` +
       `<clipPath id="hcplot"><rect x="${left}" y="${top}" width="${plotW}" height="${bot - top}" rx="5"/></clipPath>` +
       `<linearGradient id="hct" gradientUnits="userSpaceOnUse" x1="0" y1="${top}" x2="0" y2="${bot}">` +
       `<stop stop-color="${color(hi)}"/><stop offset=".5" stop-color="${color((lo + hi) / 2)}"/><stop offset="1" stop-color="${color(lo)}"/></linearGradient>` +
       `<linearGradient id="hcnight" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e9eef6" stop-opacity=".8"/><stop offset="1" stop-color="#f3f6fa" stop-opacity=".4"/></linearGradient>` +
-      `<linearGradient id="hcfade" x1="0" y1="0" x2="0" y2="1"><stop stop-color="${color(hi)}" stop-opacity=".10"/><stop offset="1" stop-color="${color(lo)}" stop-opacity="0"/></linearGradient></defs>` +
+            `<linearGradient id="hcfade" x1="0" y1="0" x2="0" y2="1"><stop stop-color="${color(hi)}" stop-opacity=".10"/><stop offset="1" stop-color="${color(lo)}" stop-opacity="0"/></linearGradient></defs>` +
       `<g clip-path="url(#hcplot)">`;
     // Noc se řídí souřadnicemi stanice; sloučené úseky nemají mezery mezi hodinami.
     let nightStart = null;
@@ -2134,12 +2163,9 @@ async function home() {
         nightStart = null;
       }
     }
-    for (const v of [lo, (lo + hi) / 2, hi]) {
-      if (v !== 0) sp += `<line x1="${left}" x2="${W - right}" y1="${Y(v)}" y2="${Y(v)}" stroke="#e4e8ee" stroke-width=".5" stroke-dasharray="1 4"/>`;
-    }
-    // nulová čára výrazněji (i když 0° není popsaný krok stupnice)
-    if (lo <= 0 && hi >= 0) sp += `<line x1="${left}" x2="${W - right}" y1="${Y(0)}" y2="${Y(0)}" stroke="#aeb7c4" stroke-width=".8" stroke-dasharray="4 3"/>`;
-    sp += `<path d="${curve}L${X(n - 1)} ${bot}L${X(0)} ${bot}Z" fill="url(#hcfade)"/>` +
+    // jediná vodorovná čára: nula, jemně tečkovaná, stejně jako v aplikaci (HomeView.swift)
+    if (lo <= 0 && hi >= 0) sp += `<line x1="${left}" x2="${W - right}" y1="${Y(0)}" y2="${Y(0)}" stroke="#3c3c43" stroke-opacity=".25" stroke-width=".6" stroke-linecap="round" stroke-dasharray="1 2.5"/>`;
+    sp += `<path d="${curve}L${xR} ${bot}L${xL} ${bot}Z" fill="url(#hcfade)"/>` +
       `<path d="${curve}" fill="none" stroke="url(#hct)" stroke-width="1.65" stroke-linecap="round"/>` +
       `<circle cx="${X(i0)}" cy="${Y(T[i0])}" r="4.1" fill="${color(T[i0])}" fill-opacity=".12"/>` +
       `<circle cx="${X(i0)}" cy="${Y(T[i0])}" r="2.5" fill="${color(T[i0])}" stroke="#fff" stroke-width="1.3"/></g>`;
@@ -2243,6 +2269,10 @@ const km = (a, b) => {
   const r = Math.PI / 180, x = (b.lon - a.lon) * r * Math.cos((a.lat + b.lat) / 2 * r), y = (b.lat - a.lat) * r;
   return Math.hypot(x, y) * 6371;
 };
+// partnerská karta (zatím jen fotka, jen lokálně na desktopu)
+const PROMO = location.hostname === "meteogramy.cz" ? "" :
+  `<figure class="promo" aria-hidden="true"><img src="/assets/partner/8a-evergreen-1200x628.webp" alt="" width="1200" height="628" loading="lazy" decoding="async">` +
+  `<figcaption><b>Lorem ipsum dolor sit amet.</b><span class="tag">Consectetur adipiscing elit →</span><small>Reklama</small></figcaption></figure>`;
 function stationInfo(m) {
   const dz = state.corr ? m.alt - m.node.alt : 0, run = local(new Date(state.data.run));
   const rowsHtml = daily(m, dz).map(g => `<tr><td>${g.label}${g.from > 0 ? ` <small>od ${g.from} h</small>` : ""}</td>` +
@@ -2273,7 +2303,7 @@ function stationInfo(m) {
       ["Veličiny", "teplota, vítr a nárazy, srážky, sníh, vlhkost, tlak, oblačnost"],
     ].map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>` +
     `<h2>${resort ? "Střediska" : "Stanice"} v okolí</h2><nav class="near" aria-label="${resort ? "Střediska" : "Stanice"} v okolí">${near.map(p => `<a href="/${p.id}/">${p.name} <small>${p.alt} m</small></a>`).join("")}</nav>` +
-    (rangePage ? `<a class="more" href="/${slug(m.range)}/">${resort ? "Střediska a stanice" : "Všechny stanice"}: ${m.range} →</a>` : "") + `</div>`;
+    (rangePage ? `<a class="more" href="/${slug(m.range)}/">${resort ? "Střediska a stanice" : "Všechny stanice"}: ${m.range} →</a>` : "") + `</div>` + PROMO;
 }
 
 const PAGES = { "/lavinova-predpoved/": "Lavinová předpověď – Krkonoše a Jeseníky | Meteogramy.cz", "/snehove-zpravodajstvi/": "Sněhové zpravodajství – výška sněhu na horách | Meteogramy.cz", "/o-projektu/": "O projektu – Meteogramy.cz", "/aladin/": "Meteogramy ALADIN – předpověď modelu ALADIN pro české hory | Meteogramy.cz", "/ochrana-soukromi/": "Ochrana soukromí – Meteogramy.cz", "/zimy-na-horach/": "Zimy na horách – Krkonoše a Hrubý Jeseník | Meteogramy.cz" };
