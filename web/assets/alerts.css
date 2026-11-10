@@ -66,8 +66,8 @@
 .hs-card[hidden] { display: none; }
 .hs-list { margin-top: 18px; }
 .hs-list .alerts-item:first-child { border-top: 0; padding-top: 0; }
-/* poslední zpráva bez spodního odsazení: mezera k patičce je stejná jako u karty výstrah (22 px) */
-.hs-list .alerts-item:last-child { padding-bottom: 0; }
+/* poslední položka (výstraha i zpráva HS) bez spodního odsazení: mezera k patičce je jen 22 px okraje patičky */
+.alerts-list .alerts-item:last-child { padding-bottom: 0; }
 .hs-list a { color: inherit; text-decoration: none; }
 .hs-list a:hover h3 { text-decoration: underline; }
 .hs-list .alerts-areas { color: #3a3a3c; }
