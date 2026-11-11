@@ -241,6 +241,15 @@ def main():
         # široká mapa 16 : 9 pro záhlaví stránky pohoří: víc okolí, štítek v menším měřítku
         wide = render(name, stations, dem, COLORS[k % len(COLORS)], (0.5 + (spot[0] - 0.5) * 0.6, 0.62), 800, 450, 14)
         (OUT / f'{slug(name)}-siroka.svg').write_text(wide)
+        # Zimy v číslech začínají první stanicí s historií měření; když to není nejvyšší stanice
+        # pohoří, dostane stránka vlastní širokou mapu kolem ní
+        hist = ROOT / 'web' / 'data' / 'historie' / f'{slug(name)}.json'
+        if hist.exists():
+            first = json.loads(hist.read_text())['stations'][0]['id']
+            if first != stations[0]['id']:
+                order = [p for p in stations if p['id'] == first] + [p for p in stations if p['id'] != first]
+                zimy = render(name, order, dem, COLORS[k % len(COLORS)], (0.5 + (spot[0] - 0.5) * 0.6, 0.62), 800, 450, 14)
+                (OUT / f'{slug(name)}-zimy.svg').write_text(zimy)
         print(f'{name}: {len(svg) // 1024} kB', flush=True)
 
 
