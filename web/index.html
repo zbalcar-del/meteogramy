@@ -532,20 +532,6 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
 .sinfo > div { background: var(--paper); border-radius: 18px; padding: 20px 24px;
   box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.04), 0 8px 28px rgba(0,0,0,.05); }
 .sinfo h2 { font-size: 17px; letter-spacing: -.01em; margin: 0 0 10px; }
-/* partnerská karta pod předpovědí po dnech: na desktopu vyplní levý sloupec až po spodek pravého (řádek 1fr dostane jen zbytek) */
-.sinfo:has(> .promo) { grid-template-rows: auto 1fr; }
-.sinfo > .promo { grid-column: 1; grid-row: 2; align-self: stretch; min-height: 180px; margin: 0; position: relative; overflow: hidden; border-radius: 18px;
-  background: var(--paper); box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.04), 0 8px 28px rgba(0,0,0,.05); }
-.sinfo > .promo { background: #1c2128; }
-.sinfo > .promo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1.2s var(--ease); }
-.sinfo > .promo:hover img { transform: scale(1.03); }
-/* text přes fotku stejně jako věnování na stránce O projektu (.about .dedic) */
-.sinfo > .promo figcaption { position: absolute; inset: auto 0 0; display: flex; flex-direction: column; gap: 6px; padding: 64px 24px 22px;
-  background: linear-gradient(180deg, rgba(10,14,20,0), rgba(10,14,20,.62)); color: #fff; }
-.sinfo > .promo b { font-size: 26px; line-height: 1.1; letter-spacing: -.025em; font-weight: 700; text-wrap: balance; }
-.sinfo > .promo .tag { font-size: 15px; font-weight: 600; color: rgba(255,255,255,.86); }
-.sinfo > .promo small { position: absolute; right: 20px; bottom: 22px; font-size: 12px; color: rgba(255,255,255,.6); }
-.sinfo:has(> .promo) > div:nth-child(2) { grid-column: 2; grid-row: 1 / span 2; }
 .sinfo h2 + .near { margin-top: 2px; }
 .sinfo p { margin: 0 0 16px; font-size: 14.5px; line-height: 1.55; color: #424245; text-wrap: pretty; }
 /* technické údaje o stanici: řádky popisek – hodnota */
@@ -588,9 +574,6 @@ select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--line); bord
   .rc b { font-size: 15px; }
   .sinfo { grid-template-columns: minmax(0, 1fr); gap: var(--card-gap); margin-top: var(--card-gap); }
   .sinfo > div { padding: 16px; }
-  .sinfo > .promo { display: none; }
-  .sinfo:has(> .promo) { grid-template-rows: none; }
-  .sinfo:has(> .promo) > div:nth-child(2) { grid-column: auto; grid-row: auto; }
   .days { font-size: 13px; }
   .days .hm { display: none; }
 }
@@ -2278,10 +2261,6 @@ const km = (a, b) => {
   const r = Math.PI / 180, x = (b.lon - a.lon) * r * Math.cos((a.lat + b.lat) / 2 * r), y = (b.lat - a.lat) * r;
   return Math.hypot(x, y) * 6371;
 };
-// partnerská karta (zatím jen fotka, jen lokálně na desktopu)
-const PROMO = location.hostname === "meteogramy.cz" ? "" :
-  `<figure class="promo" aria-hidden="true"><img src="/assets/partner/8a-evergreen-1200x628.webp" alt="" width="1200" height="628" loading="lazy" decoding="async">` +
-  `<figcaption><b>Lorem ipsum dolor sit amet.</b><span class="tag">Consectetur adipiscing elit →</span><small>Reklama</small></figcaption></figure>`;
 function stationInfo(m) {
   const dz = state.corr ? m.alt - m.node.alt : 0, run = local(new Date(state.data.run));
   const rowsHtml = daily(m, dz).map(g => `<tr><td>${g.label}${g.from > 0 ? ` <small>od ${g.from} h</small>` : ""}</td>` +
@@ -2312,7 +2291,7 @@ function stationInfo(m) {
       ["Veličiny", "teplota, vítr a nárazy, srážky, sníh, vlhkost, tlak, oblačnost"],
     ].map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>` +
     `<h2>${resort ? "Střediska" : "Stanice"} v okolí</h2><nav class="near" aria-label="${resort ? "Střediska" : "Stanice"} v okolí">${near.map(p => `<a href="/${p.id}/">${p.name} <small>${p.alt} m</small></a>`).join("")}</nav>` +
-    (rangePage ? `<a class="more" href="/${slug(m.range)}/">${resort ? "Střediska a stanice" : "Všechny stanice"}: ${m.range} →</a>` : "") + `</div>` + PROMO;
+    (rangePage ? `<a class="more" href="/${slug(m.range)}/">${resort ? "Střediska a stanice" : "Všechny stanice"}: ${m.range} →</a>` : "") + `</div>`;
 }
 
 const PAGES = { "/lavinova-predpoved/": "Lavinová předpověď – Krkonoše a Jeseníky | Meteogramy.cz", "/snehove-zpravodajstvi/": "Sněhové zpravodajství – výška sněhu na horách | Meteogramy.cz", "/o-projektu/": "O projektu – Meteogramy.cz", "/aladin/": "Meteogramy ALADIN – předpověď modelu ALADIN pro české hory | Meteogramy.cz", "/ochrana-soukromi/": "Ochrana soukromí – Meteogramy.cz", "/zimy-na-horach/": "Zimy na horách – Krkonoše a Hrubý Jeseník | Meteogramy.cz" };

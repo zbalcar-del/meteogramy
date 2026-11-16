@@ -24,3 +24,7 @@ web/_t*.html
 secrets*
 # adresa pro přihlašovací kódy správy webu (na hostingu leží mimo public_html)
 meteogramy-admin.txt
+
+# podklady partnerů a reklam nepatří do veřejného repozitáře
+design/partner/
+web/assets/partner/
