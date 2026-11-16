@@ -4,6 +4,7 @@ Plánovaný běh (každou hodinu; cron GitHubu nebo externí repository_dispatch
 Push nebo ruční spuštění navíc nasadí statické soubory z web/ a stránky vygeneruje vždy.
 """
 
+from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import json
 import os
@@ -21,6 +22,8 @@ SKIP = ('data/', 'api/stats/')
 # otisky nahraných souborů na hostingu; nahrává se jen to, co se od minula změnilo
 MANIFEST = '.deploy-manifest.json'
 RUN = re.compile(r'20\d{8}')
+# souběžná spojení SFTP pro nahrávání (OpenSSH jich v jednom připojení výchozí povolí 10)
+WORKERS = 4
 
 
 def read_runs(raw):
@@ -38,21 +41,60 @@ def remote_runs(sftp):
 
 
 def restore(sftp):
-    """Obnoví všechny publikované běhy. Potřeba jen před publikací nového běhu: fetch z nich skládá
-    seznam běhů pro výběr na webu a nestahuje znovu stejné GRIB soubory."""
+    """Obnoví seznam míst a souhrn publikovaných běhů. Potřeba jen před publikací nového běhu: fetch z nich
+    skládá seznam běhů pro výběr na webu a nestahuje znovu stejné GRIB soubory. Časové řady míst ze starších
+    běhů čte jen prohlížeč přímo z hostingu, proto se nestahují (dříve stovky souborů na běh a desítky minut)."""
     DATA.mkdir(parents=True, exist_ok=True)
     raw, runs = remote_runs(sftp)
     for run in runs:
         dest = DATA / run
         dest.mkdir(exist_ok=True)
-        for entry in sftp.listdir_attr(run):
-            name = entry.filename
-            if stat.S_ISREG(entry.st_mode) and re.fullmatch(r'[a-z0-9-]+\.json', name):
+        try:
+            for name in ('index.json', 'summary.json'):
                 sftp.get(f'{run}/{name}', str(dest / name))
-        if not (dest / 'index.json').exists() or not (dest / 'summary.json').exists():
-            raise RuntimeError(f'Neúplná publikovaná data běhu {run}.')
+        except OSError as error:
+            raise RuntimeError(f'Neúplná publikovaná data běhu {run}.') from error
     (DATA / 'index.json').write_bytes(raw)
     return runs
+
+
+def put_parallel(sftp, pairs, atomic):
+    """Nahraje [(místní soubor, cesta na hostingu)] přes několik souběžných spojení SFTP; každý přenos přes oceán
+    jinak čeká na odezvu zvlášť. Když hosting další spojení nepovolí, nahrává se jen hlavním spojením.
+    S atomic se soubor přepne na své místo až po úplném přenosu."""
+    import paramiko
+
+    cwd = sftp.getcwd()
+    channel = sftp.get_channel()
+    extra = []
+    if channel is not None and len(pairs) > 1:
+        transport = channel.get_transport()
+        for _ in range(min(WORKERS, len(pairs)) - 1):
+            try:
+                extra.append(paramiko.SFTPClient.from_transport(transport))
+            except Exception as error:
+                print(f'Další spojení SFTP nepovoleno ({error}); pokračuji s {len(extra) + 1}.', flush=True)
+                break
+    try:
+        for client in extra:
+            client.chdir(cwd)
+        clients = [sftp, *extra]
+
+        def work(i):
+            client = clients[i]
+            for source, remote in pairs[i::len(clients)]:
+                if atomic:
+                    client.put(str(source), remote + '.uploading')
+                    client.posix_rename(remote + '.uploading', remote)
+                else:
+                    client.put(str(source), remote)
+
+        with ThreadPoolExecutor(len(clients)) as pool:
+            for future in [pool.submit(work, i) for i in range(len(clients))]:
+                future.result()
+    finally:
+        for client in extra:
+            client.close()
 
 
 def restore_latest(sftp, raw, runs):
@@ -83,8 +125,7 @@ def publish(sftp, previous_runs):
             # Adresář mohl zůstat po přerušeném přenosu. Soubory znovu přepíšeme.
             if not stat.S_ISDIR(sftp.stat(run).st_mode):
                 raise
-        for source in sorted((DATA / run).glob('*.json')):
-            sftp.put(str(source), f'{run}/{source.name}')
+        put_parallel(sftp, [(source, f'{run}/{source.name}') for source in sorted((DATA / run).glob('*.json'))], atomic=False)
     sftp.put(str(DATA / 'index.json'), '.index.json.uploading')
     # OpenSSH posix-rename nahradí index jednou operací. Bez podpory bezpečně selže.
     sftp.posix_rename('.index.json.uploading', 'index.json')
@@ -116,8 +157,7 @@ def upload(sftp, files):
                 if not stat.S_ISDIR(sftp.stat(d).st_mode):
                     raise
             dirs.add(d)
-        sftp.put(str(source), remote + '.uploading')
-        sftp.posix_rename(remote + '.uploading', remote)
+    put_parallel(sftp, [(source, remote) for remote, source in sorted(changed.items())], atomic=True)
     with sftp.open(MANIFEST + '.uploading', 'wb') as f:
         f.write(json.dumps({**known, **hashes}, sort_keys=True).encode())
     sftp.posix_rename(MANIFEST + '.uploading', MANIFEST)
