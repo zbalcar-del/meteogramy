@@ -8,6 +8,7 @@ Texty pod meteogramem musí odpovídat funkcím stationInfo() a rangeView() v in
 """
 
 from datetime import datetime, timedelta, timezone
+import hashlib
 from html import escape
 import json
 import math
@@ -277,7 +278,28 @@ def page(html, path, title, desc, about=None, modified=None, extra=()):
     return head(html, title, desc, path, [WEBSITE, web_page, *extra])
 
 
+def shared_assets(out, html):
+    """Hlavní styl a skript z index.html přesune do sdílených souborů /assets/app.<otisk>.css a .js.
+    Jsou stejné na všech stránkách, prohlížeč je stáhne jednou a po každém běhu modelu se nenahrávají znovu
+    se stovkami stránek. Otisk obsahu v názvu: hosting drží skripty v mezipaměti 7 dní a stránka tak vždy
+    dostane soubor, se kterým vznikla (staré soubory na hostingu zůstávají, nasazení nic nemaže)."""
+    for tag, ext, ref in (('style', 'css', '<link rel="stylesheet" href="/assets/{}">'),
+                          ('script', 'js', '<script src="/assets/{}"></script>')):
+        blocks = re.findall(rf'<{tag}>.*?</{tag}>', html, re.S)
+        assert len(blocks) == 1, tag
+        body = blocks[0][len(tag) + 2:-len(tag) - 3]
+        name = f'app.{hashlib.sha256(body.encode()).hexdigest()[:12]}.{ext}'
+        dest = out / 'assets' / name
+        if not dest.exists():
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_text(body)
+        html = html.replace(blocks[0], ref.format(name), 1)
+    return html
+
+
 def write(out, path, text):
+    if path.endswith('/'):
+        text = shared_assets(out, text)
     dest = out / path.strip('/') / 'index.html' if path.endswith('/') else out / path
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(text)

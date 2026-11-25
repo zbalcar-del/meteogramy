@@ -103,7 +103,8 @@ def upload(sftp, files):
     hashes = {remote: hashlib.sha256(Path(source).read_bytes()).hexdigest() for remote, source in files.items()}
     changed = {remote: source for remote, source in files.items() if known.get(remote) != hashes[remote]}
     dirs = set()
-    for remote, source in sorted(changed.items()):
+    # stránky až nakonec: sdílený styl a skript, na které odkazují, už na hostingu musí být
+    for remote, source in sorted(changed.items(), key=lambda item: (item[0].endswith('.html'), item[0])):
         parent = posixpath.dirname(remote)
         parts = parent.split('/') if parent else []
         for i in range(len(parts)):
@@ -124,6 +125,18 @@ def upload(sftp, files):
     print(f'Nahráno {len(changed)} změněných souborů z {len(files)}.', flush=True)
     for remote in sorted(changed):
         print(f'  {remote}', flush=True)
+
+
+def with_assets(files):
+    """Přidá sdílený styl a skript (build_pages.shared_assets), na které odkazují nahrávané stránky,
+    aby stránka obnovená mimo celé nasazení nikdy neodkazovala na soubor, který na hostingu ještě není.
+    Nezměněné soubory upload() přeskočí."""
+    out = dict(files)
+    for remote, source in files.items():
+        if remote.endswith('.html'):
+            for name in re.findall(r'/assets/(app\.[0-9a-f]+\.(?:css|js))', Path(source).read_text()):
+                out[f'assets/{name}'] = SITE / 'assets' / name
+    return out
 
 
 def site_files(static):
@@ -210,11 +223,11 @@ def main():
             build_pages.write_snow_page(SITE, DATA)
             with client.open_sftp() as sftp:
                 sftp.chdir(remote)
-                upload(sftp, {
+                upload(sftp, with_assets({
                     'snehove-zpravodajstvi/index.html': SITE / 'snehove-zpravodajstvi/index.html',
                     'data/snow-fragment.html': SITE / 'data/snow-fragment.html',
                     'data/snow.json': snow.OUT,
-                })
+                }))
         # Bez dostupného zdroje nevystavujeme dřívější stupeň jako dnešní bulletin.
         try:
             avalanche.main()
@@ -224,11 +237,11 @@ def main():
         build_pages.write_avalanche_page(SITE, DATA)
         with client.open_sftp() as sftp:
             sftp.chdir(remote)
-            upload(sftp, {
+            upload(sftp, with_assets({
                 'lavinova-predpoved/index.html': SITE / 'lavinova-predpoved/index.html',
                 'data/avalanche-fragment.html': SITE / 'data/avalanche-fragment.html',
                 'data/avalanche.json': avalanche.OUT,
-            })
+            }))
         runs = fetch.list_runs()
         needed = set(fetch.FIELDS) | {fetch.OROGRAPHY}
         complete = sorted((run for run, fields in runs.items() if needed <= fields.keys()), reverse=True)
